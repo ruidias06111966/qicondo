@@ -14,16 +14,332 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_log: {
+        Row: {
+          acao: string
+          condominio_id: string | null
+          created_at: string
+          entidade: string | null
+          entidade_id: string | null
+          id: string
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          acao: string
+          condominio_id?: string | null
+          created_at?: string
+          entidade?: string | null
+          entidade_id?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          acao?: string
+          condominio_id?: string | null
+          created_at?: string
+          entidade?: string | null
+          entidade_id?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_condominio_id_fkey"
+            columns: ["condominio_id"]
+            isOneToOne: false
+            referencedRelation: "condominios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      condominios: {
+        Row: {
+          cep: string | null
+          cidade: string | null
+          cnpj: string | null
+          codigo_publico: string
+          created_at: string
+          criado_por: string
+          endereco: string | null
+          estado: string | null
+          id: string
+          logo_url: string | null
+          nome: string
+          plano: Database["public"]["Enums"]["plano_tipo"]
+          total_unidades: number
+          updated_at: string
+          whatsapp_numero: string | null
+        }
+        Insert: {
+          cep?: string | null
+          cidade?: string | null
+          cnpj?: string | null
+          codigo_publico: string
+          created_at?: string
+          criado_por: string
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          logo_url?: string | null
+          nome: string
+          plano?: Database["public"]["Enums"]["plano_tipo"]
+          total_unidades?: number
+          updated_at?: string
+          whatsapp_numero?: string | null
+        }
+        Update: {
+          cep?: string | null
+          cidade?: string | null
+          cnpj?: string | null
+          codigo_publico?: string
+          created_at?: string
+          criado_por?: string
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          logo_url?: string | null
+          nome?: string
+          plano?: Database["public"]["Enums"]["plano_tipo"]
+          total_unidades?: number
+          updated_at?: string
+          whatsapp_numero?: string | null
+        }
+        Relationships: []
+      }
+      convites: {
+        Row: {
+          aceito_em: string | null
+          aceito_por: string | null
+          condominio_id: string
+          created_at: string
+          email: string | null
+          enviado_por: string
+          expira_em: string
+          id: string
+          nome: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          status: Database["public"]["Enums"]["convite_status"]
+          telefone: string | null
+          token: string
+          unidade_id: string | null
+        }
+        Insert: {
+          aceito_em?: string | null
+          aceito_por?: string | null
+          condominio_id: string
+          created_at?: string
+          email?: string | null
+          enviado_por: string
+          expira_em?: string
+          id?: string
+          nome?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: Database["public"]["Enums"]["convite_status"]
+          telefone?: string | null
+          token: string
+          unidade_id?: string | null
+        }
+        Update: {
+          aceito_em?: string | null
+          aceito_por?: string | null
+          condominio_id?: string
+          created_at?: string
+          email?: string | null
+          enviado_por?: string
+          expira_em?: string
+          id?: string
+          nome?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: Database["public"]["Enums"]["convite_status"]
+          telefone?: string | null
+          token?: string
+          unidade_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "convites_condominio_id_fkey"
+            columns: ["condominio_id"]
+            isOneToOne: false
+            referencedRelation: "condominios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "convites_unidade_id_fkey"
+            columns: ["unidade_id"]
+            isOneToOne: false
+            referencedRelation: "unidades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          nome_completo: string | null
+          telefone: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id: string
+          nome_completo?: string | null
+          telefone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          nome_completo?: string | null
+          telefone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      unidade_moradores: {
+        Row: {
+          created_at: string
+          id: string
+          principal: boolean
+          unidade_id: string
+          user_id: string
+          vinculo: Database["public"]["Enums"]["vinculo_tipo"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          principal?: boolean
+          unidade_id: string
+          user_id: string
+          vinculo?: Database["public"]["Enums"]["vinculo_tipo"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          principal?: boolean
+          unidade_id?: string
+          user_id?: string
+          vinculo?: Database["public"]["Enums"]["vinculo_tipo"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unidade_moradores_unidade_id_fkey"
+            columns: ["unidade_id"]
+            isOneToOne: false
+            referencedRelation: "unidades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      unidades: {
+        Row: {
+          bloco: string | null
+          condominio_id: string
+          created_at: string
+          fracao_ideal: number | null
+          id: string
+          numero: string
+          observacoes: string | null
+          taxa_mensal: number | null
+          updated_at: string
+        }
+        Insert: {
+          bloco?: string | null
+          condominio_id: string
+          created_at?: string
+          fracao_ideal?: number | null
+          id?: string
+          numero: string
+          observacoes?: string | null
+          taxa_mensal?: number | null
+          updated_at?: string
+        }
+        Update: {
+          bloco?: string | null
+          condominio_id?: string
+          created_at?: string
+          fracao_ideal?: number | null
+          id?: string
+          numero?: string
+          observacoes?: string | null
+          taxa_mensal?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unidades_condominio_id_fkey"
+            columns: ["condominio_id"]
+            isOneToOne: false
+            referencedRelation: "condominios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          condominio_id: string
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          condominio_id: string
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          condominio_id?: string
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_condominio_id_fkey"
+            columns: ["condominio_id"]
+            isOneToOne: false
+            referencedRelation: "condominios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _condominio_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_member_of: {
+        Args: { _condominio_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_sindico: {
+        Args: { _condominio_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "sindico" | "morador" | "contador" | "porteiro"
+      convite_status: "pendente" | "aceito" | "expirado" | "cancelado"
+      plano_tipo: "basico" | "profissional" | "admin"
+      vinculo_tipo: "proprietario" | "inquilino" | "familiar"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +466,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["sindico", "morador", "contador", "porteiro"],
+      convite_status: ["pendente", "aceito", "expirado", "cancelado"],
+      plano_tipo: ["basico", "profissional", "admin"],
+      vinculo_tipo: ["proprietario", "inquilino", "familiar"],
+    },
   },
 } as const

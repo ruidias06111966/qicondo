@@ -36,13 +36,13 @@ export function Navbar() {
 
         <div className="hidden lg:flex items-center gap-2">
           <Link
-            to="/contato"
+            to="/auth/login"
             className="px-4 py-2 text-sm font-semibold text-foreground hover:text-primary transition-colors"
           >
             Entrar
           </Link>
           <Link
-            to="/contato"
+            to="/auth/cadastro"
             className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)] hover:bg-[var(--color-primary-deep)] transition-colors"
           >
             Começar grátis
@@ -73,14 +73,14 @@ export function Navbar() {
             ))}
             <div className="mt-2 pt-3 border-t border-border flex flex-col gap-2">
               <Link
-                to="/contato"
+                to="/auth/login"
                 onClick={() => setOpen(false)}
                 className="px-3 py-2.5 text-sm font-semibold text-foreground rounded-lg hover:bg-muted"
               >
                 Entrar
               </Link>
               <Link
-                to="/contato"
+                to="/auth/cadastro"
                 onClick={() => setOpen(false)}
                 className="px-3 py-2.5 text-center text-sm font-semibold rounded-lg bg-primary text-primary-foreground"
               >

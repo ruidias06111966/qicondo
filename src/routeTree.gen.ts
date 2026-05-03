@@ -15,11 +15,20 @@ import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as RecursosRouteImport } from './routes/recursos'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PrecosRouteImport } from './routes/precos'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LgpdRouteImport } from './routes/lgpd'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as BlogRouteImport } from './routes/blog'
+import { Route as AppRouteImport } from './routes/app'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AuthRedefinirSenhaRouteImport } from './routes/auth.redefinir-senha'
+import { Route as AuthLoginRouteImport } from './routes/auth.login'
+import { Route as AuthEsqueciSenhaRouteImport } from './routes/auth.esqueci-senha'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AuthCadastroRouteImport } from './routes/auth.cadastro'
+import { Route as AppFinanceiroRouteImport } from './routes/app.financeiro'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -51,6 +60,11 @@ const PrecosRoute = PrecosRouteImport.update({
   path: '/precos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LgpdRoute = LgpdRouteImport.update({
   id: '/lgpd',
   path: '/lgpd',
@@ -66,6 +80,11 @@ const BlogRoute = BlogRouteImport.update({
   path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AjudaRoute = AjudaRouteImport.update({
   id: '/ajuda',
   path: '/ajuda',
@@ -76,19 +95,63 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AuthRedefinirSenhaRoute = AuthRedefinirSenhaRouteImport.update({
+  id: '/auth/redefinir-senha',
+  path: '/auth/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthEsqueciSenhaRoute = AuthEsqueciSenhaRouteImport.update({
+  id: '/auth/esqueci-senha',
+  path: '/auth/esqueci-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCadastroRoute = AuthCadastroRouteImport.update({
+  id: '/auth/cadastro',
+  path: '/auth/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ajuda': typeof AjudaRoute
+  '/app': typeof AppRouteWithChildren
   '/blog': typeof BlogRoute
   '/contato': typeof ContatoRoute
   '/lgpd': typeof LgpdRoute
+  '/onboarding': typeof OnboardingRoute
   '/precos': typeof PrecosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recursos': typeof RecursosRoute
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/financeiro': typeof AppFinanceiroRoute
+  '/auth/cadastro': typeof AuthCadastroRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -96,41 +159,67 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogRoute
   '/contato': typeof ContatoRoute
   '/lgpd': typeof LgpdRoute
+  '/onboarding': typeof OnboardingRoute
   '/precos': typeof PrecosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recursos': typeof RecursosRoute
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/financeiro': typeof AppFinanceiroRoute
+  '/auth/cadastro': typeof AuthCadastroRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
+  '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ajuda': typeof AjudaRoute
+  '/app': typeof AppRouteWithChildren
   '/blog': typeof BlogRoute
   '/contato': typeof ContatoRoute
   '/lgpd': typeof LgpdRoute
+  '/onboarding': typeof OnboardingRoute
   '/precos': typeof PrecosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recursos': typeof RecursosRoute
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/financeiro': typeof AppFinanceiroRoute
+  '/auth/cadastro': typeof AuthCadastroRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/ajuda'
+    | '/app'
     | '/blog'
     | '/contato'
     | '/lgpd'
+    | '/onboarding'
     | '/precos'
     | '/privacidade'
     | '/recursos'
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/financeiro'
+    | '/auth/cadastro'
+    | '/auth/callback'
+    | '/auth/esqueci-senha'
+    | '/auth/login'
+    | '/auth/redefinir-senha'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -138,39 +227,63 @@ export interface FileRouteTypes {
     | '/blog'
     | '/contato'
     | '/lgpd'
+    | '/onboarding'
     | '/precos'
     | '/privacidade'
     | '/recursos'
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/financeiro'
+    | '/auth/cadastro'
+    | '/auth/callback'
+    | '/auth/esqueci-senha'
+    | '/auth/login'
+    | '/auth/redefinir-senha'
+    | '/app'
   id:
     | '__root__'
     | '/'
     | '/ajuda'
+    | '/app'
     | '/blog'
     | '/contato'
     | '/lgpd'
+    | '/onboarding'
     | '/precos'
     | '/privacidade'
     | '/recursos'
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/financeiro'
+    | '/auth/cadastro'
+    | '/auth/callback'
+    | '/auth/esqueci-senha'
+    | '/auth/login'
+    | '/auth/redefinir-senha'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AjudaRoute: typeof AjudaRoute
+  AppRoute: typeof AppRouteWithChildren
   BlogRoute: typeof BlogRoute
   ContatoRoute: typeof ContatoRoute
   LgpdRoute: typeof LgpdRoute
+  OnboardingRoute: typeof OnboardingRoute
   PrecosRoute: typeof PrecosRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   RecursosRoute: typeof RecursosRoute
   SobreRoute: typeof SobreRoute
   StatusRoute: typeof StatusRoute
   TermosRoute: typeof TermosRoute
+  AuthCadastroRoute: typeof AuthCadastroRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthEsqueciSenhaRoute: typeof AuthEsqueciSenhaRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthRedefinirSenhaRoute: typeof AuthRedefinirSenhaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -217,6 +330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrecosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lgpd': {
       id: '/lgpd'
       path: '/lgpd'
@@ -238,6 +358,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ajuda': {
       id: '/ajuda'
       path: '/ajuda'
@@ -252,21 +379,89 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/auth/redefinir-senha': {
+      id: '/auth/redefinir-senha'
+      path: '/auth/redefinir-senha'
+      fullPath: '/auth/redefinir-senha'
+      preLoaderRoute: typeof AuthRedefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/esqueci-senha': {
+      id: '/auth/esqueci-senha'
+      path: '/auth/esqueci-senha'
+      fullPath: '/auth/esqueci-senha'
+      preLoaderRoute: typeof AuthEsqueciSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/cadastro': {
+      id: '/auth/cadastro'
+      path: '/auth/cadastro'
+      fullPath: '/auth/cadastro'
+      preLoaderRoute: typeof AuthCadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/financeiro': {
+      id: '/app/financeiro'
+      path: '/financeiro'
+      fullPath: '/app/financeiro'
+      preLoaderRoute: typeof AppFinanceiroRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
+
+interface AppRouteChildren {
+  AppFinanceiroRoute: typeof AppFinanceiroRoute
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppFinanceiroRoute: AppFinanceiroRoute,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AjudaRoute: AjudaRoute,
+  AppRoute: AppRouteWithChildren,
   BlogRoute: BlogRoute,
   ContatoRoute: ContatoRoute,
   LgpdRoute: LgpdRoute,
+  OnboardingRoute: OnboardingRoute,
   PrecosRoute: PrecosRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   RecursosRoute: RecursosRoute,
   SobreRoute: SobreRoute,
   StatusRoute: StatusRoute,
   TermosRoute: TermosRoute,
+  AuthCadastroRoute: AuthCadastroRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
+  AuthEsqueciSenhaRoute: AuthEsqueciSenhaRoute,
+  AuthLoginRoute: AuthLoginRoute,
+  AuthRedefinirSenhaRoute: AuthRedefinirSenhaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

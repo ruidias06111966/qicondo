@@ -609,7 +609,7 @@ function NovaReservaModal({
       _inicio: inicio,
       _fim: fim,
       _num_convidados: convidados,
-      _observacoes: obs || null,
+      _observacoes: obs || "",
     });
     setSaving(false);
     if (error) {

@@ -11,7 +11,8 @@ export const Route = createFileRoute("/_app")({
   component: AppLayout,
 });
 
-const NAV = [
+type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
+const NAV: NavItem[] = [
   { to: "/app", label: "Visão geral", icon: LayoutDashboard, exact: true },
   { to: "/app/financeiro", label: "Financeiro", icon: Wallet },
   { to: "/app/reservas", label: "Reservas", icon: Calendar },
@@ -21,7 +22,7 @@ const NAV = [
   { to: "/app/condominio", label: "Condomínio", icon: Building2 },
   { to: "/app/whatsapp", label: "WhatsApp", icon: MessageCircle },
   { to: "/app/configuracoes", label: "Configurações", icon: Settings },
-] as const;
+];
 
 function AppLayout() {
   const navigate = useNavigate();

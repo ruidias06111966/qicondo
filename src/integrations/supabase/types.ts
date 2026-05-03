@@ -14,6 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
+      area_bloqueios: {
+        Row: {
+          area_id: string
+          condominio_id: string
+          created_at: string
+          criado_por: string | null
+          fim: string
+          id: string
+          inicio: string
+          motivo: string
+        }
+        Insert: {
+          area_id: string
+          condominio_id: string
+          created_at?: string
+          criado_por?: string | null
+          fim: string
+          id?: string
+          inicio: string
+          motivo: string
+        }
+        Update: {
+          area_id?: string
+          condominio_id?: string
+          created_at?: string
+          criado_por?: string | null
+          fim?: string
+          id?: string
+          inicio?: string
+          motivo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "area_bloqueios_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "areas_comuns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      areas_comuns: {
+        Row: {
+          antecedencia_max_dias: number
+          antecedencia_min_horas: number
+          ativo: boolean
+          capacidade: number | null
+          condominio_id: string
+          cor: string
+          created_at: string
+          descricao: string | null
+          dias_permitidos: number[]
+          duracao_max_minutos: number
+          duracao_min_minutos: number
+          foto_url: string | null
+          hora_abertura: string
+          hora_fechamento: string
+          id: string
+          intervalo_entre_reservas_min: number
+          max_reservas_por_unidade_mes: number
+          nome: string
+          ordem: number
+          regulamento: string | null
+          requer_aprovacao: boolean
+          taxa_uso: number
+          updated_at: string
+        }
+        Insert: {
+          antecedencia_max_dias?: number
+          antecedencia_min_horas?: number
+          ativo?: boolean
+          capacidade?: number | null
+          condominio_id: string
+          cor?: string
+          created_at?: string
+          descricao?: string | null
+          dias_permitidos?: number[]
+          duracao_max_minutos?: number
+          duracao_min_minutos?: number
+          foto_url?: string | null
+          hora_abertura?: string
+          hora_fechamento?: string
+          id?: string
+          intervalo_entre_reservas_min?: number
+          max_reservas_por_unidade_mes?: number
+          nome: string
+          ordem?: number
+          regulamento?: string | null
+          requer_aprovacao?: boolean
+          taxa_uso?: number
+          updated_at?: string
+        }
+        Update: {
+          antecedencia_max_dias?: number
+          antecedencia_min_horas?: number
+          ativo?: boolean
+          capacidade?: number | null
+          condominio_id?: string
+          cor?: string
+          created_at?: string
+          descricao?: string | null
+          dias_permitidos?: number[]
+          duracao_max_minutos?: number
+          duracao_min_minutos?: number
+          foto_url?: string | null
+          hora_abertura?: string
+          hora_fechamento?: string
+          id?: string
+          intervalo_entre_reservas_min?: number
+          max_reservas_por_unidade_mes?: number
+          nome?: string
+          ordem?: number
+          regulamento?: string | null
+          requer_aprovacao?: boolean
+          taxa_uso?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           acao: string
@@ -507,6 +626,80 @@ export type Database = {
         }
         Relationships: []
       }
+      reservas: {
+        Row: {
+          aprovado_em: string | null
+          aprovado_por: string | null
+          area_id: string
+          cancelado_em: string | null
+          cancelado_por: string | null
+          cobranca_id: string | null
+          condominio_id: string
+          created_at: string
+          fim: string
+          id: string
+          inicio: string
+          motivo_recusa: string | null
+          num_convidados: number
+          observacoes: string | null
+          solicitante_id: string
+          status: Database["public"]["Enums"]["reserva_status"]
+          taxa: number
+          unidade_id: string
+          updated_at: string
+        }
+        Insert: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          area_id: string
+          cancelado_em?: string | null
+          cancelado_por?: string | null
+          cobranca_id?: string | null
+          condominio_id: string
+          created_at?: string
+          fim: string
+          id?: string
+          inicio: string
+          motivo_recusa?: string | null
+          num_convidados?: number
+          observacoes?: string | null
+          solicitante_id: string
+          status?: Database["public"]["Enums"]["reserva_status"]
+          taxa?: number
+          unidade_id: string
+          updated_at?: string
+        }
+        Update: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          area_id?: string
+          cancelado_em?: string | null
+          cancelado_por?: string | null
+          cobranca_id?: string | null
+          condominio_id?: string
+          created_at?: string
+          fim?: string
+          id?: string
+          inicio?: string
+          motivo_recusa?: string | null
+          num_convidados?: number
+          observacoes?: string | null
+          solicitante_id?: string
+          status?: Database["public"]["Enums"]["reserva_status"]
+          taxa?: number
+          unidade_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservas_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "areas_comuns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       unidade_moradores: {
         Row: {
           created_at: string
@@ -623,6 +816,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      aprovar_reserva: { Args: { _reserva_id: string }; Returns: undefined }
+      cancelar_reserva: { Args: { _reserva_id: string }; Returns: undefined }
       gerar_cobrancas_lote: {
         Args: {
           _categoria_id: string
@@ -666,6 +861,10 @@ export type Database = {
           nome: string
         }[]
       }
+      recusar_reserva: {
+        Args: { _motivo: string; _reserva_id: string }
+        Returns: undefined
+      }
       registrar_pagamento_manual: {
         Args: {
           _cobranca_id: string
@@ -673,6 +872,17 @@ export type Database = {
           _observacoes: string
           _pago_em: string
           _valor: number
+        }
+        Returns: string
+      }
+      solicitar_reserva: {
+        Args: {
+          _area_id: string
+          _fim: string
+          _inicio: string
+          _num_convidados: number
+          _observacoes: string
+          _unidade_id: string
         }
         Returns: string
       }
@@ -689,6 +899,12 @@ export type Database = {
         | "cartao"
         | "outro"
       plano_tipo: "basico" | "profissional" | "admin"
+      reserva_status:
+        | "pendente"
+        | "confirmada"
+        | "recusada"
+        | "cancelada"
+        | "concluida"
       tipo_lancamento: "receita" | "despesa"
       vinculo_tipo: "proprietario" | "inquilino" | "familiar"
     }
@@ -830,6 +1046,13 @@ export const Constants = {
         "outro",
       ],
       plano_tipo: ["basico", "profissional", "admin"],
+      reserva_status: [
+        "pendente",
+        "confirmada",
+        "recusada",
+        "cancelada",
+        "concluida",
+      ],
       tipo_lancamento: ["receita", "despesa"],
       vinculo_tipo: ["proprietario", "inquilino", "familiar"],
     },

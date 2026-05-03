@@ -95,23 +95,15 @@ function OnboardingPage() {
   async function entrarComCodigo() {
     if (!codigo.trim()) { toast.error("Informe o código"); return; }
     setBusy(true);
-    const { data: c, error } = await supabase
-      .from("condominios")
-      .select("id, nome")
-      .eq("codigo_publico", codigo.trim().toUpperCase())
-      .maybeSingle();
-    if (error || !c) { setBusy(false); toast.error("Código não encontrado"); return; }
-    const { error: rErr } = await supabase.from("user_roles").insert({
-      user_id: user!.id, condominio_id: c.id, role: "morador",
-    });
+    const { data, error } = await supabase.rpc("join_condominio_by_code", { _codigo: codigo.trim() });
     setBusy(false);
-    if (rErr) {
-      // Provavelmente RLS bloqueia auto-cadastro de morador via código (apenas síndico).
-      // Para MVP, registramos uma solicitação via tabela convites — alternativa:
-      toast.error("Não foi possível entrar. Peça ao síndico um link de convite.");
+    if (error) {
+      const msg = error.message.includes("codigo_nao_encontrado") ? "Código não encontrado" : error.message;
+      toast.error(msg);
       return;
     }
-    toast.success(`Você entrou em ${c.nome}!`);
+    const nome = (data as Array<{ nome: string }> | null)?.[0]?.nome ?? "condomínio";
+    toast.success(`Você entrou em ${nome}!`);
     await refresh();
     navigate({ to: "/app" });
   }

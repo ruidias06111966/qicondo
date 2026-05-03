@@ -707,6 +707,7 @@ function ConfigTab({ condominioId }: { condominioId: string }) {
           condominio_id: condominioId,
           mp_access_token: token || null,
           mp_public_key: publicKey || null,
+          mp_webhook_secret: webhookSecret || null,
           pix_chave: pixChave || null,
           multa_percentual: Number(multa),
           juros_dia_percentual: Number(juros),
@@ -715,6 +716,8 @@ function ConfigTab({ condominioId }: { condominioId: string }) {
       });
       toast.success("Configuração salva");
       setToken("");
+      setWebhookSecret("");
+      setPixChave("");
       const c = await obterConfigPagamento({ data: { condominio_id: condominioId } });
       setCfg(c);
     } catch (e: any) { toast.error(e.message); } finally { setSaving(false); }

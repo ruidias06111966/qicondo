@@ -30,6 +30,7 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthCadastroRouteImport } from './routes/auth.cadastro'
 import { Route as AppReservasRouteImport } from './routes/app.reservas'
 import { Route as AppFinanceiroRouteImport } from './routes/app.financeiro'
+import { Route as AppEncomendasRouteImport } from './routes/app.encomendas'
 import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
 
 const TermosRoute = TermosRouteImport.update({
@@ -137,6 +138,11 @@ const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
   path: '/financeiro',
   getParentRoute: () => AppRoute,
 } as any)
+const AppEncomendasRoute = AppEncomendasRouteImport.update({
+  id: '/encomendas',
+  path: '/encomendas',
+  getParentRoute: () => AppRoute,
+} as any)
 const ApiPublicMpWebhookRoute = ApiPublicMpWebhookRouteImport.update({
   id: '/api/public/mp-webhook',
   path: '/api/public/mp-webhook',
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRoute
   '/app/reservas': typeof AppReservasRoute
   '/auth/cadastro': typeof AuthCadastroRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRoute
   '/app/reservas': typeof AppReservasRoute
   '/auth/cadastro': typeof AuthCadastroRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRoute
   '/app/reservas': typeof AppReservasRoute
   '/auth/cadastro': typeof AuthCadastroRoute
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/encomendas'
     | '/app/financeiro'
     | '/app/reservas'
     | '/auth/cadastro'
@@ -254,6 +264,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/encomendas'
     | '/app/financeiro'
     | '/app/reservas'
     | '/auth/cadastro'
@@ -278,6 +289,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/encomendas'
     | '/app/financeiro'
     | '/app/reservas'
     | '/auth/cadastro'
@@ -460,6 +472,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceiroRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/encomendas': {
+      id: '/app/encomendas'
+      path: '/encomendas'
+      fullPath: '/app/encomendas'
+      preLoaderRoute: typeof AppEncomendasRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/api/public/mp-webhook': {
       id: '/api/public/mp-webhook'
       path: '/api/public/mp-webhook'
@@ -471,12 +490,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppEncomendasRoute: typeof AppEncomendasRoute
   AppFinanceiroRoute: typeof AppFinanceiroRoute
   AppReservasRoute: typeof AppReservasRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppEncomendasRoute: AppEncomendasRoute,
   AppFinanceiroRoute: AppFinanceiroRoute,
   AppReservasRoute: AppReservasRoute,
   AppIndexRoute: AppIndexRoute,

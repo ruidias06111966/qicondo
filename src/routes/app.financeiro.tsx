@@ -680,6 +680,7 @@ function ConfigTab({ condominioId }: { condominioId: string }) {
   const [saving, setSaving] = useState(false);
   const [token, setToken] = useState("");
   const [publicKey, setPublicKey] = useState("");
+  const [webhookSecret, setWebhookSecret] = useState("");
   const [pixChave, setPixChave] = useState("");
   const [multa, setMulta] = useState("2");
   const [juros, setJuros] = useState("0.0333");
@@ -690,7 +691,7 @@ function ConfigTab({ condominioId }: { condominioId: string }) {
       setCfg(c);
       if (c) {
         setPublicKey(c.mp_public_key ?? "");
-        setPixChave(c.pix_chave ?? "");
+        setPixChave("");
         setMulta(String(c.multa_percentual ?? 2));
         setJuros(String(c.juros_dia_percentual ?? 0.0333));
         setAtivo(c.ativo ?? false);
@@ -706,6 +707,7 @@ function ConfigTab({ condominioId }: { condominioId: string }) {
           condominio_id: condominioId,
           mp_access_token: token || null,
           mp_public_key: publicKey || null,
+          mp_webhook_secret: webhookSecret || null,
           pix_chave: pixChave || null,
           multa_percentual: Number(multa),
           juros_dia_percentual: Number(juros),
@@ -714,6 +716,8 @@ function ConfigTab({ condominioId }: { condominioId: string }) {
       });
       toast.success("Configuração salva");
       setToken("");
+      setWebhookSecret("");
+      setPixChave("");
       const c = await obterConfigPagamento({ data: { condominio_id: condominioId } });
       setCfg(c);
     } catch (e: any) { toast.error(e.message); } finally { setSaving(false); }
@@ -737,8 +741,11 @@ function ConfigTab({ condominioId }: { condominioId: string }) {
 
       <div className="bg-background border border-border rounded-2xl p-6 space-y-4">
         <p className="font-display text-lg font-bold">Mercado Pago</p>
-        <Field label={`Access Token ${cfg?.mp_token_configured ? `(atual: ${cfg.mp_access_token})` : ""}`}>
+        <Field label={`Access Token ${cfg?.mp_token_configured ? "(configurado)" : ""}`}>
           <input type="password" value={token} onChange={(e) => setToken(e.target.value)} placeholder={cfg?.mp_token_configured ? "Deixe vazio para manter" : "APP_USR-..."} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono" />
+        </Field>
+        <Field label={`Webhook Secret ${cfg?.mp_webhook_configured ? "(configurado)" : ""}`}>
+          <input type="password" value={webhookSecret} onChange={(e) => setWebhookSecret(e.target.value)} placeholder={cfg?.mp_webhook_configured ? "Deixe vazio para manter" : "Segredo do webhook (obrigatório)"} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono" />
         </Field>
         <Field label="Public Key (opcional)">
           <input value={publicKey} onChange={(e) => setPublicKey(e.target.value)} placeholder="APP_USR-..." className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono" />
@@ -761,8 +768,8 @@ function ConfigTab({ condominioId }: { condominioId: string }) {
           <Field label="Multa por atraso (%)"><input type="number" step="0.1" value={multa} onChange={(e) => setMulta(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" /></Field>
           <Field label="Juros ao dia (%)"><input type="number" step="0.001" value={juros} onChange={(e) => setJuros(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" /></Field>
         </div>
-        <Field label="Chave PIX manual (fallback)">
-          <input value={pixChave} onChange={(e) => setPixChave(e.target.value)} placeholder="CNPJ, e-mail ou aleatória" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        <Field label={`Chave PIX manual (fallback) ${cfg?.pix_chave_mascarada ? `(atual: ${cfg.pix_chave_mascarada})` : ""}`}>
+          <input value={pixChave} onChange={(e) => setPixChave(e.target.value)} placeholder={cfg?.pix_chave_mascarada ? "Deixe vazio para manter" : "CNPJ, e-mail ou aleatória"} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
         </Field>
       </div>
 

@@ -228,6 +228,7 @@ const ConfigInput = z.object({
   condominio_id: z.string().uuid(),
   mp_access_token: z.string().optional().nullable(),
   mp_public_key: z.string().optional().nullable(),
+  mp_webhook_secret: z.string().optional().nullable(),
   pix_chave: z.string().max(200).optional().nullable(),
   multa_percentual: z.number().min(0).max(50),
   juros_dia_percentual: z.number().min(0).max(5),
@@ -238,6 +239,13 @@ export const salvarConfigPagamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => ConfigInput.parse(d))
   .handler(async ({ data, context }) => {
+    // Verifica se usuário é síndico do condomínio (RLS valida no upsert também)
+    const { data: isSind } = await context.supabase.rpc("is_sindico", {
+      _user_id: context.userId,
+      _condominio_id: data.condominio_id,
+    } as any);
+    if (!isSind) throw new Error("forbidden");
+
     const payload: any = {
       condominio_id: data.condominio_id,
       pix_chave: data.pix_chave,
@@ -247,7 +255,10 @@ export const salvarConfigPagamento = createServerFn({ method: "POST" })
     };
     if (data.mp_access_token) payload.mp_access_token = data.mp_access_token;
     if (data.mp_public_key) payload.mp_public_key = data.mp_public_key;
-    const { error } = await context.supabase.from("config_pagamento").upsert(payload);
+    if (data.mp_webhook_secret) payload.mp_webhook_secret = data.mp_webhook_secret;
+    // Usa admin pois RLS de SELECT está bloqueada; o check acima garante autorização
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("config_pagamento").upsert(payload);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -256,16 +267,30 @@ export const obterConfigPagamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ condominio_id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { data: row } = await context.supabase
+    const { data: isSind } = await context.supabase.rpc("is_sindico", {
+      _user_id: context.userId,
+      _condominio_id: data.condominio_id,
+    } as any);
+    if (!isSind) throw new Error("forbidden");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row } = await supabaseAdmin
       .from("config_pagamento")
-      .select("condominio_id, mp_public_key, pix_chave, multa_percentual, juros_dia_percentual, dias_envio_lembrete, ativo, mp_access_token")
+      .select("condominio_id, mp_public_key, pix_chave, multa_percentual, juros_dia_percentual, dias_envio_lembrete, ativo, mp_access_token, mp_webhook_secret")
       .eq("condominio_id", data.condominio_id)
       .maybeSingle();
     if (!row) return null;
+    const pix = row.pix_chave as string | null;
     return {
-      ...row,
-      mp_access_token: row.mp_access_token ? "•••••••••••" + (row.mp_access_token as string).slice(-4) : null,
+      condominio_id: row.condominio_id,
+      mp_public_key: row.mp_public_key,
+      pix_chave_mascarada: pix && pix.length >= 4 ? "****" + pix.slice(-4) : null,
+      multa_percentual: row.multa_percentual,
+      juros_dia_percentual: row.juros_dia_percentual,
+      dias_envio_lembrete: row.dias_envio_lembrete,
+      ativo: row.ativo,
       mp_token_configured: !!row.mp_access_token,
+      mp_webhook_configured: !!row.mp_webhook_secret,
     };
   });
 

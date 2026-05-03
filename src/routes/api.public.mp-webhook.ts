@@ -1,5 +1,40 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
+/**
+ * Valida assinatura HMAC do webhook do Mercado Pago.
+ * Formato do header x-signature: "ts=1234567890,v1=abc..."
+ * Manifesto: id:[paymentId];request-id:[x-request-id];ts:[ts];
+ */
+function verifyMpSignature(opts: {
+  secret: string;
+  signatureHeader: string | null;
+  requestId: string | null;
+  paymentId: string;
+}): boolean {
+  if (!opts.signatureHeader) return false;
+  const parts = Object.fromEntries(
+    opts.signatureHeader.split(",").map((p) => {
+      const [k, ...rest] = p.trim().split("=");
+      return [k, rest.join("=")];
+    }),
+  );
+  const ts = parts.ts;
+  const v1 = parts.v1;
+  if (!ts || !v1) return false;
+
+  const manifest = `id:${opts.paymentId};request-id:${opts.requestId ?? ""};ts:${ts};`;
+  const hmac = createHmac("sha256", opts.secret).update(manifest).digest("hex");
+  try {
+    const a = Buffer.from(hmac, "hex");
+    const b = Buffer.from(v1, "hex");
+    if (a.length !== b.length) return false;
+    return timingSafeEqual(a, b);
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Webhook do Mercado Pago - notificação de pagamentos
@@ -29,7 +64,30 @@ export const Route = createFileRoute("/api/public/mp-webhook")({
             .maybeSingle();
 
           if (!cob) {
-            return new Response(JSON.stringify({ ignored: "cobranca_nao_encontrada" }), { status: 200 });
+            // Resposta neutra para não vazar existência
+            return new Response("ok", { status: 200 });
+          }
+
+          // Verifica assinatura HMAC do MP usando o segredo do condomínio
+          const { data: cfgSec } = await supabaseAdmin
+            .from("config_pagamento")
+            .select("mp_webhook_secret")
+            .eq("condominio_id", cob.condominio_id)
+            .maybeSingle();
+
+          if (!cfgSec?.mp_webhook_secret) {
+            console.warn("[MP Webhook] sem secret configurado para condomínio", cob.condominio_id);
+            return new Response("Webhook não configurado", { status: 401 });
+          }
+
+          const ok = verifyMpSignature({
+            secret: cfgSec.mp_webhook_secret,
+            signatureHeader: request.headers.get("x-signature"),
+            requestId: request.headers.get("x-request-id"),
+            paymentId: String(paymentId),
+          });
+          if (!ok) {
+            return new Response("Assinatura inválida", { status: 401 });
           }
 
           // Token do condomínio para confirmar com MP

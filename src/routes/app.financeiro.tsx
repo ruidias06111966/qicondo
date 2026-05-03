@@ -680,6 +680,7 @@ function ConfigTab({ condominioId }: { condominioId: string }) {
   const [saving, setSaving] = useState(false);
   const [token, setToken] = useState("");
   const [publicKey, setPublicKey] = useState("");
+  const [webhookSecret, setWebhookSecret] = useState("");
   const [pixChave, setPixChave] = useState("");
   const [multa, setMulta] = useState("2");
   const [juros, setJuros] = useState("0.0333");
@@ -690,7 +691,7 @@ function ConfigTab({ condominioId }: { condominioId: string }) {
       setCfg(c);
       if (c) {
         setPublicKey(c.mp_public_key ?? "");
-        setPixChave(c.pix_chave ?? "");
+        setPixChave("");
         setMulta(String(c.multa_percentual ?? 2));
         setJuros(String(c.juros_dia_percentual ?? 0.0333));
         setAtivo(c.ativo ?? false);

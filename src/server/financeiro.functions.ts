@@ -228,6 +228,7 @@ const ConfigInput = z.object({
   condominio_id: z.string().uuid(),
   mp_access_token: z.string().optional().nullable(),
   mp_public_key: z.string().optional().nullable(),
+  mp_webhook_secret: z.string().optional().nullable(),
   pix_chave: z.string().max(200).optional().nullable(),
   multa_percentual: z.number().min(0).max(50),
   juros_dia_percentual: z.number().min(0).max(5),

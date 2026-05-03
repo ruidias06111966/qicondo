@@ -1,0 +1,20 @@
+-- Revogar EXECUTE do role anon para funções SECURITY DEFINER que não devem ser públicas
+REVOKE EXECUTE ON FUNCTION public.has_role(uuid, uuid, app_role) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.is_member_of(uuid, uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.is_sindico(uuid, uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.is_contador(uuid, uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.is_morador_da_unidade(uuid, uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.join_condominio_by_code(text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.solicitar_reserva(uuid, uuid, timestamptz, timestamptz, integer, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.aprovar_reserva(uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.recusar_reserva(uuid, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.cancelar_reserva(uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.gerar_cobrancas_lote(uuid, uuid, date, date, text, boolean, numeric) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.registrar_pagamento_manual(uuid, numeric, forma_pagamento, timestamptz, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.registrar_encomenda(uuid, text, text, text, text, text, text, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.marcar_encomenda_retirada(uuid, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.registrar_visitante(uuid, text, text, visitante_tipo, text, text, text, timestamptz, text, boolean) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.autorizar_visitante(uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.recusar_visitante(uuid, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.registrar_entrada_visitante(uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.registrar_saida_visitante(uuid) FROM anon;

@@ -18,13 +18,16 @@ import { Route as PrecosRouteImport } from './routes/precos'
 import { Route as LgpdRouteImport } from './routes/lgpd'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as BlogRouteImport } from './routes/blog'
+import { Route as AppRouteImport } from './routes/app'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AuthRedefinirSenhaRouteImport } from './routes/auth.redefinir-senha'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthEsqueciSenhaRouteImport } from './routes/auth.esqueci-senha'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthCadastroRouteImport } from './routes/auth.cadastro'
+import { Route as AppFinanceiroRouteImport } from './routes/app.financeiro'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -71,6 +74,11 @@ const BlogRoute = BlogRouteImport.update({
   path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AjudaRoute = AjudaRouteImport.update({
   id: '/ajuda',
   path: '/ajuda',
@@ -80,6 +88,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
 } as any)
 const AuthRedefinirSenhaRoute = AuthRedefinirSenhaRouteImport.update({
   id: '/auth/redefinir-senha',
@@ -106,10 +119,16 @@ const AuthCadastroRoute = AuthCadastroRouteImport.update({
   path: '/auth/cadastro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ajuda': typeof AjudaRoute
+  '/app': typeof AppRouteWithChildren
   '/blog': typeof BlogRoute
   '/contato': typeof ContatoRoute
   '/lgpd': typeof LgpdRoute
@@ -119,11 +138,13 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/financeiro': typeof AppFinanceiroRoute
   '/auth/cadastro': typeof AuthCadastroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -137,16 +158,19 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/financeiro': typeof AppFinanceiroRoute
   '/auth/cadastro': typeof AuthCadastroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
+  '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ajuda': typeof AjudaRoute
+  '/app': typeof AppRouteWithChildren
   '/blog': typeof BlogRoute
   '/contato': typeof ContatoRoute
   '/lgpd': typeof LgpdRoute
@@ -156,17 +180,20 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/financeiro': typeof AppFinanceiroRoute
   '/auth/cadastro': typeof AuthCadastroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/ajuda'
+    | '/app'
     | '/blog'
     | '/contato'
     | '/lgpd'
@@ -176,11 +203,13 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/financeiro'
     | '/auth/cadastro'
     | '/auth/callback'
     | '/auth/esqueci-senha'
     | '/auth/login'
     | '/auth/redefinir-senha'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -194,15 +223,18 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/financeiro'
     | '/auth/cadastro'
     | '/auth/callback'
     | '/auth/esqueci-senha'
     | '/auth/login'
     | '/auth/redefinir-senha'
+    | '/app'
   id:
     | '__root__'
     | '/'
     | '/ajuda'
+    | '/app'
     | '/blog'
     | '/contato'
     | '/lgpd'
@@ -212,16 +244,19 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/financeiro'
     | '/auth/cadastro'
     | '/auth/callback'
     | '/auth/esqueci-senha'
     | '/auth/login'
     | '/auth/redefinir-senha'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AjudaRoute: typeof AjudaRoute
+  AppRoute: typeof AppRouteWithChildren
   BlogRoute: typeof BlogRoute
   ContatoRoute: typeof ContatoRoute
   LgpdRoute: typeof LgpdRoute
@@ -303,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ajuda': {
       id: '/ajuda'
       path: '/ajuda'
@@ -316,6 +358,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
     }
     '/auth/redefinir-senha': {
       id: '/auth/redefinir-senha'
@@ -352,12 +401,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCadastroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/financeiro': {
+      id: '/app/financeiro'
+      path: '/financeiro'
+      fullPath: '/app/financeiro'
+      preLoaderRoute: typeof AppFinanceiroRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
+
+interface AppRouteChildren {
+  AppFinanceiroRoute: typeof AppFinanceiroRoute
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppFinanceiroRoute: AppFinanceiroRoute,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AjudaRoute: AjudaRoute,
+  AppRoute: AppRouteWithChildren,
   BlogRoute: BlogRoute,
   ContatoRoute: ContatoRoute,
   LgpdRoute: LgpdRoute,

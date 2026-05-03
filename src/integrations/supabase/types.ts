@@ -376,6 +376,7 @@ export type Database = {
           mp_access_token: string | null
           mp_public_key: string | null
           mp_user_id: string | null
+          mp_webhook_secret: string | null
           multa_percentual: number
           pix_chave: string | null
           updated_at: string
@@ -389,6 +390,7 @@ export type Database = {
           mp_access_token?: string | null
           mp_public_key?: string | null
           mp_user_id?: string | null
+          mp_webhook_secret?: string | null
           multa_percentual?: number
           pix_chave?: string | null
           updated_at?: string
@@ -402,6 +404,7 @@ export type Database = {
           mp_access_token?: string | null
           mp_public_key?: string | null
           mp_user_id?: string | null
+          mp_webhook_secret?: string | null
           multa_percentual?: number
           pix_chave?: string | null
           updated_at?: string
@@ -431,6 +434,7 @@ export type Database = {
           status: Database["public"]["Enums"]["convite_status"]
           telefone: string | null
           token: string
+          token_hash: string | null
           unidade_id: string | null
         }
         Insert: {
@@ -447,6 +451,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["convite_status"]
           telefone?: string | null
           token: string
+          token_hash?: string | null
           unidade_id?: string | null
         }
         Update: {
@@ -463,6 +468,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["convite_status"]
           telefone?: string | null
           token?: string
+          token_hash?: string | null
           unidade_id?: string | null
         }
         Relationships: [
@@ -1002,9 +1008,116 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      config_pagamento_safe: {
+        Row: {
+          ativo: boolean | null
+          condominio_id: string | null
+          dias_envio_lembrete: number | null
+          juros_dia_percentual: number | null
+          mp_public_key: string | null
+          mp_token_configured: boolean | null
+          multa_percentual: number | null
+          pix_chave_mascarada: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          ativo?: boolean | null
+          condominio_id?: string | null
+          dias_envio_lembrete?: number | null
+          juros_dia_percentual?: number | null
+          mp_public_key?: string | null
+          mp_token_configured?: never
+          multa_percentual?: number | null
+          pix_chave_mascarada?: never
+          updated_at?: string | null
+        }
+        Update: {
+          ativo?: boolean | null
+          condominio_id?: string | null
+          dias_envio_lembrete?: number | null
+          juros_dia_percentual?: number | null
+          mp_public_key?: string | null
+          mp_token_configured?: never
+          multa_percentual?: number | null
+          pix_chave_mascarada?: never
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "config_pagamento_condominio_id_fkey"
+            columns: ["condominio_id"]
+            isOneToOne: true
+            referencedRelation: "condominios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      convites_safe: {
+        Row: {
+          aceito_em: string | null
+          aceito_por: string | null
+          condominio_id: string | null
+          created_at: string | null
+          email: string | null
+          enviado_por: string | null
+          expira_em: string | null
+          id: string | null
+          nome: string | null
+          role: Database["public"]["Enums"]["app_role"] | null
+          status: Database["public"]["Enums"]["convite_status"] | null
+          telefone: string | null
+          unidade_id: string | null
+        }
+        Insert: {
+          aceito_em?: string | null
+          aceito_por?: string | null
+          condominio_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          enviado_por?: string | null
+          expira_em?: string | null
+          id?: string | null
+          nome?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
+          status?: Database["public"]["Enums"]["convite_status"] | null
+          telefone?: string | null
+          unidade_id?: string | null
+        }
+        Update: {
+          aceito_em?: string | null
+          aceito_por?: string | null
+          condominio_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          enviado_por?: string | null
+          expira_em?: string | null
+          id?: string | null
+          nome?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
+          status?: Database["public"]["Enums"]["convite_status"] | null
+          telefone?: string | null
+          unidade_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "convites_condominio_id_fkey"
+            columns: ["condominio_id"]
+            isOneToOne: false
+            referencedRelation: "condominios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "convites_unidade_id_fkey"
+            columns: ["unidade_id"]
+            isOneToOne: false
+            referencedRelation: "unidades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      aceitar_convite: { Args: { _token: string }; Returns: string }
       aprovar_reserva: { Args: { _reserva_id: string }; Returns: undefined }
       autorizar_visitante: {
         Args: { _visitante_id: string }

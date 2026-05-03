@@ -55,6 +55,144 @@ export type Database = {
           },
         ]
       }
+      categorias_financeiras: {
+        Row: {
+          ativo: boolean
+          condominio_id: string
+          cor: string | null
+          created_at: string
+          id: string
+          nome: string
+          ordem: number
+          tipo: Database["public"]["Enums"]["tipo_lancamento"]
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          condominio_id: string
+          cor?: string | null
+          created_at?: string
+          id?: string
+          nome: string
+          ordem?: number
+          tipo: Database["public"]["Enums"]["tipo_lancamento"]
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          condominio_id?: string
+          cor?: string | null
+          created_at?: string
+          id?: string
+          nome?: string
+          ordem?: number
+          tipo?: Database["public"]["Enums"]["tipo_lancamento"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categorias_financeiras_condominio_id_fkey"
+            columns: ["condominio_id"]
+            isOneToOne: false
+            referencedRelation: "condominios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cobrancas: {
+        Row: {
+          categoria_id: string | null
+          competencia: string
+          condominio_id: string
+          created_at: string
+          criado_por: string | null
+          desconto: number
+          descricao: string | null
+          id: string
+          juros: number
+          mp_payment_id: string | null
+          mp_qr_code: string | null
+          mp_qr_code_base64: string | null
+          mp_ticket_url: string | null
+          multa: number
+          pago_em: string | null
+          status: Database["public"]["Enums"]["cobranca_status"]
+          unidade_id: string
+          updated_at: string
+          valor: number
+          valor_pago: number
+          vencimento: string
+        }
+        Insert: {
+          categoria_id?: string | null
+          competencia: string
+          condominio_id: string
+          created_at?: string
+          criado_por?: string | null
+          desconto?: number
+          descricao?: string | null
+          id?: string
+          juros?: number
+          mp_payment_id?: string | null
+          mp_qr_code?: string | null
+          mp_qr_code_base64?: string | null
+          mp_ticket_url?: string | null
+          multa?: number
+          pago_em?: string | null
+          status?: Database["public"]["Enums"]["cobranca_status"]
+          unidade_id: string
+          updated_at?: string
+          valor: number
+          valor_pago?: number
+          vencimento: string
+        }
+        Update: {
+          categoria_id?: string | null
+          competencia?: string
+          condominio_id?: string
+          created_at?: string
+          criado_por?: string | null
+          desconto?: number
+          descricao?: string | null
+          id?: string
+          juros?: number
+          mp_payment_id?: string | null
+          mp_qr_code?: string | null
+          mp_qr_code_base64?: string | null
+          mp_ticket_url?: string | null
+          multa?: number
+          pago_em?: string | null
+          status?: Database["public"]["Enums"]["cobranca_status"]
+          unidade_id?: string
+          updated_at?: string
+          valor?: number
+          valor_pago?: number
+          vencimento?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cobrancas_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias_financeiras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cobrancas_condominio_id_fkey"
+            columns: ["condominio_id"]
+            isOneToOne: false
+            referencedRelation: "condominios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cobrancas_unidade_id_fkey"
+            columns: ["unidade_id"]
+            isOneToOne: false
+            referencedRelation: "unidades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       condominios: {
         Row: {
           cep: string | null
@@ -108,6 +246,56 @@ export type Database = {
           whatsapp_numero?: string | null
         }
         Relationships: []
+      }
+      config_pagamento: {
+        Row: {
+          ativo: boolean
+          condominio_id: string
+          created_at: string
+          dias_envio_lembrete: number
+          juros_dia_percentual: number
+          mp_access_token: string | null
+          mp_public_key: string | null
+          mp_user_id: string | null
+          multa_percentual: number
+          pix_chave: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          condominio_id: string
+          created_at?: string
+          dias_envio_lembrete?: number
+          juros_dia_percentual?: number
+          mp_access_token?: string | null
+          mp_public_key?: string | null
+          mp_user_id?: string | null
+          multa_percentual?: number
+          pix_chave?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          condominio_id?: string
+          created_at?: string
+          dias_envio_lembrete?: number
+          juros_dia_percentual?: number
+          mp_access_token?: string | null
+          mp_public_key?: string | null
+          mp_user_id?: string | null
+          multa_percentual?: number
+          pix_chave?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "config_pagamento_condominio_id_fkey"
+            columns: ["condominio_id"]
+            isOneToOne: true
+            referencedRelation: "condominios"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       convites: {
         Row: {
@@ -171,6 +359,123 @@ export type Database = {
             columns: ["unidade_id"]
             isOneToOne: false
             referencedRelation: "unidades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      despesas: {
+        Row: {
+          anexo_url: string | null
+          categoria_id: string | null
+          condominio_id: string
+          created_at: string
+          data: string
+          descricao: string
+          forma: Database["public"]["Enums"]["forma_pagamento"] | null
+          fornecedor: string | null
+          id: string
+          registrado_por: string | null
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          anexo_url?: string | null
+          categoria_id?: string | null
+          condominio_id: string
+          created_at?: string
+          data?: string
+          descricao: string
+          forma?: Database["public"]["Enums"]["forma_pagamento"] | null
+          fornecedor?: string | null
+          id?: string
+          registrado_por?: string | null
+          updated_at?: string
+          valor: number
+        }
+        Update: {
+          anexo_url?: string | null
+          categoria_id?: string | null
+          condominio_id?: string
+          created_at?: string
+          data?: string
+          descricao?: string
+          forma?: Database["public"]["Enums"]["forma_pagamento"] | null
+          fornecedor?: string | null
+          id?: string
+          registrado_por?: string | null
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "despesas_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias_financeiras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "despesas_condominio_id_fkey"
+            columns: ["condominio_id"]
+            isOneToOne: false
+            referencedRelation: "condominios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pagamentos: {
+        Row: {
+          cobranca_id: string | null
+          comprovante_url: string | null
+          condominio_id: string
+          created_at: string
+          forma: Database["public"]["Enums"]["forma_pagamento"]
+          id: string
+          mp_payment_id: string | null
+          observacoes: string | null
+          pago_em: string
+          registrado_por: string | null
+          valor: number
+        }
+        Insert: {
+          cobranca_id?: string | null
+          comprovante_url?: string | null
+          condominio_id: string
+          created_at?: string
+          forma?: Database["public"]["Enums"]["forma_pagamento"]
+          id?: string
+          mp_payment_id?: string | null
+          observacoes?: string | null
+          pago_em?: string
+          registrado_por?: string | null
+          valor: number
+        }
+        Update: {
+          cobranca_id?: string | null
+          comprovante_url?: string | null
+          condominio_id?: string
+          created_at?: string
+          forma?: Database["public"]["Enums"]["forma_pagamento"]
+          id?: string
+          mp_payment_id?: string | null
+          observacoes?: string | null
+          pago_em?: string
+          registrado_por?: string | null
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagamentos_cobranca_id_fkey"
+            columns: ["cobranca_id"]
+            isOneToOne: false
+            referencedRelation: "cobrancas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagamentos_condominio_id_fkey"
+            columns: ["condominio_id"]
+            isOneToOne: false
+            referencedRelation: "condominios"
             referencedColumns: ["id"]
           },
         ]
@@ -318,6 +623,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      gerar_cobrancas_lote: {
+        Args: {
+          _categoria_id: string
+          _competencia: string
+          _condominio_id: string
+          _descricao: string
+          _usar_taxa_unidade: boolean
+          _valor_padrao: number
+          _vencimento: string
+        }
+        Returns: number
+      }
       has_role: {
         Args: {
           _condominio_id: string
@@ -326,8 +643,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_contador: {
+        Args: { _condominio_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_member_of: {
         Args: { _condominio_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_morador_da_unidade: {
+        Args: { _unidade_id: string; _user_id: string }
         Returns: boolean
       }
       is_sindico: {
@@ -341,11 +666,30 @@ export type Database = {
           nome: string
         }[]
       }
+      registrar_pagamento_manual: {
+        Args: {
+          _cobranca_id: string
+          _forma: Database["public"]["Enums"]["forma_pagamento"]
+          _observacoes: string
+          _pago_em: string
+          _valor: number
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "sindico" | "morador" | "contador" | "porteiro"
+      cobranca_status: "pendente" | "paga" | "vencida" | "cancelada" | "parcial"
       convite_status: "pendente" | "aceito" | "expirado" | "cancelado"
+      forma_pagamento:
+        | "pix"
+        | "boleto"
+        | "dinheiro"
+        | "transferencia"
+        | "cartao"
+        | "outro"
       plano_tipo: "basico" | "profissional" | "admin"
+      tipo_lancamento: "receita" | "despesa"
       vinculo_tipo: "proprietario" | "inquilino" | "familiar"
     }
     CompositeTypes: {
@@ -475,8 +819,18 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["sindico", "morador", "contador", "porteiro"],
+      cobranca_status: ["pendente", "paga", "vencida", "cancelada", "parcial"],
       convite_status: ["pendente", "aceito", "expirado", "cancelado"],
+      forma_pagamento: [
+        "pix",
+        "boleto",
+        "dinheiro",
+        "transferencia",
+        "cartao",
+        "outro",
+      ],
       plano_tipo: ["basico", "profissional", "admin"],
+      tipo_lancamento: ["receita", "despesa"],
       vinculo_tipo: ["proprietario", "inquilino", "familiar"],
     },
   },

@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/auth/AuthProvider";
+import { useCondominioAtivo } from "@/auth/useCondominio";
 import { supabase } from "@/integrations/supabase/client";
+import { resumoFinanceiro } from "@/server/financeiro.functions";
+import { brl } from "@/lib/format";
 import { Building2, Users, Wallet, AlertCircle, TrendingUp, MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/app/")({
@@ -13,9 +16,11 @@ type Cond = { id: string; nome: string; codigo_publico: string; total_unidades: 
 
 function DashboardPage() {
   const { profile, roles } = useAuth();
+  const { condominioId } = useCondominioAtivo();
   const [conds, setConds] = useState<Cond[]>([]);
   const [loading, setLoading] = useState(true);
   const [unidadesCount, setUnidadesCount] = useState(0);
+  const [resumo, setResumo] = useState<any>(null);
 
   useEffect(() => {
     (async () => {
@@ -31,6 +36,12 @@ function DashboardPage() {
     })();
   }, [roles]);
 
+  useEffect(() => {
+    if (!condominioId) return;
+    const mes = new Date().toISOString().slice(0, 7);
+    resumoFinanceiro({ data: { condominio_id: condominioId, mes } }).then(setResumo).catch(() => {});
+  }, [condominioId]);
+
   const isSindico = roles.some((r) => r.role === "sindico");
 
   return (
@@ -43,8 +54,8 @@ function DashboardPage() {
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Stat icon={Building2} label="Condomínios" value={conds.length} />
         <Stat icon={Users} label="Unidades" value={unidadesCount} />
-        <Stat icon={Wallet} label="Inadimplência" value="—" hint="Disponível na Fase 3" />
-        <Stat icon={TrendingUp} label="Arrecadação" value="—" hint="Disponível na Fase 3" />
+        <Stat icon={Wallet} label="Inadimplência" value={resumo ? brl(resumo.totalInadimplencia) : "—"} hint={resumo ? `${resumo.qtdInadimplentes} cobrança(s)` : undefined} />
+        <Stat icon={TrendingUp} label="Recebido no mês" value={resumo ? brl(resumo.totalRecebidoMes) : "—"} />
       </div>
 
       <section className="bg-background border border-border rounded-2xl p-6">

@@ -741,8 +741,11 @@ function ConfigTab({ condominioId }: { condominioId: string }) {
 
       <div className="bg-background border border-border rounded-2xl p-6 space-y-4">
         <p className="font-display text-lg font-bold">Mercado Pago</p>
-        <Field label={`Access Token ${cfg?.mp_token_configured ? `(atual: ${cfg.mp_access_token})` : ""}`}>
+        <Field label={`Access Token ${cfg?.mp_token_configured ? "(configurado)" : ""}`}>
           <input type="password" value={token} onChange={(e) => setToken(e.target.value)} placeholder={cfg?.mp_token_configured ? "Deixe vazio para manter" : "APP_USR-..."} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono" />
+        </Field>
+        <Field label={`Webhook Secret ${cfg?.mp_webhook_configured ? "(configurado)" : ""}`}>
+          <input type="password" value={webhookSecret} onChange={(e) => setWebhookSecret(e.target.value)} placeholder={cfg?.mp_webhook_configured ? "Deixe vazio para manter" : "Segredo do webhook (obrigatório)"} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono" />
         </Field>
         <Field label="Public Key (opcional)">
           <input value={publicKey} onChange={(e) => setPublicKey(e.target.value)} placeholder="APP_USR-..." className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono" />

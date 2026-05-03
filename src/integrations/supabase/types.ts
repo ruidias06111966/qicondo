@@ -542,6 +542,123 @@ export type Database = {
           },
         ]
       }
+      encomendas: {
+        Row: {
+          codigo_rastreio: string | null
+          condominio_id: string
+          created_at: string
+          descricao: string
+          foto_url: string | null
+          id: string
+          local_armazenamento: string | null
+          notificado_em: string | null
+          observacoes: string | null
+          recebido_em: string
+          recebido_por: string | null
+          remetente: string | null
+          retirado_em: string | null
+          retirado_por: string | null
+          retirado_por_nome: string | null
+          status: Database["public"]["Enums"]["encomenda_status"]
+          transportadora: string | null
+          unidade_id: string
+          updated_at: string
+        }
+        Insert: {
+          codigo_rastreio?: string | null
+          condominio_id: string
+          created_at?: string
+          descricao: string
+          foto_url?: string | null
+          id?: string
+          local_armazenamento?: string | null
+          notificado_em?: string | null
+          observacoes?: string | null
+          recebido_em?: string
+          recebido_por?: string | null
+          remetente?: string | null
+          retirado_em?: string | null
+          retirado_por?: string | null
+          retirado_por_nome?: string | null
+          status?: Database["public"]["Enums"]["encomenda_status"]
+          transportadora?: string | null
+          unidade_id: string
+          updated_at?: string
+        }
+        Update: {
+          codigo_rastreio?: string | null
+          condominio_id?: string
+          created_at?: string
+          descricao?: string
+          foto_url?: string | null
+          id?: string
+          local_armazenamento?: string | null
+          notificado_em?: string | null
+          observacoes?: string | null
+          recebido_em?: string
+          recebido_por?: string | null
+          remetente?: string | null
+          retirado_em?: string | null
+          retirado_por?: string | null
+          retirado_por_nome?: string | null
+          status?: Database["public"]["Enums"]["encomenda_status"]
+          transportadora?: string | null
+          unidade_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notificacoes_whatsapp: {
+        Row: {
+          condominio_id: string
+          contexto: string | null
+          contexto_id: string | null
+          created_at: string
+          destinatario_nome: string | null
+          destinatario_telefone: string
+          destinatario_user_id: string | null
+          enviado_em: string | null
+          erro: string | null
+          id: string
+          link_wa: string | null
+          mensagem: string
+          status: Database["public"]["Enums"]["wa_status"]
+          unidade_id: string | null
+        }
+        Insert: {
+          condominio_id: string
+          contexto?: string | null
+          contexto_id?: string | null
+          created_at?: string
+          destinatario_nome?: string | null
+          destinatario_telefone: string
+          destinatario_user_id?: string | null
+          enviado_em?: string | null
+          erro?: string | null
+          id?: string
+          link_wa?: string | null
+          mensagem: string
+          status?: Database["public"]["Enums"]["wa_status"]
+          unidade_id?: string | null
+        }
+        Update: {
+          condominio_id?: string
+          contexto?: string | null
+          contexto_id?: string | null
+          created_at?: string
+          destinatario_nome?: string | null
+          destinatario_telefone?: string
+          destinatario_user_id?: string | null
+          enviado_em?: string | null
+          erro?: string | null
+          id?: string
+          link_wa?: string | null
+          mensagem?: string
+          status?: Database["public"]["Enums"]["wa_status"]
+          unidade_id?: string | null
+        }
+        Relationships: []
+      }
       pagamentos: {
         Row: {
           cobranca_id: string | null
@@ -811,12 +928,88 @@ export type Database = {
           },
         ]
       }
+      visitantes: {
+        Row: {
+          autorizado_em: string | null
+          autorizado_por: string | null
+          condominio_id: string
+          created_at: string
+          documento: string | null
+          empresa: string | null
+          entrada_em: string | null
+          foto_url: string | null
+          id: string
+          motivo_recusa: string | null
+          nome: string
+          notificado_em: string | null
+          observacoes: string | null
+          placa_veiculo: string | null
+          registrado_por: string | null
+          saida_em: string | null
+          status: Database["public"]["Enums"]["visitante_status"]
+          tipo: Database["public"]["Enums"]["visitante_tipo"]
+          unidade_id: string
+          updated_at: string
+          valido_ate: string | null
+        }
+        Insert: {
+          autorizado_em?: string | null
+          autorizado_por?: string | null
+          condominio_id: string
+          created_at?: string
+          documento?: string | null
+          empresa?: string | null
+          entrada_em?: string | null
+          foto_url?: string | null
+          id?: string
+          motivo_recusa?: string | null
+          nome: string
+          notificado_em?: string | null
+          observacoes?: string | null
+          placa_veiculo?: string | null
+          registrado_por?: string | null
+          saida_em?: string | null
+          status?: Database["public"]["Enums"]["visitante_status"]
+          tipo?: Database["public"]["Enums"]["visitante_tipo"]
+          unidade_id: string
+          updated_at?: string
+          valido_ate?: string | null
+        }
+        Update: {
+          autorizado_em?: string | null
+          autorizado_por?: string | null
+          condominio_id?: string
+          created_at?: string
+          documento?: string | null
+          empresa?: string | null
+          entrada_em?: string | null
+          foto_url?: string | null
+          id?: string
+          motivo_recusa?: string | null
+          nome?: string
+          notificado_em?: string | null
+          observacoes?: string | null
+          placa_veiculo?: string | null
+          registrado_por?: string | null
+          saida_em?: string | null
+          status?: Database["public"]["Enums"]["visitante_status"]
+          tipo?: Database["public"]["Enums"]["visitante_tipo"]
+          unidade_id?: string
+          updated_at?: string
+          valido_ate?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       aprovar_reserva: { Args: { _reserva_id: string }; Returns: undefined }
+      autorizar_visitante: {
+        Args: { _visitante_id: string }
+        Returns: undefined
+      }
       cancelar_reserva: { Args: { _reserva_id: string }; Returns: undefined }
       gerar_cobrancas_lote: {
         Args: {
@@ -861,8 +1054,33 @@ export type Database = {
           nome: string
         }[]
       }
+      marcar_encomenda_retirada: {
+        Args: { _encomenda_id: string; _retirado_por_nome: string }
+        Returns: undefined
+      }
       recusar_reserva: {
         Args: { _motivo: string; _reserva_id: string }
+        Returns: undefined
+      }
+      recusar_visitante: {
+        Args: { _motivo: string; _visitante_id: string }
+        Returns: undefined
+      }
+      registrar_encomenda: {
+        Args: {
+          _codigo_rastreio: string
+          _descricao: string
+          _foto_url: string
+          _local_armazenamento: string
+          _observacoes: string
+          _remetente: string
+          _transportadora: string
+          _unidade_id: string
+        }
+        Returns: string
+      }
+      registrar_entrada_visitante: {
+        Args: { _visitante_id: string }
         Returns: undefined
       }
       registrar_pagamento_manual: {
@@ -872,6 +1090,25 @@ export type Database = {
           _observacoes: string
           _pago_em: string
           _valor: number
+        }
+        Returns: string
+      }
+      registrar_saida_visitante: {
+        Args: { _visitante_id: string }
+        Returns: undefined
+      }
+      registrar_visitante: {
+        Args: {
+          _documento: string
+          _empresa: string
+          _foto_url: string
+          _nome: string
+          _observacoes: string
+          _placa_veiculo: string
+          _pre_autorizar: boolean
+          _tipo: Database["public"]["Enums"]["visitante_tipo"]
+          _unidade_id: string
+          _valido_ate: string
         }
         Returns: string
       }
@@ -891,6 +1128,7 @@ export type Database = {
       app_role: "sindico" | "morador" | "contador" | "porteiro"
       cobranca_status: "pendente" | "paga" | "vencida" | "cancelada" | "parcial"
       convite_status: "pendente" | "aceito" | "expirado" | "cancelado"
+      encomenda_status: "aguardando" | "retirada" | "devolvida"
       forma_pagamento:
         | "pix"
         | "boleto"
@@ -907,6 +1145,15 @@ export type Database = {
         | "concluida"
       tipo_lancamento: "receita" | "despesa"
       vinculo_tipo: "proprietario" | "inquilino" | "familiar"
+      visitante_status:
+        | "aguardando"
+        | "autorizado"
+        | "recusado"
+        | "dentro"
+        | "saiu"
+        | "expirado"
+      visitante_tipo: "visita" | "prestador" | "delivery" | "mudanca" | "outro"
+      wa_status: "pendente" | "enviado" | "falhou"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1037,6 +1284,7 @@ export const Constants = {
       app_role: ["sindico", "morador", "contador", "porteiro"],
       cobranca_status: ["pendente", "paga", "vencida", "cancelada", "parcial"],
       convite_status: ["pendente", "aceito", "expirado", "cancelado"],
+      encomenda_status: ["aguardando", "retirada", "devolvida"],
       forma_pagamento: [
         "pix",
         "boleto",
@@ -1055,6 +1303,16 @@ export const Constants = {
       ],
       tipo_lancamento: ["receita", "despesa"],
       vinculo_tipo: ["proprietario", "inquilino", "familiar"],
+      visitante_status: [
+        "aguardando",
+        "autorizado",
+        "recusado",
+        "dentro",
+        "saiu",
+        "expirado",
+      ],
+      visitante_tipo: ["visita", "prestador", "delivery", "mudanca", "outro"],
+      wa_status: ["pendente", "enviado", "falhou"],
     },
   },
 } as const

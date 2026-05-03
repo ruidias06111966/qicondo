@@ -28,6 +28,7 @@ import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthEsqueciSenhaRouteImport } from './routes/auth.esqueci-senha'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthCadastroRouteImport } from './routes/auth.cadastro'
+import { Route as AppVisitantesRouteImport } from './routes/app.visitantes'
 import { Route as AppReservasRouteImport } from './routes/app.reservas'
 import { Route as AppFinanceiroRouteImport } from './routes/app.financeiro'
 import { Route as AppEncomendasRouteImport } from './routes/app.encomendas'
@@ -128,6 +129,11 @@ const AuthCadastroRoute = AuthCadastroRouteImport.update({
   path: '/auth/cadastro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppVisitantesRoute = AppVisitantesRouteImport.update({
+  id: '/visitantes',
+  path: '/visitantes',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppReservasRoute = AppReservasRouteImport.update({
   id: '/reservas',
   path: '/reservas',
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRoute
   '/app/reservas': typeof AppReservasRoute
+  '/app/visitantes': typeof AppVisitantesRoute
   '/auth/cadastro': typeof AuthCadastroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByTo {
   '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRoute
   '/app/reservas': typeof AppReservasRoute
+  '/app/visitantes': typeof AppVisitantesRoute
   '/auth/cadastro': typeof AuthCadastroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
@@ -216,6 +224,7 @@ export interface FileRoutesById {
   '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRoute
   '/app/reservas': typeof AppReservasRoute
+  '/app/visitantes': typeof AppVisitantesRoute
   '/auth/cadastro': typeof AuthCadastroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
@@ -243,6 +252,7 @@ export interface FileRouteTypes {
     | '/app/encomendas'
     | '/app/financeiro'
     | '/app/reservas'
+    | '/app/visitantes'
     | '/auth/cadastro'
     | '/auth/callback'
     | '/auth/esqueci-senha'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/app/encomendas'
     | '/app/financeiro'
     | '/app/reservas'
+    | '/app/visitantes'
     | '/auth/cadastro'
     | '/auth/callback'
     | '/auth/esqueci-senha'
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '/app/encomendas'
     | '/app/financeiro'
     | '/app/reservas'
+    | '/app/visitantes'
     | '/auth/cadastro'
     | '/auth/callback'
     | '/auth/esqueci-senha'
@@ -458,6 +470,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCadastroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/visitantes': {
+      id: '/app/visitantes'
+      path: '/visitantes'
+      fullPath: '/app/visitantes'
+      preLoaderRoute: typeof AppVisitantesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/reservas': {
       id: '/app/reservas'
       path: '/reservas'
@@ -493,6 +512,7 @@ interface AppRouteChildren {
   AppEncomendasRoute: typeof AppEncomendasRoute
   AppFinanceiroRoute: typeof AppFinanceiroRoute
   AppReservasRoute: typeof AppReservasRoute
+  AppVisitantesRoute: typeof AppVisitantesRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
@@ -500,6 +520,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppEncomendasRoute: AppEncomendasRoute,
   AppFinanceiroRoute: AppFinanceiroRoute,
   AppReservasRoute: AppReservasRoute,
+  AppVisitantesRoute: AppVisitantesRoute,
   AppIndexRoute: AppIndexRoute,
 }
 

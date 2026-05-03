@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/auth/AuthProvider";
+import { useCondominioAtivo } from "@/auth/useCondominio";
 import { supabase } from "@/integrations/supabase/client";
+import { resumoFinanceiro } from "@/server/financeiro.functions";
+import { brl } from "@/lib/format";
 import { Building2, Users, Wallet, AlertCircle, TrendingUp, MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/app/")({

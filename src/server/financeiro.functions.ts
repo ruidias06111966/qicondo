@@ -94,10 +94,10 @@ export const gerarCobrancasLote = createServerFn({ method: "POST" })
     const { supabase } = context;
     const { data: count, error } = await supabase.rpc("gerar_cobrancas_lote", {
       _condominio_id: data.condominio_id,
-      _categoria_id: data.categoria_id,
+      _categoria_id: data.categoria_id as any,
       _competencia: data.competencia,
       _vencimento: data.vencimento,
-      _descricao: data.descricao ?? null,
+      _descricao: (data.descricao ?? null) as any,
       _usar_taxa_unidade: data.usar_taxa_unidade,
       _valor_padrao: data.valor_padrao,
     });
@@ -134,7 +134,7 @@ export const registrarPagamentoManual = createServerFn({ method: "POST" })
       _valor: data.valor,
       _forma: data.forma,
       _pago_em: data.pago_em,
-      _observacoes: data.observacoes ?? null,
+      _observacoes: (data.observacoes ?? null) as any,
     });
     if (error) throw new Error(error.message);
     return { id };

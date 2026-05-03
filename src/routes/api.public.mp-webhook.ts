@@ -1,5 +1,40 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
+/**
+ * Valida assinatura HMAC do webhook do Mercado Pago.
+ * Formato do header x-signature: "ts=1234567890,v1=abc..."
+ * Manifesto: id:[paymentId];request-id:[x-request-id];ts:[ts];
+ */
+function verifyMpSignature(opts: {
+  secret: string;
+  signatureHeader: string | null;
+  requestId: string | null;
+  paymentId: string;
+}): boolean {
+  if (!opts.signatureHeader) return false;
+  const parts = Object.fromEntries(
+    opts.signatureHeader.split(",").map((p) => {
+      const [k, ...rest] = p.trim().split("=");
+      return [k, rest.join("=")];
+    }),
+  );
+  const ts = parts.ts;
+  const v1 = parts.v1;
+  if (!ts || !v1) return false;
+
+  const manifest = `id:${opts.paymentId};request-id:${opts.requestId ?? ""};ts:${ts};`;
+  const hmac = createHmac("sha256", opts.secret).update(manifest).digest("hex");
+  try {
+    const a = Buffer.from(hmac, "hex");
+    const b = Buffer.from(v1, "hex");
+    if (a.length !== b.length) return false;
+    return timingSafeEqual(a, b);
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Webhook do Mercado Pago - notificação de pagamentos

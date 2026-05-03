@@ -768,8 +768,8 @@ function ConfigTab({ condominioId }: { condominioId: string }) {
           <Field label="Multa por atraso (%)"><input type="number" step="0.1" value={multa} onChange={(e) => setMulta(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" /></Field>
           <Field label="Juros ao dia (%)"><input type="number" step="0.001" value={juros} onChange={(e) => setJuros(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" /></Field>
         </div>
-        <Field label="Chave PIX manual (fallback)">
-          <input value={pixChave} onChange={(e) => setPixChave(e.target.value)} placeholder="CNPJ, e-mail ou aleatória" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        <Field label={`Chave PIX manual (fallback) ${cfg?.pix_chave_mascarada ? `(atual: ${cfg.pix_chave_mascarada})` : ""}`}>
+          <input value={pixChave} onChange={(e) => setPixChave(e.target.value)} placeholder={cfg?.pix_chave_mascarada ? "Deixe vazio para manter" : "CNPJ, e-mail ou aleatória"} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
         </Field>
       </div>
 

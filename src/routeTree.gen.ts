@@ -28,8 +28,10 @@ import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthEsqueciSenhaRouteImport } from './routes/auth.esqueci-senha'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthCadastroRouteImport } from './routes/auth.cadastro'
+import { Route as AppVisitantesRouteImport } from './routes/app.visitantes'
 import { Route as AppReservasRouteImport } from './routes/app.reservas'
 import { Route as AppFinanceiroRouteImport } from './routes/app.financeiro'
+import { Route as AppEncomendasRouteImport } from './routes/app.encomendas'
 import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
 
 const TermosRoute = TermosRouteImport.update({
@@ -127,6 +129,11 @@ const AuthCadastroRoute = AuthCadastroRouteImport.update({
   path: '/auth/cadastro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppVisitantesRoute = AppVisitantesRouteImport.update({
+  id: '/visitantes',
+  path: '/visitantes',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppReservasRoute = AppReservasRouteImport.update({
   id: '/reservas',
   path: '/reservas',
@@ -135,6 +142,11 @@ const AppReservasRoute = AppReservasRouteImport.update({
 const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
   id: '/financeiro',
   path: '/financeiro',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEncomendasRoute = AppEncomendasRouteImport.update({
+  id: '/encomendas',
+  path: '/encomendas',
   getParentRoute: () => AppRoute,
 } as any)
 const ApiPublicMpWebhookRoute = ApiPublicMpWebhookRouteImport.update({
@@ -157,8 +169,10 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRoute
   '/app/reservas': typeof AppReservasRoute
+  '/app/visitantes': typeof AppVisitantesRoute
   '/auth/cadastro': typeof AuthCadastroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
@@ -180,8 +194,10 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRoute
   '/app/reservas': typeof AppReservasRoute
+  '/app/visitantes': typeof AppVisitantesRoute
   '/auth/cadastro': typeof AuthCadastroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
@@ -205,8 +221,10 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRoute
   '/app/reservas': typeof AppReservasRoute
+  '/app/visitantes': typeof AppVisitantesRoute
   '/auth/cadastro': typeof AuthCadastroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
@@ -231,8 +249,10 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/encomendas'
     | '/app/financeiro'
     | '/app/reservas'
+    | '/app/visitantes'
     | '/auth/cadastro'
     | '/auth/callback'
     | '/auth/esqueci-senha'
@@ -254,8 +274,10 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/encomendas'
     | '/app/financeiro'
     | '/app/reservas'
+    | '/app/visitantes'
     | '/auth/cadastro'
     | '/auth/callback'
     | '/auth/esqueci-senha'
@@ -278,8 +300,10 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/encomendas'
     | '/app/financeiro'
     | '/app/reservas'
+    | '/app/visitantes'
     | '/auth/cadastro'
     | '/auth/callback'
     | '/auth/esqueci-senha'
@@ -446,6 +470,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCadastroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/visitantes': {
+      id: '/app/visitantes'
+      path: '/visitantes'
+      fullPath: '/app/visitantes'
+      preLoaderRoute: typeof AppVisitantesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/reservas': {
       id: '/app/reservas'
       path: '/reservas'
@@ -460,6 +491,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceiroRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/encomendas': {
+      id: '/app/encomendas'
+      path: '/encomendas'
+      fullPath: '/app/encomendas'
+      preLoaderRoute: typeof AppEncomendasRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/api/public/mp-webhook': {
       id: '/api/public/mp-webhook'
       path: '/api/public/mp-webhook'
@@ -471,14 +509,18 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppEncomendasRoute: typeof AppEncomendasRoute
   AppFinanceiroRoute: typeof AppFinanceiroRoute
   AppReservasRoute: typeof AppReservasRoute
+  AppVisitantesRoute: typeof AppVisitantesRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppEncomendasRoute: AppEncomendasRoute,
   AppFinanceiroRoute: AppFinanceiroRoute,
   AppReservasRoute: AppReservasRoute,
+  AppVisitantesRoute: AppVisitantesRoute,
   AppIndexRoute: AppIndexRoute,
 }
 

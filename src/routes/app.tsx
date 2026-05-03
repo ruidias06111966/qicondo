@@ -7,7 +7,7 @@ import {
   Calendar, Package, Wrench, Wallet, Settings, Menu, X
 } from "lucide-react";
 
-export const Route = createFileRoute("/_app")({
+export const Route = createFileRoute("/app")({
   component: AppLayout,
 });
 

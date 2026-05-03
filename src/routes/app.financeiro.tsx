@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Construction } from "lucide-react";
 
-export const Route = createFileRoute("/_app/financeiro")({
+export const Route = createFileRoute("/app/financeiro")({
   head: () => ({ meta: [{ title: "Financeiro — CONDOZAP" }] }),
   component: () => <Soon title="Financeiro" desc="Cobranças, PIX, boletos e prestação de contas." />,
 });

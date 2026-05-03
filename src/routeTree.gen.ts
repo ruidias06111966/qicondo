@@ -20,6 +20,11 @@ import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRedefinirSenhaRouteImport } from './routes/auth.redefinir-senha'
+import { Route as AuthLoginRouteImport } from './routes/auth.login'
+import { Route as AuthEsqueciSenhaRouteImport } from './routes/auth.esqueci-senha'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AuthCadastroRouteImport } from './routes/auth.cadastro'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -76,6 +81,31 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRedefinirSenhaRoute = AuthRedefinirSenhaRouteImport.update({
+  id: '/auth/redefinir-senha',
+  path: '/auth/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthEsqueciSenhaRoute = AuthEsqueciSenhaRouteImport.update({
+  id: '/auth/esqueci-senha',
+  path: '/auth/esqueci-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCadastroRoute = AuthCadastroRouteImport.update({
+  id: '/auth/cadastro',
+  path: '/auth/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +119,11 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/auth/cadastro': typeof AuthCadastroRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,6 +137,11 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/auth/cadastro': typeof AuthCadastroRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +156,11 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/auth/cadastro': typeof AuthCadastroRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +176,11 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/auth/cadastro'
+    | '/auth/callback'
+    | '/auth/esqueci-senha'
+    | '/auth/login'
+    | '/auth/redefinir-senha'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +194,11 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/auth/cadastro'
+    | '/auth/callback'
+    | '/auth/esqueci-senha'
+    | '/auth/login'
+    | '/auth/redefinir-senha'
   id:
     | '__root__'
     | '/'
@@ -157,6 +212,11 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/auth/cadastro'
+    | '/auth/callback'
+    | '/auth/esqueci-senha'
+    | '/auth/login'
+    | '/auth/redefinir-senha'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +231,11 @@ export interface RootRouteChildren {
   SobreRoute: typeof SobreRoute
   StatusRoute: typeof StatusRoute
   TermosRoute: typeof TermosRoute
+  AuthCadastroRoute: typeof AuthCadastroRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthEsqueciSenhaRoute: typeof AuthEsqueciSenhaRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthRedefinirSenhaRoute: typeof AuthRedefinirSenhaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -252,6 +317,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/redefinir-senha': {
+      id: '/auth/redefinir-senha'
+      path: '/auth/redefinir-senha'
+      fullPath: '/auth/redefinir-senha'
+      preLoaderRoute: typeof AuthRedefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/esqueci-senha': {
+      id: '/auth/esqueci-senha'
+      path: '/auth/esqueci-senha'
+      fullPath: '/auth/esqueci-senha'
+      preLoaderRoute: typeof AuthEsqueciSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/cadastro': {
+      id: '/auth/cadastro'
+      path: '/auth/cadastro'
+      fullPath: '/auth/cadastro'
+      preLoaderRoute: typeof AuthCadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -267,6 +367,11 @@ const rootRouteChildren: RootRouteChildren = {
   SobreRoute: SobreRoute,
   StatusRoute: StatusRoute,
   TermosRoute: TermosRoute,
+  AuthCadastroRoute: AuthCadastroRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
+  AuthEsqueciSenhaRoute: AuthEsqueciSenhaRoute,
+  AuthLoginRoute: AuthLoginRoute,
+  AuthRedefinirSenhaRoute: AuthRedefinirSenhaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -15,6 +15,7 @@ import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as RecursosRouteImport } from './routes/recursos'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PrecosRouteImport } from './routes/precos'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LgpdRouteImport } from './routes/lgpd'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as BlogRouteImport } from './routes/blog'
@@ -57,6 +58,11 @@ const PrivacidadeRoute = PrivacidadeRouteImport.update({
 const PrecosRoute = PrecosRouteImport.update({
   id: '/precos',
   path: '/precos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LgpdRoute = LgpdRouteImport.update({
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/blog': typeof BlogRoute
   '/contato': typeof ContatoRoute
   '/lgpd': typeof LgpdRoute
+  '/onboarding': typeof OnboardingRoute
   '/precos': typeof PrecosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recursos': typeof RecursosRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogRoute
   '/contato': typeof ContatoRoute
   '/lgpd': typeof LgpdRoute
+  '/onboarding': typeof OnboardingRoute
   '/precos': typeof PrecosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recursos': typeof RecursosRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   '/blog': typeof BlogRoute
   '/contato': typeof ContatoRoute
   '/lgpd': typeof LgpdRoute
+  '/onboarding': typeof OnboardingRoute
   '/precos': typeof PrecosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recursos': typeof RecursosRoute
@@ -197,6 +206,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/contato'
     | '/lgpd'
+    | '/onboarding'
     | '/precos'
     | '/privacidade'
     | '/recursos'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/contato'
     | '/lgpd'
+    | '/onboarding'
     | '/precos'
     | '/privacidade'
     | '/recursos'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/contato'
     | '/lgpd'
+    | '/onboarding'
     | '/precos'
     | '/privacidade'
     | '/recursos'
@@ -260,6 +272,7 @@ export interface RootRouteChildren {
   BlogRoute: typeof BlogRoute
   ContatoRoute: typeof ContatoRoute
   LgpdRoute: typeof LgpdRoute
+  OnboardingRoute: typeof OnboardingRoute
   PrecosRoute: typeof PrecosRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   RecursosRoute: typeof RecursosRoute
@@ -315,6 +328,13 @@ declare module '@tanstack/react-router' {
       path: '/precos'
       fullPath: '/precos'
       preLoaderRoute: typeof PrecosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lgpd': {
@@ -430,6 +450,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogRoute: BlogRoute,
   ContatoRoute: ContatoRoute,
   LgpdRoute: LgpdRoute,
+  OnboardingRoute: OnboardingRoute,
   PrecosRoute: PrecosRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   RecursosRoute: RecursosRoute,

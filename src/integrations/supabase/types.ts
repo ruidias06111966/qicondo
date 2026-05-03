@@ -334,6 +334,13 @@ export type Database = {
         Args: { _condominio_id: string; _user_id: string }
         Returns: boolean
       }
+      join_condominio_by_code: {
+        Args: { _codigo: string }
+        Returns: {
+          condominio_id: string
+          nome: string
+        }[]
+      }
     }
     Enums: {
       app_role: "sindico" | "morador" | "contador" | "porteiro"

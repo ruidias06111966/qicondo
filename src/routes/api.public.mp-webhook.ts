@@ -64,7 +64,30 @@ export const Route = createFileRoute("/api/public/mp-webhook")({
             .maybeSingle();
 
           if (!cob) {
-            return new Response(JSON.stringify({ ignored: "cobranca_nao_encontrada" }), { status: 200 });
+            // Resposta neutra para não vazar existência
+            return new Response("ok", { status: 200 });
+          }
+
+          // Verifica assinatura HMAC do MP usando o segredo do condomínio
+          const { data: cfgSec } = await supabaseAdmin
+            .from("config_pagamento")
+            .select("mp_webhook_secret")
+            .eq("condominio_id", cob.condominio_id)
+            .maybeSingle();
+
+          if (!cfgSec?.mp_webhook_secret) {
+            console.warn("[MP Webhook] sem secret configurado para condomínio", cob.condominio_id);
+            return new Response("Webhook não configurado", { status: 401 });
+          }
+
+          const ok = verifyMpSignature({
+            secret: cfgSec.mp_webhook_secret,
+            signatureHeader: request.headers.get("x-signature"),
+            requestId: request.headers.get("x-request-id"),
+            paymentId: String(paymentId),
+          });
+          if (!ok) {
+            return new Response("Assinatura inválida", { status: 401 });
           }
 
           // Token do condomínio para confirmar com MP

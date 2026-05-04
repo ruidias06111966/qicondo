@@ -665,6 +665,157 @@ export type Database = {
         }
         Relationships: []
       }
+      ocorrencia_anexos: {
+        Row: {
+          condominio_id: string
+          created_at: string
+          enviado_por: string
+          id: string
+          nome: string | null
+          ocorrencia_id: string
+          url: string
+        }
+        Insert: {
+          condominio_id: string
+          created_at?: string
+          enviado_por: string
+          id?: string
+          nome?: string | null
+          ocorrencia_id: string
+          url: string
+        }
+        Update: {
+          condominio_id?: string
+          created_at?: string
+          enviado_por?: string
+          id?: string
+          nome?: string | null
+          ocorrencia_id?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ocorrencia_anexos_ocorrencia_id_fkey"
+            columns: ["ocorrencia_id"]
+            isOneToOne: false
+            referencedRelation: "ocorrencias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ocorrencia_comentarios: {
+        Row: {
+          autor_id: string
+          condominio_id: string
+          created_at: string
+          id: string
+          interno: boolean
+          mensagem: string
+          ocorrencia_id: string
+        }
+        Insert: {
+          autor_id: string
+          condominio_id: string
+          created_at?: string
+          id?: string
+          interno?: boolean
+          mensagem: string
+          ocorrencia_id: string
+        }
+        Update: {
+          autor_id?: string
+          condominio_id?: string
+          created_at?: string
+          id?: string
+          interno?: boolean
+          mensagem?: string
+          ocorrencia_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ocorrencia_comentarios_ocorrencia_id_fkey"
+            columns: ["ocorrencia_id"]
+            isOneToOne: false
+            referencedRelation: "ocorrencias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ocorrencias: {
+        Row: {
+          aberta_por: string
+          atribuido_a: string | null
+          atribuido_em: string | null
+          atribuido_por: string | null
+          categoria: Database["public"]["Enums"]["ocorrencia_categoria"]
+          comentario_satisfacao: string | null
+          condominio_id: string
+          created_at: string
+          descricao: string
+          fechado_em: string | null
+          foto_url: string | null
+          id: string
+          local: string | null
+          nota_satisfacao: number | null
+          prioridade: Database["public"]["Enums"]["ocorrencia_prioridade"]
+          resolucao: string | null
+          resolvido_em: string | null
+          resolvido_por: string | null
+          status: Database["public"]["Enums"]["ocorrencia_status"]
+          titulo: string
+          unidade_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          aberta_por: string
+          atribuido_a?: string | null
+          atribuido_em?: string | null
+          atribuido_por?: string | null
+          categoria?: Database["public"]["Enums"]["ocorrencia_categoria"]
+          comentario_satisfacao?: string | null
+          condominio_id: string
+          created_at?: string
+          descricao: string
+          fechado_em?: string | null
+          foto_url?: string | null
+          id?: string
+          local?: string | null
+          nota_satisfacao?: number | null
+          prioridade?: Database["public"]["Enums"]["ocorrencia_prioridade"]
+          resolucao?: string | null
+          resolvido_em?: string | null
+          resolvido_por?: string | null
+          status?: Database["public"]["Enums"]["ocorrencia_status"]
+          titulo: string
+          unidade_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aberta_por?: string
+          atribuido_a?: string | null
+          atribuido_em?: string | null
+          atribuido_por?: string | null
+          categoria?: Database["public"]["Enums"]["ocorrencia_categoria"]
+          comentario_satisfacao?: string | null
+          condominio_id?: string
+          created_at?: string
+          descricao?: string
+          fechado_em?: string | null
+          foto_url?: string | null
+          id?: string
+          local?: string | null
+          nota_satisfacao?: number | null
+          prioridade?: Database["public"]["Enums"]["ocorrencia_prioridade"]
+          resolucao?: string | null
+          resolvido_em?: string | null
+          resolvido_por?: string | null
+          status?: Database["public"]["Enums"]["ocorrencia_status"]
+          titulo?: string
+          unidade_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pagamentos: {
         Row: {
           cobranca_id: string | null
@@ -1117,13 +1268,46 @@ export type Database = {
       }
     }
     Functions: {
+      abrir_ocorrencia: {
+        Args: {
+          _categoria: Database["public"]["Enums"]["ocorrencia_categoria"]
+          _condominio_id: string
+          _descricao: string
+          _foto_url: string
+          _local: string
+          _prioridade: Database["public"]["Enums"]["ocorrencia_prioridade"]
+          _titulo: string
+          _unidade_id: string
+        }
+        Returns: string
+      }
       aceitar_convite: { Args: { _token: string }; Returns: string }
       aprovar_reserva: { Args: { _reserva_id: string }; Returns: undefined }
+      atribuir_ocorrencia: {
+        Args: { _atribuido_a: string; _ocorrencia_id: string }
+        Returns: undefined
+      }
+      atualizar_status_ocorrencia: {
+        Args: {
+          _novo_status: Database["public"]["Enums"]["ocorrencia_status"]
+          _ocorrencia_id: string
+          _resolucao: string
+        }
+        Returns: undefined
+      }
       autorizar_visitante: {
         Args: { _visitante_id: string }
         Returns: undefined
       }
+      avaliar_ocorrencia: {
+        Args: { _comentario: string; _nota: number; _ocorrencia_id: string }
+        Returns: undefined
+      }
       cancelar_reserva: { Args: { _reserva_id: string }; Returns: undefined }
+      comentar_ocorrencia: {
+        Args: { _interno: boolean; _mensagem: string; _ocorrencia_id: string }
+        Returns: string
+      }
       gerar_cobrancas_lote: {
         Args: {
           _categoria_id: string
@@ -1249,6 +1433,22 @@ export type Database = {
         | "transferencia"
         | "cartao"
         | "outro"
+      ocorrencia_categoria:
+        | "manutencao"
+        | "barulho"
+        | "seguranca"
+        | "limpeza"
+        | "area_comum"
+        | "infraestrutura"
+        | "outros"
+      ocorrencia_prioridade: "baixa" | "media" | "alta" | "urgente"
+      ocorrencia_status:
+        | "aberta"
+        | "em_andamento"
+        | "aguardando_morador"
+        | "resolvida"
+        | "fechada"
+        | "cancelada"
       plano_tipo: "basico" | "profissional" | "admin"
       reserva_status:
         | "pendente"
@@ -1405,6 +1605,24 @@ export const Constants = {
         "transferencia",
         "cartao",
         "outro",
+      ],
+      ocorrencia_categoria: [
+        "manutencao",
+        "barulho",
+        "seguranca",
+        "limpeza",
+        "area_comum",
+        "infraestrutura",
+        "outros",
+      ],
+      ocorrencia_prioridade: ["baixa", "media", "alta", "urgente"],
+      ocorrencia_status: [
+        "aberta",
+        "em_andamento",
+        "aguardando_morador",
+        "resolvida",
+        "fechada",
+        "cancelada",
       ],
       plano_tipo: ["basico", "profissional", "admin"],
       reserva_status: [

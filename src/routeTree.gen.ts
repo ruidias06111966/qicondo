@@ -30,6 +30,7 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthCadastroRouteImport } from './routes/auth.cadastro'
 import { Route as AppVisitantesRouteImport } from './routes/app.visitantes'
 import { Route as AppReservasRouteImport } from './routes/app.reservas'
+import { Route as AppOcorrenciasRouteImport } from './routes/app.ocorrencias'
 import { Route as AppFinanceiroRouteImport } from './routes/app.financeiro'
 import { Route as AppEncomendasRouteImport } from './routes/app.encomendas'
 import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
@@ -139,6 +140,11 @@ const AppReservasRoute = AppReservasRouteImport.update({
   path: '/reservas',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOcorrenciasRoute = AppOcorrenciasRouteImport.update({
+  id: '/ocorrencias',
+  path: '/ocorrencias',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
   id: '/financeiro',
   path: '/financeiro',
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/termos': typeof TermosRoute
   '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRoute
+  '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/reservas': typeof AppReservasRoute
   '/app/visitantes': typeof AppVisitantesRoute
   '/auth/cadastro': typeof AuthCadastroRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/termos': typeof TermosRoute
   '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRoute
+  '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/reservas': typeof AppReservasRoute
   '/app/visitantes': typeof AppVisitantesRoute
   '/auth/cadastro': typeof AuthCadastroRoute
@@ -223,6 +231,7 @@ export interface FileRoutesById {
   '/termos': typeof TermosRoute
   '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRoute
+  '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/reservas': typeof AppReservasRoute
   '/app/visitantes': typeof AppVisitantesRoute
   '/auth/cadastro': typeof AuthCadastroRoute
@@ -251,6 +260,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/app/encomendas'
     | '/app/financeiro'
+    | '/app/ocorrencias'
     | '/app/reservas'
     | '/app/visitantes'
     | '/auth/cadastro'
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/app/encomendas'
     | '/app/financeiro'
+    | '/app/ocorrencias'
     | '/app/reservas'
     | '/app/visitantes'
     | '/auth/cadastro'
@@ -302,6 +313,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/app/encomendas'
     | '/app/financeiro'
+    | '/app/ocorrencias'
     | '/app/reservas'
     | '/app/visitantes'
     | '/auth/cadastro'
@@ -484,6 +496,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppReservasRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/ocorrencias': {
+      id: '/app/ocorrencias'
+      path: '/ocorrencias'
+      fullPath: '/app/ocorrencias'
+      preLoaderRoute: typeof AppOcorrenciasRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/financeiro': {
       id: '/app/financeiro'
       path: '/financeiro'
@@ -511,6 +530,7 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppEncomendasRoute: typeof AppEncomendasRoute
   AppFinanceiroRoute: typeof AppFinanceiroRoute
+  AppOcorrenciasRoute: typeof AppOcorrenciasRoute
   AppReservasRoute: typeof AppReservasRoute
   AppVisitantesRoute: typeof AppVisitantesRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -519,6 +539,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppEncomendasRoute: AppEncomendasRoute,
   AppFinanceiroRoute: AppFinanceiroRoute,
+  AppOcorrenciasRoute: AppOcorrenciasRoute,
   AppReservasRoute: AppReservasRoute,
   AppVisitantesRoute: AppVisitantesRoute,
   AppIndexRoute: AppIndexRoute,
@@ -550,3 +571,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

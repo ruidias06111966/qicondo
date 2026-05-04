@@ -623,7 +623,7 @@ function AvaliarModal({ ocorrenciaId, onClose, onOk }: { ocorrenciaId: string; o
     setLoading(true);
     const { error } = await supabase.rpc("avaliar_ocorrencia", {
       _ocorrencia_id: ocorrenciaId, _nota: nota, _comentario: comentario.trim() || null,
-    });
+    } as any);
     setLoading(false);
     if (error) { toast.error(ERROS[error.message] ?? error.message); return; }
     toast.success("Obrigado pela avaliação!");

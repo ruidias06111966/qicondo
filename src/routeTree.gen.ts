@@ -33,6 +33,7 @@ import { Route as AppReservasRouteImport } from './routes/app.reservas'
 import { Route as AppOcorrenciasRouteImport } from './routes/app.ocorrencias'
 import { Route as AppFinanceiroRouteImport } from './routes/app.financeiro'
 import { Route as AppEncomendasRouteImport } from './routes/app.encomendas'
+import { Route as ApiPublicWaWebhookRouteImport } from './routes/api.public.wa-webhook'
 import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
 
 const TermosRoute = TermosRouteImport.update({
@@ -155,6 +156,11 @@ const AppEncomendasRoute = AppEncomendasRouteImport.update({
   path: '/encomendas',
   getParentRoute: () => AppRoute,
 } as any)
+const ApiPublicWaWebhookRoute = ApiPublicWaWebhookRouteImport.update({
+  id: '/api/public/wa-webhook',
+  path: '/api/public/wa-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicMpWebhookRoute = ApiPublicMpWebhookRouteImport.update({
   id: '/api/public/mp-webhook',
   path: '/api/public/mp-webhook',
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
   '/app/': typeof AppIndexRoute
   '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
+  '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -213,6 +220,7 @@ export interface FileRoutesByTo {
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
   '/app': typeof AppIndexRoute
   '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
+  '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -241,6 +249,7 @@ export interface FileRoutesById {
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
   '/app/': typeof AppIndexRoute
   '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
+  '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -270,6 +279,7 @@ export interface FileRouteTypes {
     | '/auth/redefinir-senha'
     | '/app/'
     | '/api/public/mp-webhook'
+    | '/api/public/wa-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -296,6 +306,7 @@ export interface FileRouteTypes {
     | '/auth/redefinir-senha'
     | '/app'
     | '/api/public/mp-webhook'
+    | '/api/public/wa-webhook'
   id:
     | '__root__'
     | '/'
@@ -323,6 +334,7 @@ export interface FileRouteTypes {
     | '/auth/redefinir-senha'
     | '/app/'
     | '/api/public/mp-webhook'
+    | '/api/public/wa-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -345,6 +357,7 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRedefinirSenhaRoute: typeof AuthRedefinirSenhaRoute
   ApiPublicMpWebhookRoute: typeof ApiPublicMpWebhookRoute
+  ApiPublicWaWebhookRoute: typeof ApiPublicWaWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -517,6 +530,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEncomendasRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/public/wa-webhook': {
+      id: '/api/public/wa-webhook'
+      path: '/api/public/wa-webhook'
+      fullPath: '/api/public/wa-webhook'
+      preLoaderRoute: typeof ApiPublicWaWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/mp-webhook': {
       id: '/api/public/mp-webhook'
       path: '/api/public/mp-webhook'
@@ -567,6 +587,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthRedefinirSenhaRoute: AuthRedefinirSenhaRoute,
   ApiPublicMpWebhookRoute: ApiPublicMpWebhookRoute,
+  ApiPublicWaWebhookRoute: ApiPublicWaWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1417,6 +1417,7 @@ export type Database = {
       }
       wa_config: {
         Row: {
+          access_token: string | null
           app_secret: string | null
           ativo: boolean
           business_account_id: string | null
@@ -1433,6 +1434,7 @@ export type Database = {
           webhook_verify_token: string | null
         }
         Insert: {
+          access_token?: string | null
           app_secret?: string | null
           ativo?: boolean
           business_account_id?: string | null
@@ -1449,6 +1451,7 @@ export type Database = {
           webhook_verify_token?: string | null
         }
         Update: {
+          access_token?: string | null
           app_secret?: string | null
           ativo?: boolean
           business_account_id?: string | null

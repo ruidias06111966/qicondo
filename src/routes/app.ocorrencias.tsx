@@ -411,7 +411,7 @@ function DetalheOcorrencia({
       _ocorrencia_id: ocorrencia.id,
       _novo_status: novo,
       _resolucao: resolucao ?? null,
-    });
+    } as any);
     if (error) { toast.error(ERROS[error.message] ?? error.message); return; }
     toast.success("Status atualizado");
     onClose();

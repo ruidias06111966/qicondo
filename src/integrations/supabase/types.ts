@@ -218,6 +218,229 @@ export type Database = {
           },
         ]
       }
+      cnab_config: {
+        Row: {
+          agencia: string | null
+          ativo: boolean
+          banco: Database["public"]["Enums"]["cnab_banco"]
+          carteira: string | null
+          cedente_documento: string | null
+          cedente_nome: string | null
+          condominio_id: string
+          conta: string | null
+          conta_dv: string | null
+          convenio: string | null
+          created_at: string
+          proximo_nosso_numero: number
+          proximo_sequencial: number
+          updated_at: string
+          variacao: string | null
+        }
+        Insert: {
+          agencia?: string | null
+          ativo?: boolean
+          banco?: Database["public"]["Enums"]["cnab_banco"]
+          carteira?: string | null
+          cedente_documento?: string | null
+          cedente_nome?: string | null
+          condominio_id: string
+          conta?: string | null
+          conta_dv?: string | null
+          convenio?: string | null
+          created_at?: string
+          proximo_nosso_numero?: number
+          proximo_sequencial?: number
+          updated_at?: string
+          variacao?: string | null
+        }
+        Update: {
+          agencia?: string | null
+          ativo?: boolean
+          banco?: Database["public"]["Enums"]["cnab_banco"]
+          carteira?: string | null
+          cedente_documento?: string | null
+          cedente_nome?: string | null
+          condominio_id?: string
+          conta?: string | null
+          conta_dv?: string | null
+          convenio?: string | null
+          created_at?: string
+          proximo_nosso_numero?: number
+          proximo_sequencial?: number
+          updated_at?: string
+          variacao?: string | null
+        }
+        Relationships: []
+      }
+      cnab_remessa_itens: {
+        Row: {
+          cobranca_id: string
+          created_at: string
+          id: string
+          nosso_numero: string
+          remessa_id: string
+          valor: number
+          vencimento: string
+        }
+        Insert: {
+          cobranca_id: string
+          created_at?: string
+          id?: string
+          nosso_numero: string
+          remessa_id: string
+          valor: number
+          vencimento: string
+        }
+        Update: {
+          cobranca_id?: string
+          created_at?: string
+          id?: string
+          nosso_numero?: string
+          remessa_id?: string
+          valor?: number
+          vencimento?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cnab_remessa_itens_remessa_id_fkey"
+            columns: ["remessa_id"]
+            isOneToOne: false
+            referencedRelation: "cnab_remessas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cnab_remessas: {
+        Row: {
+          banco: Database["public"]["Enums"]["cnab_banco"]
+          condominio_id: string
+          conteudo: string | null
+          enviada_em: string | null
+          gerada_em: string
+          gerada_por: string | null
+          id: string
+          nome_arquivo: string
+          observacoes: string | null
+          sequencial: number
+          status: Database["public"]["Enums"]["cnab_remessa_status"]
+          total_titulos: number
+          valor_total: number
+        }
+        Insert: {
+          banco: Database["public"]["Enums"]["cnab_banco"]
+          condominio_id: string
+          conteudo?: string | null
+          enviada_em?: string | null
+          gerada_em?: string
+          gerada_por?: string | null
+          id?: string
+          nome_arquivo: string
+          observacoes?: string | null
+          sequencial: number
+          status?: Database["public"]["Enums"]["cnab_remessa_status"]
+          total_titulos?: number
+          valor_total?: number
+        }
+        Update: {
+          banco?: Database["public"]["Enums"]["cnab_banco"]
+          condominio_id?: string
+          conteudo?: string | null
+          enviada_em?: string | null
+          gerada_em?: string
+          gerada_por?: string | null
+          id?: string
+          nome_arquivo?: string
+          observacoes?: string | null
+          sequencial?: number
+          status?: Database["public"]["Enums"]["cnab_remessa_status"]
+          total_titulos?: number
+          valor_total?: number
+        }
+        Relationships: []
+      }
+      cnab_retorno_eventos: {
+        Row: {
+          cobranca_id: string | null
+          created_at: string
+          data_evento: string | null
+          id: string
+          motivo: string | null
+          nosso_numero: string | null
+          pagamento_id: string | null
+          retorno_id: string
+          tipo: Database["public"]["Enums"]["cnab_evento_tipo"]
+          valor: number | null
+        }
+        Insert: {
+          cobranca_id?: string | null
+          created_at?: string
+          data_evento?: string | null
+          id?: string
+          motivo?: string | null
+          nosso_numero?: string | null
+          pagamento_id?: string | null
+          retorno_id: string
+          tipo: Database["public"]["Enums"]["cnab_evento_tipo"]
+          valor?: number | null
+        }
+        Update: {
+          cobranca_id?: string | null
+          created_at?: string
+          data_evento?: string | null
+          id?: string
+          motivo?: string | null
+          nosso_numero?: string | null
+          pagamento_id?: string | null
+          retorno_id?: string
+          tipo?: Database["public"]["Enums"]["cnab_evento_tipo"]
+          valor?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cnab_retorno_eventos_retorno_id_fkey"
+            columns: ["retorno_id"]
+            isOneToOne: false
+            referencedRelation: "cnab_retornos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cnab_retornos: {
+        Row: {
+          banco: Database["public"]["Enums"]["cnab_banco"]
+          condominio_id: string
+          conteudo: string | null
+          id: string
+          importado_em: string
+          importado_por: string | null
+          nome_arquivo: string
+          total_eventos: number
+          valor_total_liquidado: number
+        }
+        Insert: {
+          banco: Database["public"]["Enums"]["cnab_banco"]
+          condominio_id: string
+          conteudo?: string | null
+          id?: string
+          importado_em?: string
+          importado_por?: string | null
+          nome_arquivo: string
+          total_eventos?: number
+          valor_total_liquidado?: number
+        }
+        Update: {
+          banco?: Database["public"]["Enums"]["cnab_banco"]
+          condominio_id?: string
+          conteudo?: string | null
+          id?: string
+          importado_em?: string
+          importado_por?: string | null
+          nome_arquivo?: string
+          total_eventos?: number
+          valor_total_liquidado?: number
+        }
+        Relationships: []
+      }
       cobrancas: {
         Row: {
           categoria_id: string | null
@@ -1157,6 +1380,199 @@ export type Database = {
         }
         Relationships: []
       }
+      wa_bot_estado: {
+        Row: {
+          conversa_id: string
+          dados: Json
+          expira_em: string
+          intent: Database["public"]["Enums"]["wa_intent"]
+          passo: string | null
+          updated_at: string
+        }
+        Insert: {
+          conversa_id: string
+          dados?: Json
+          expira_em?: string
+          intent?: Database["public"]["Enums"]["wa_intent"]
+          passo?: string | null
+          updated_at?: string
+        }
+        Update: {
+          conversa_id?: string
+          dados?: Json
+          expira_em?: string
+          intent?: Database["public"]["Enums"]["wa_intent"]
+          passo?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wa_bot_estado_conversa_id_fkey"
+            columns: ["conversa_id"]
+            isOneToOne: true
+            referencedRelation: "wa_conversas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wa_config: {
+        Row: {
+          access_token: string | null
+          app_secret: string | null
+          ativo: boolean
+          business_account_id: string | null
+          condominio_id: string
+          created_at: string
+          display_phone: string | null
+          phone_number_id: string | null
+          saudacao: string | null
+          template_encomenda: string | null
+          template_reserva_status: string | null
+          template_segunda_via: string | null
+          template_visitante: string | null
+          updated_at: string
+          webhook_verify_token: string | null
+        }
+        Insert: {
+          access_token?: string | null
+          app_secret?: string | null
+          ativo?: boolean
+          business_account_id?: string | null
+          condominio_id: string
+          created_at?: string
+          display_phone?: string | null
+          phone_number_id?: string | null
+          saudacao?: string | null
+          template_encomenda?: string | null
+          template_reserva_status?: string | null
+          template_segunda_via?: string | null
+          template_visitante?: string | null
+          updated_at?: string
+          webhook_verify_token?: string | null
+        }
+        Update: {
+          access_token?: string | null
+          app_secret?: string | null
+          ativo?: boolean
+          business_account_id?: string | null
+          condominio_id?: string
+          created_at?: string
+          display_phone?: string | null
+          phone_number_id?: string | null
+          saudacao?: string | null
+          template_encomenda?: string | null
+          template_reserva_status?: string | null
+          template_segunda_via?: string | null
+          template_visitante?: string | null
+          updated_at?: string
+          webhook_verify_token?: string | null
+        }
+        Relationships: []
+      }
+      wa_conversas: {
+        Row: {
+          condominio_id: string
+          created_at: string
+          id: string
+          janela_24h_expira: string | null
+          nome: string | null
+          telefone: string
+          ultimo_contato: string
+          unidade_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          condominio_id: string
+          created_at?: string
+          id?: string
+          janela_24h_expira?: string | null
+          nome?: string | null
+          telefone: string
+          ultimo_contato?: string
+          unidade_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          condominio_id?: string
+          created_at?: string
+          id?: string
+          janela_24h_expira?: string | null
+          nome?: string | null
+          telefone?: string
+          ultimo_contato?: string
+          unidade_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      wa_mensagens: {
+        Row: {
+          condominio_id: string
+          contexto: string | null
+          contexto_id: string | null
+          conversa_id: string
+          created_at: string
+          direcao: Database["public"]["Enums"]["wa_direcao"]
+          entregue_em: string | null
+          enviado_em: string | null
+          erro: string | null
+          id: string
+          lido_em: string | null
+          payload: Json | null
+          status: Database["public"]["Enums"]["wa_msg_status"]
+          texto: string | null
+          tipo: Database["public"]["Enums"]["wa_msg_tipo"]
+          wa_message_id: string | null
+        }
+        Insert: {
+          condominio_id: string
+          contexto?: string | null
+          contexto_id?: string | null
+          conversa_id: string
+          created_at?: string
+          direcao: Database["public"]["Enums"]["wa_direcao"]
+          entregue_em?: string | null
+          enviado_em?: string | null
+          erro?: string | null
+          id?: string
+          lido_em?: string | null
+          payload?: Json | null
+          status?: Database["public"]["Enums"]["wa_msg_status"]
+          texto?: string | null
+          tipo?: Database["public"]["Enums"]["wa_msg_tipo"]
+          wa_message_id?: string | null
+        }
+        Update: {
+          condominio_id?: string
+          contexto?: string | null
+          contexto_id?: string | null
+          conversa_id?: string
+          created_at?: string
+          direcao?: Database["public"]["Enums"]["wa_direcao"]
+          entregue_em?: string | null
+          enviado_em?: string | null
+          erro?: string | null
+          id?: string
+          lido_em?: string | null
+          payload?: Json | null
+          status?: Database["public"]["Enums"]["wa_msg_status"]
+          texto?: string | null
+          tipo?: Database["public"]["Enums"]["wa_msg_tipo"]
+          wa_message_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wa_mensagens_conversa_id_fkey"
+            columns: ["conversa_id"]
+            isOneToOne: false
+            referencedRelation: "wa_conversas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       config_pagamento_safe: {
@@ -1304,6 +1720,26 @@ export type Database = {
         Returns: undefined
       }
       cancelar_reserva: { Args: { _reserva_id: string }; Returns: undefined }
+      cnab_alocar_nosso_numero: {
+        Args: { _condominio_id: string; _quantidade: number }
+        Returns: {
+          fim: number
+          inicio: number
+        }[]
+      }
+      cnab_baixar_cobranca: {
+        Args: {
+          _cobranca_id: string
+          _data_pagamento: string
+          _retorno_id: string
+          _valor: number
+        }
+        Returns: string
+      }
+      cnab_proximo_sequencial: {
+        Args: { _condominio_id: string }
+        Returns: number
+      }
       comentar_ocorrencia: {
         Args: { _interno: boolean; _mensagem: string; _ocorrencia_id: string }
         Returns: string
@@ -1423,6 +1859,21 @@ export type Database = {
     }
     Enums: {
       app_role: "sindico" | "morador" | "contador" | "porteiro"
+      cnab_banco:
+        | "sicoob"
+        | "itau"
+        | "bradesco"
+        | "bb"
+        | "caixa"
+        | "santander"
+        | "generico"
+      cnab_evento_tipo:
+        | "liquidacao"
+        | "baixa"
+        | "rejeicao"
+        | "protesto"
+        | "outros"
+      cnab_remessa_status: "gerada" | "enviada" | "processada" | "erro"
       cobranca_status: "pendente" | "paga" | "vencida" | "cancelada" | "parcial"
       convite_status: "pendente" | "aceito" | "expirado" | "cancelado"
       encomenda_status: "aguardando" | "retirada" | "devolvida"
@@ -1466,6 +1917,28 @@ export type Database = {
         | "saiu"
         | "expirado"
       visitante_tipo: "visita" | "prestador" | "delivery" | "mudanca" | "outro"
+      wa_direcao: "entrada" | "saida"
+      wa_intent:
+        | "menu"
+        | "segunda_via_boleto"
+        | "status_reserva"
+        | "abrir_ocorrencia"
+        | "confirmar_visitante"
+        | "desconhecido"
+      wa_msg_status:
+        | "pendente"
+        | "enviada"
+        | "entregue"
+        | "lida"
+        | "falha"
+        | "recebida"
+      wa_msg_tipo:
+        | "texto"
+        | "template"
+        | "interativo"
+        | "midia"
+        | "localizacao"
+        | "sistema"
       wa_status: "pendente" | "enviado" | "falhou"
     }
     CompositeTypes: {
@@ -1595,6 +2068,23 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["sindico", "morador", "contador", "porteiro"],
+      cnab_banco: [
+        "sicoob",
+        "itau",
+        "bradesco",
+        "bb",
+        "caixa",
+        "santander",
+        "generico",
+      ],
+      cnab_evento_tipo: [
+        "liquidacao",
+        "baixa",
+        "rejeicao",
+        "protesto",
+        "outros",
+      ],
+      cnab_remessa_status: ["gerada", "enviada", "processada", "erro"],
       cobranca_status: ["pendente", "paga", "vencida", "cancelada", "parcial"],
       convite_status: ["pendente", "aceito", "expirado", "cancelado"],
       encomenda_status: ["aguardando", "retirada", "devolvida"],
@@ -1643,6 +2133,31 @@ export const Constants = {
         "expirado",
       ],
       visitante_tipo: ["visita", "prestador", "delivery", "mudanca", "outro"],
+      wa_direcao: ["entrada", "saida"],
+      wa_intent: [
+        "menu",
+        "segunda_via_boleto",
+        "status_reserva",
+        "abrir_ocorrencia",
+        "confirmar_visitante",
+        "desconhecido",
+      ],
+      wa_msg_status: [
+        "pendente",
+        "enviada",
+        "entregue",
+        "lida",
+        "falha",
+        "recebida",
+      ],
+      wa_msg_tipo: [
+        "texto",
+        "template",
+        "interativo",
+        "midia",
+        "localizacao",
+        "sistema",
+      ],
       wa_status: ["pendente", "enviado", "falhou"],
     },
   },

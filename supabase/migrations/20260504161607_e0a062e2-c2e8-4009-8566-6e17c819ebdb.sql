@@ -1,0 +1,1 @@
+ALTER TABLE public.wa_config ADD COLUMN access_token TEXT;

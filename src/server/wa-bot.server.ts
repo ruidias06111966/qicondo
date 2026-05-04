@@ -200,7 +200,7 @@ async function continuarFluxo(
     }
     if (estado.passo === "descricao") {
       if (txt.length < 5) return responder("Descrição muito curta.");
-      const { data: oc, error } = await supabaseAdmin
+      const { data: oc, error } = await (supabaseAdmin as any)
         .from("ocorrencias")
         .insert({
           condominio_id: c.condominio_id,

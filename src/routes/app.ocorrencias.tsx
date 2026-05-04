@@ -299,7 +299,7 @@ function NovaOcorrencia({
       _prioridade: prioridade,
       _local: local.trim() || null,
       _foto_url: fotoUrl.trim() || null,
-    });
+    } as any);
     setEnviando(false);
     if (error) {
       toast.error(ERROS[error.message] ?? error.message);

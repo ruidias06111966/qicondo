@@ -54,12 +54,12 @@ function OnboardingPage() {
     const codigo_publico = generateCondoCode();
     const { data: novoId, error } = await supabase.rpc("criar_condominio", {
       _nome: parsed.data.nome,
-      _cnpj: parsed.data.cnpj || null,
-      _endereco: parsed.data.endereco || null,
-      _cidade: parsed.data.cidade || null,
-      _estado: parsed.data.estado || null,
-      _cep: parsed.data.cep || null,
-      _whatsapp_numero: parsed.data.whatsapp_numero || null,
+      _cnpj: parsed.data.cnpj || "",
+      _endereco: parsed.data.endereco || "",
+      _cidade: parsed.data.cidade || "",
+      _estado: parsed.data.estado || "",
+      _cep: parsed.data.cep || "",
+      _whatsapp_numero: parsed.data.whatsapp_numero || "",
       _codigo_publico: codigo_publico,
     });
     setBusy(false);

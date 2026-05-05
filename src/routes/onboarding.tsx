@@ -43,30 +43,29 @@ function OnboardingPage() {
     const parsed = condominioSchema.safeParse(cond);
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     setBusy(true);
+    // garante sessão hidratada antes do RPC
+    const { data: sess } = await supabase.auth.getSession();
+    if (!sess.session) {
+      setBusy(false);
+      toast.error("Sessão expirada. Faça login novamente.");
+      navigate({ to: "/auth/login" });
+      return;
+    }
     const codigo_publico = generateCondoCode();
-    const { data, error } = await supabase
-      .from("condominios")
-      .insert({
-        nome: parsed.data.nome,
-        cnpj: parsed.data.cnpj || null,
-        endereco: parsed.data.endereco || null,
-        cidade: parsed.data.cidade || null,
-        estado: parsed.data.estado || null,
-        cep: parsed.data.cep || null,
-        whatsapp_numero: parsed.data.whatsapp_numero || null,
-        codigo_publico,
-        criado_por: user!.id,
-      })
-      .select("id")
-      .single();
-    if (error || !data) { setBusy(false); toast.error(error?.message ?? "Falha"); return; }
-    // atribuir papel de síndico
-    const { error: roleErr } = await supabase.from("user_roles").insert({
-      user_id: user!.id, condominio_id: data.id, role: "sindico",
+    const { data: novoId, error } = await supabase.rpc("criar_condominio", {
+      _nome: parsed.data.nome,
+      _cnpj: parsed.data.cnpj || "",
+      _endereco: parsed.data.endereco || "",
+      _cidade: parsed.data.cidade || "",
+      _estado: parsed.data.estado || "",
+      _cep: parsed.data.cep || "",
+      _whatsapp_numero: parsed.data.whatsapp_numero || "",
+      _codigo_publico: codigo_publico,
     });
     setBusy(false);
-    if (roleErr) { toast.error(roleErr.message); return; }
-    setCondId(data.id);
+    if (error || !novoId) { toast.error(error?.message ?? "Falha"); return; }
+    setCondId(novoId as string);
+    await refresh();
     toast.success("Condomínio criado!");
     setStep("criar-unidades");
   }

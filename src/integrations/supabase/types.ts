@@ -1744,6 +1744,19 @@ export type Database = {
         Args: { _interno: boolean; _mensagem: string; _ocorrencia_id: string }
         Returns: string
       }
+      criar_condominio: {
+        Args: {
+          _cep: string
+          _cidade: string
+          _cnpj: string
+          _codigo_publico: string
+          _endereco: string
+          _estado: string
+          _nome: string
+          _whatsapp_numero: string
+        }
+        Returns: string
+      }
       gerar_cobrancas_lote: {
         Args: {
           _categoria_id: string

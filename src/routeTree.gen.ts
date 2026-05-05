@@ -28,6 +28,7 @@ import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthEsqueciSenhaRouteImport } from './routes/auth.esqueci-senha'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthCadastroRouteImport } from './routes/auth.cadastro'
+import { Route as AppWhatsappRouteImport } from './routes/app.whatsapp'
 import { Route as AppVisitantesRouteImport } from './routes/app.visitantes'
 import { Route as AppReservasRouteImport } from './routes/app.reservas'
 import { Route as AppOcorrenciasRouteImport } from './routes/app.ocorrencias'
@@ -131,6 +132,11 @@ const AuthCadastroRoute = AuthCadastroRouteImport.update({
   path: '/auth/cadastro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppWhatsappRoute = AppWhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppVisitantesRoute = AppVisitantesRouteImport.update({
   id: '/visitantes',
   path: '/visitantes',
@@ -186,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/reservas': typeof AppReservasRoute
   '/app/visitantes': typeof AppVisitantesRoute
+  '/app/whatsapp': typeof AppWhatsappRoute
   '/auth/cadastro': typeof AuthCadastroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
@@ -213,6 +220,7 @@ export interface FileRoutesByTo {
   '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/reservas': typeof AppReservasRoute
   '/app/visitantes': typeof AppVisitantesRoute
+  '/app/whatsapp': typeof AppWhatsappRoute
   '/auth/cadastro': typeof AuthCadastroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/reservas': typeof AppReservasRoute
   '/app/visitantes': typeof AppVisitantesRoute
+  '/app/whatsapp': typeof AppWhatsappRoute
   '/auth/cadastro': typeof AuthCadastroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
@@ -272,6 +281,7 @@ export interface FileRouteTypes {
     | '/app/ocorrencias'
     | '/app/reservas'
     | '/app/visitantes'
+    | '/app/whatsapp'
     | '/auth/cadastro'
     | '/auth/callback'
     | '/auth/esqueci-senha'
@@ -299,6 +309,7 @@ export interface FileRouteTypes {
     | '/app/ocorrencias'
     | '/app/reservas'
     | '/app/visitantes'
+    | '/app/whatsapp'
     | '/auth/cadastro'
     | '/auth/callback'
     | '/auth/esqueci-senha'
@@ -327,6 +338,7 @@ export interface FileRouteTypes {
     | '/app/ocorrencias'
     | '/app/reservas'
     | '/app/visitantes'
+    | '/app/whatsapp'
     | '/auth/cadastro'
     | '/auth/callback'
     | '/auth/esqueci-senha'
@@ -495,6 +507,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCadastroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/whatsapp': {
+      id: '/app/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/app/whatsapp'
+      preLoaderRoute: typeof AppWhatsappRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/visitantes': {
       id: '/app/visitantes'
       path: '/visitantes'
@@ -553,6 +572,7 @@ interface AppRouteChildren {
   AppOcorrenciasRoute: typeof AppOcorrenciasRoute
   AppReservasRoute: typeof AppReservasRoute
   AppVisitantesRoute: typeof AppVisitantesRoute
+  AppWhatsappRoute: typeof AppWhatsappRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
@@ -562,6 +582,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOcorrenciasRoute: AppOcorrenciasRoute,
   AppReservasRoute: AppReservasRoute,
   AppVisitantesRoute: AppVisitantesRoute,
+  AppWhatsappRoute: AppWhatsappRoute,
   AppIndexRoute: AppIndexRoute,
 }
 

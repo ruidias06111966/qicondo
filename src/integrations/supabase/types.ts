@@ -771,6 +771,63 @@ export type Database = {
           },
         ]
       }
+      documentos: {
+        Row: {
+          aprovado: boolean
+          aprovado_em: string | null
+          aprovado_por: string | null
+          categoria: Database["public"]["Enums"]["documento_categoria"]
+          condominio_id: string
+          created_at: string
+          descricao: string | null
+          disponivel_whatsapp: boolean
+          enviado_por: string
+          id: string
+          mime_type: string | null
+          storage_path: string
+          tamanho_bytes: number | null
+          titulo: string
+          updated_at: string
+          visivel_publico: boolean
+        }
+        Insert: {
+          aprovado?: boolean
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          categoria?: Database["public"]["Enums"]["documento_categoria"]
+          condominio_id: string
+          created_at?: string
+          descricao?: string | null
+          disponivel_whatsapp?: boolean
+          enviado_por: string
+          id?: string
+          mime_type?: string | null
+          storage_path: string
+          tamanho_bytes?: number | null
+          titulo: string
+          updated_at?: string
+          visivel_publico?: boolean
+        }
+        Update: {
+          aprovado?: boolean
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          categoria?: Database["public"]["Enums"]["documento_categoria"]
+          condominio_id?: string
+          created_at?: string
+          descricao?: string | null
+          disponivel_whatsapp?: boolean
+          enviado_por?: string
+          id?: string
+          mime_type?: string | null
+          storage_path?: string
+          tamanho_bytes?: number | null
+          titulo?: string
+          updated_at?: string
+          visivel_publico?: boolean
+        }
+        Relationships: []
+      }
       encomendas: {
         Row: {
           codigo_rastreio: string | null
@@ -1889,6 +1946,15 @@ export type Database = {
       cnab_remessa_status: "gerada" | "enviada" | "processada" | "erro"
       cobranca_status: "pendente" | "paga" | "vencida" | "cancelada" | "parcial"
       convite_status: "pendente" | "aceito" | "expirado" | "cancelado"
+      documento_categoria:
+        | "convencao"
+        | "regimento"
+        | "ata"
+        | "comunicado"
+        | "informativo"
+        | "contrato"
+        | "financeiro"
+        | "outros"
       encomenda_status: "aguardando" | "retirada" | "devolvida"
       forma_pagamento:
         | "pix"
@@ -2100,6 +2166,16 @@ export const Constants = {
       cnab_remessa_status: ["gerada", "enviada", "processada", "erro"],
       cobranca_status: ["pendente", "paga", "vencida", "cancelada", "parcial"],
       convite_status: ["pendente", "aceito", "expirado", "cancelado"],
+      documento_categoria: [
+        "convencao",
+        "regimento",
+        "ata",
+        "comunicado",
+        "informativo",
+        "contrato",
+        "financeiro",
+        "outros",
+      ],
       encomenda_status: ["aguardando", "retirada", "devolvida"],
       forma_pagamento: [
         "pix",

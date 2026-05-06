@@ -103,11 +103,10 @@ function DocumentosPage() {
       return;
     }
     const { error } = await supabase.from("documentos").insert({
-      id: docId,
       condominio_id: condominioId,
       titulo: titulo.trim(),
       descricao: descricao.trim() || null,
-      categoria,
+      categoria: categoria as any,
       storage_path: path,
       mime_type: arquivo.type || null,
       tamanho_bytes: arquivo.size,

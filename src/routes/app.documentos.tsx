@@ -90,9 +90,8 @@ function DocumentosPage() {
       return;
     }
     setEnviando(true);
-    const docId = crypto.randomUUID();
     const ext = arquivo.name.split(".").pop() || "bin";
-    const path = `${condominioId}/${docId}/${Date.now()}.${ext}`;
+    const path = `${condominioId}/${crypto.randomUUID()}/${Date.now()}.${ext}`;
 
     const up = await supabase.storage.from("documentos-condo").upload(path, arquivo, {
       contentType: arquivo.type || undefined,

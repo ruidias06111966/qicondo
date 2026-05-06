@@ -32,8 +32,12 @@ import { Route as AppWhatsappRouteImport } from './routes/app.whatsapp'
 import { Route as AppVisitantesRouteImport } from './routes/app.visitantes'
 import { Route as AppReservasRouteImport } from './routes/app.reservas'
 import { Route as AppOcorrenciasRouteImport } from './routes/app.ocorrencias'
+import { Route as AppMoradoresRouteImport } from './routes/app.moradores'
 import { Route as AppFinanceiroRouteImport } from './routes/app.financeiro'
 import { Route as AppEncomendasRouteImport } from './routes/app.encomendas'
+import { Route as AppDocumentosRouteImport } from './routes/app.documentos'
+import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes'
+import { Route as AppCondominioRouteImport } from './routes/app.condominio'
 import { Route as ApiPublicWaWebhookRouteImport } from './routes/api.public.wa-webhook'
 import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
 
@@ -152,6 +156,11 @@ const AppOcorrenciasRoute = AppOcorrenciasRouteImport.update({
   path: '/ocorrencias',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMoradoresRoute = AppMoradoresRouteImport.update({
+  id: '/moradores',
+  path: '/moradores',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
   id: '/financeiro',
   path: '/financeiro',
@@ -160,6 +169,21 @@ const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
 const AppEncomendasRoute = AppEncomendasRouteImport.update({
   id: '/encomendas',
   path: '/encomendas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDocumentosRoute = AppDocumentosRouteImport.update({
+  id: '/documentos',
+  path: '/documentos',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppConfiguracoesRoute = AppConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCondominioRoute = AppCondominioRouteImport.update({
+  id: '/condominio',
+  path: '/condominio',
   getParentRoute: () => AppRoute,
 } as any)
 const ApiPublicWaWebhookRoute = ApiPublicWaWebhookRouteImport.update({
@@ -187,8 +211,12 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/condominio': typeof AppCondominioRoute
+  '/app/configuracoes': typeof AppConfiguracoesRoute
+  '/app/documentos': typeof AppDocumentosRoute
   '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRoute
+  '/app/moradores': typeof AppMoradoresRoute
   '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/reservas': typeof AppReservasRoute
   '/app/visitantes': typeof AppVisitantesRoute
@@ -215,8 +243,12 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/condominio': typeof AppCondominioRoute
+  '/app/configuracoes': typeof AppConfiguracoesRoute
+  '/app/documentos': typeof AppDocumentosRoute
   '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRoute
+  '/app/moradores': typeof AppMoradoresRoute
   '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/reservas': typeof AppReservasRoute
   '/app/visitantes': typeof AppVisitantesRoute
@@ -245,8 +277,12 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/condominio': typeof AppCondominioRoute
+  '/app/configuracoes': typeof AppConfiguracoesRoute
+  '/app/documentos': typeof AppDocumentosRoute
   '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRoute
+  '/app/moradores': typeof AppMoradoresRoute
   '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/reservas': typeof AppReservasRoute
   '/app/visitantes': typeof AppVisitantesRoute
@@ -276,8 +312,12 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/condominio'
+    | '/app/configuracoes'
+    | '/app/documentos'
     | '/app/encomendas'
     | '/app/financeiro'
+    | '/app/moradores'
     | '/app/ocorrencias'
     | '/app/reservas'
     | '/app/visitantes'
@@ -304,8 +344,12 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/condominio'
+    | '/app/configuracoes'
+    | '/app/documentos'
     | '/app/encomendas'
     | '/app/financeiro'
+    | '/app/moradores'
     | '/app/ocorrencias'
     | '/app/reservas'
     | '/app/visitantes'
@@ -333,8 +377,12 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/condominio'
+    | '/app/configuracoes'
+    | '/app/documentos'
     | '/app/encomendas'
     | '/app/financeiro'
+    | '/app/moradores'
     | '/app/ocorrencias'
     | '/app/reservas'
     | '/app/visitantes'
@@ -535,6 +583,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOcorrenciasRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/moradores': {
+      id: '/app/moradores'
+      path: '/moradores'
+      fullPath: '/app/moradores'
+      preLoaderRoute: typeof AppMoradoresRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/financeiro': {
       id: '/app/financeiro'
       path: '/financeiro'
@@ -547,6 +602,27 @@ declare module '@tanstack/react-router' {
       path: '/encomendas'
       fullPath: '/app/encomendas'
       preLoaderRoute: typeof AppEncomendasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/documentos': {
+      id: '/app/documentos'
+      path: '/documentos'
+      fullPath: '/app/documentos'
+      preLoaderRoute: typeof AppDocumentosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/configuracoes': {
+      id: '/app/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/app/configuracoes'
+      preLoaderRoute: typeof AppConfiguracoesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/condominio': {
+      id: '/app/condominio'
+      path: '/condominio'
+      fullPath: '/app/condominio'
+      preLoaderRoute: typeof AppCondominioRouteImport
       parentRoute: typeof AppRoute
     }
     '/api/public/wa-webhook': {
@@ -567,8 +643,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppCondominioRoute: typeof AppCondominioRoute
+  AppConfiguracoesRoute: typeof AppConfiguracoesRoute
+  AppDocumentosRoute: typeof AppDocumentosRoute
   AppEncomendasRoute: typeof AppEncomendasRoute
   AppFinanceiroRoute: typeof AppFinanceiroRoute
+  AppMoradoresRoute: typeof AppMoradoresRoute
   AppOcorrenciasRoute: typeof AppOcorrenciasRoute
   AppReservasRoute: typeof AppReservasRoute
   AppVisitantesRoute: typeof AppVisitantesRoute
@@ -577,8 +657,12 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppCondominioRoute: AppCondominioRoute,
+  AppConfiguracoesRoute: AppConfiguracoesRoute,
+  AppDocumentosRoute: AppDocumentosRoute,
   AppEncomendasRoute: AppEncomendasRoute,
   AppFinanceiroRoute: AppFinanceiroRoute,
+  AppMoradoresRoute: AppMoradoresRoute,
   AppOcorrenciasRoute: AppOcorrenciasRoute,
   AppReservasRoute: AppReservasRoute,
   AppVisitantesRoute: AppVisitantesRoute,

@@ -145,10 +145,10 @@ function DocumentosPage() {
   }
 
   async function toggleVisibilidade(d: Doc, campo: "visivel_publico" | "disponivel_whatsapp") {
-    const { error } = await supabase
-      .from("documentos")
-      .update({ [campo]: !d[campo] })
-      .eq("id", d.id);
+    const patch = campo === "visivel_publico"
+      ? { visivel_publico: !d.visivel_publico }
+      : { disponivel_whatsapp: !d.disponivel_whatsapp };
+    const { error } = await supabase.from("documentos").update(patch).eq("id", d.id);
     if (error) toast.error(error.message); else carregar();
   }
 

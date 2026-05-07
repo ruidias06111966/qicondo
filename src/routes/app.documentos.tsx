@@ -61,7 +61,11 @@ function DocumentosPage() {
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<string>("todos");
   const [notificandoId, setNotificandoId] = useState<string | null>(null);
-  const notificarFn = useServerFn(notificarDocumentoWA);
+  const [historicoOpen, setHistoricoOpen] = useState<string | null>(null);
+  const [historico, setHistorico] = useState<any | null>(null);
+  const notificarFn = useServerFn(enfileirarNotificacaoDocumento);
+  const reenviarFn = useServerFn(reenviarFalhasDocumento);
+  const historicoFn = useServerFn(historicoNotificacoesDocumento);
 
   // form
   const [open, setOpen] = useState(false);

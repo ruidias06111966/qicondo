@@ -3,13 +3,15 @@ import { useEffect, useState } from "react";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { FileText, Upload, Download, Trash2, Eye, EyeOff, CheckCircle2, Loader2, MessageCircle, Filter } from "lucide-react";
+import { FileText, Upload, Download, Trash2, Eye, EyeOff, CheckCircle2, Loader2, MessageCircle, Filter, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useServerFn } from "@tanstack/react-start";
+import { notificarDocumentoWA } from "@/server/documentos.functions";
 
 export const Route = createFileRoute("/app/documentos")({
   head: () => ({ meta: [{ title: "Documentos — CONDOZAP" }] }),
@@ -54,6 +56,8 @@ function DocumentosPage() {
   const [docs, setDocs] = useState<Doc[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<string>("todos");
+  const [notificandoId, setNotificandoId] = useState<string | null>(null);
+  const notificarFn = useServerFn(notificarDocumentoWA);
 
   // form
   const [open, setOpen] = useState(false);
@@ -157,6 +161,24 @@ function DocumentosPage() {
     await supabase.storage.from("documentos-condo").remove([d.storage_path]);
     const { error } = await supabase.from("documentos").delete().eq("id", d.id);
     if (error) toast.error(error.message); else { toast.success("Excluído"); carregar(); }
+  }
+
+  async function notificar(d: Doc) {
+    if (!d.aprovado || !d.visivel_publico) {
+      toast.error("Aprove e marque como público antes de notificar");
+      return;
+    }
+    if (!confirm(`Enviar notificação por WhatsApp a todos os moradores sobre "${d.titulo}"?`)) return;
+    setNotificandoId(d.id);
+    try {
+      const r = await notificarFn({ data: { documento_id: d.id } });
+      toast.success(`Enviadas: ${r.enviados} · Falhas: ${r.falhas} (de ${r.total})`);
+    } catch (e: any) {
+      const msg = e?.message || "Falha ao notificar";
+      toast.error(msg === "wa_nao_configurado" ? "Configure o WhatsApp em /app/whatsapp" : msg);
+    } finally {
+      setNotificandoId(null);
+    }
   }
 
   const filtrados = filtro === "todos" ? docs : docs.filter((d) => d.categoria === filtro);
@@ -279,6 +301,12 @@ function DocumentosPage() {
                     <Button variant={d.aprovado ? "outline" : "default"} size="sm" onClick={() => aprovar(d)}>
                       <CheckCircle2 size={14} className="mr-1" /> {d.aprovado ? "Reprovar" : "Aprovar"}
                     </Button>
+                    {isSindico && d.aprovado && d.visivel_publico && (
+                      <Button variant="secondary" size="sm" onClick={() => notificar(d)} disabled={notificandoId === d.id}>
+                        {notificandoId === d.id ? <Loader2 size={14} className="mr-1 animate-spin" /> : <Send size={14} className="mr-1" />}
+                        Notificar WhatsApp
+                      </Button>
+                    )}
                     <Button variant="ghost" size="icon" onClick={() => excluir(d)}>
                       <Trash2 size={14} className="text-destructive" />
                     </Button>

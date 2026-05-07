@@ -82,6 +82,7 @@ function WhatsAppPage() {
             access_token: cfg.access_token ?? "",
             app_secret: cfg.app_secret ?? "",
             saudacao: cfg.saudacao ?? EMPTY.saudacao,
+            template_comunicado: (cfg as any).template_comunicado ?? TEMPLATE_DEFAULT,
           });
         } else {
           setForm({ ...EMPTY, webhook_verify_token: genToken() });

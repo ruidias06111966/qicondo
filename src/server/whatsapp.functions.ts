@@ -36,6 +36,7 @@ export const salvarConfigWA = createServerFn({ method: "POST" })
       access_token: z.string().nullable(),
       app_secret: z.string().nullable(),
       saudacao: z.string().nullable(),
+      template_comunicado: z.string().nullable().optional(),
     }).parse(d),
   )
   .handler(async ({ data, context }) => {

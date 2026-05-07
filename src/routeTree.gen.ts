@@ -39,6 +39,7 @@ import { Route as AppDocumentosRouteImport } from './routes/app.documentos'
 import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes'
 import { Route as AppCondominioRouteImport } from './routes/app.condominio'
 import { Route as ApiPublicWaWebhookRouteImport } from './routes/api.public.wa-webhook'
+import { Route as ApiPublicWaDrainRouteImport } from './routes/api/public/wa-drain'
 import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
 
 const TermosRoute = TermosRouteImport.update({
@@ -191,6 +192,11 @@ const ApiPublicWaWebhookRoute = ApiPublicWaWebhookRouteImport.update({
   path: '/api/public/wa-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWaDrainRoute = ApiPublicWaDrainRouteImport.update({
+  id: '/api/public/wa-drain',
+  path: '/api/public/wa-drain',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicMpWebhookRoute = ApiPublicMpWebhookRouteImport.update({
   id: '/api/public/mp-webhook',
   path: '/api/public/mp-webhook',
@@ -228,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
   '/app/': typeof AppIndexRoute
   '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
+  '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -260,6 +267,7 @@ export interface FileRoutesByTo {
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
   '/app': typeof AppIndexRoute
   '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
+  '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
 }
 export interface FileRoutesById {
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
   '/app/': typeof AppIndexRoute
   '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
+  '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
 }
 export interface FileRouteTypes {
@@ -329,6 +338,7 @@ export interface FileRouteTypes {
     | '/auth/redefinir-senha'
     | '/app/'
     | '/api/public/mp-webhook'
+    | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -361,6 +371,7 @@ export interface FileRouteTypes {
     | '/auth/redefinir-senha'
     | '/app'
     | '/api/public/mp-webhook'
+    | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
   id:
     | '__root__'
@@ -394,6 +405,7 @@ export interface FileRouteTypes {
     | '/auth/redefinir-senha'
     | '/app/'
     | '/api/public/mp-webhook'
+    | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
   fileRoutesById: FileRoutesById
 }
@@ -417,6 +429,7 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRedefinirSenhaRoute: typeof AuthRedefinirSenhaRoute
   ApiPublicMpWebhookRoute: typeof ApiPublicMpWebhookRoute
+  ApiPublicWaDrainRoute: typeof ApiPublicWaDrainRoute
   ApiPublicWaWebhookRoute: typeof ApiPublicWaWebhookRoute
 }
 
@@ -632,6 +645,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWaWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/wa-drain': {
+      id: '/api/public/wa-drain'
+      path: '/api/public/wa-drain'
+      fullPath: '/api/public/wa-drain'
+      preLoaderRoute: typeof ApiPublicWaDrainRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/mp-webhook': {
       id: '/api/public/mp-webhook'
       path: '/api/public/mp-webhook'
@@ -692,6 +712,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthRedefinirSenhaRoute: AuthRedefinirSenhaRoute,
   ApiPublicMpWebhookRoute: ApiPublicMpWebhookRoute,
+  ApiPublicWaDrainRoute: ApiPublicWaDrainRoute,
   ApiPublicWaWebhookRoute: ApiPublicWaWebhookRoute,
 }
 export const routeTree = rootRouteImport

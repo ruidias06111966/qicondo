@@ -1483,6 +1483,7 @@ export type Database = {
           display_phone: string | null
           phone_number_id: string | null
           saudacao: string | null
+          template_comunicado: string | null
           template_encomenda: string | null
           template_reserva_status: string | null
           template_segunda_via: string | null
@@ -1500,6 +1501,7 @@ export type Database = {
           display_phone?: string | null
           phone_number_id?: string | null
           saudacao?: string | null
+          template_comunicado?: string | null
           template_encomenda?: string | null
           template_reserva_status?: string | null
           template_segunda_via?: string | null
@@ -1517,6 +1519,7 @@ export type Database = {
           display_phone?: string | null
           phone_number_id?: string | null
           saudacao?: string | null
+          template_comunicado?: string | null
           template_encomenda?: string | null
           template_reserva_status?: string | null
           template_segunda_via?: string | null
@@ -1629,6 +1632,102 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      wa_notif_jobs: {
+        Row: {
+          condominio_id: string
+          contexto: string
+          created_at: string
+          destinatario_nome: string | null
+          destinatario_telefone: string
+          destinatario_user_id: string | null
+          documento_id: string | null
+          enviado_em: string | null
+          id: string
+          max_tentativas: number
+          mensagem: string
+          proxima_tentativa: string
+          status: Database["public"]["Enums"]["wa_job_status"]
+          tentativas: number
+          ultimo_erro: string | null
+          updated_at: string
+          wa_message_id: string | null
+        }
+        Insert: {
+          condominio_id: string
+          contexto?: string
+          created_at?: string
+          destinatario_nome?: string | null
+          destinatario_telefone: string
+          destinatario_user_id?: string | null
+          documento_id?: string | null
+          enviado_em?: string | null
+          id?: string
+          max_tentativas?: number
+          mensagem: string
+          proxima_tentativa?: string
+          status?: Database["public"]["Enums"]["wa_job_status"]
+          tentativas?: number
+          ultimo_erro?: string | null
+          updated_at?: string
+          wa_message_id?: string | null
+        }
+        Update: {
+          condominio_id?: string
+          contexto?: string
+          created_at?: string
+          destinatario_nome?: string | null
+          destinatario_telefone?: string
+          destinatario_user_id?: string | null
+          documento_id?: string | null
+          enviado_em?: string | null
+          id?: string
+          max_tentativas?: number
+          mensagem?: string
+          proxima_tentativa?: string
+          status?: Database["public"]["Enums"]["wa_job_status"]
+          tentativas?: number
+          ultimo_erro?: string | null
+          updated_at?: string
+          wa_message_id?: string | null
+        }
+        Relationships: []
+      }
+      wa_preferencias: {
+        Row: {
+          condominio_id: string
+          created_at: string
+          id: string
+          receber_cobrancas: boolean
+          receber_comunicados: boolean
+          receber_encomendas: boolean
+          receber_visitantes: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          condominio_id: string
+          created_at?: string
+          id?: string
+          receber_cobrancas?: boolean
+          receber_comunicados?: boolean
+          receber_encomendas?: boolean
+          receber_visitantes?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          condominio_id?: string
+          created_at?: string
+          id?: string
+          receber_cobrancas?: boolean
+          receber_comunicados?: boolean
+          receber_encomendas?: boolean
+          receber_visitantes?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
@@ -1813,6 +1912,10 @@ export type Database = {
           _whatsapp_numero: string
         }
         Returns: string
+      }
+      enqueue_documento_comunicado: {
+        Args: { _documento_id: string }
+        Returns: number
       }
       gerar_cobrancas_lote: {
         Args: {
@@ -2004,6 +2107,7 @@ export type Database = {
         | "abrir_ocorrencia"
         | "confirmar_visitante"
         | "desconhecido"
+      wa_job_status: "pendente" | "enviando" | "enviado" | "falha" | "desistido"
       wa_msg_status:
         | "pendente"
         | "enviada"
@@ -2231,6 +2335,7 @@ export const Constants = {
         "confirmar_visitante",
         "desconhecido",
       ],
+      wa_job_status: ["pendente", "enviando", "enviado", "falha", "desistido"],
       wa_msg_status: [
         "pendente",
         "enviada",

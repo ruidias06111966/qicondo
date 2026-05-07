@@ -23,7 +23,19 @@ type Form = {
   access_token: string;
   app_secret: string;
   saudacao: string;
+  template_comunicado: string;
 };
+
+const TEMPLATE_DEFAULT = `📢 *{{condominio}}*
+
+Novo {{categoria}} publicado:
+
+📄 *{{titulo}}*
+
+Acesse (link válido por 7 dias):
+{{link}}
+
+Responda *menu* para mais opções.`;
 
 const EMPTY: Form = {
   ativo: false,
@@ -34,6 +46,7 @@ const EMPTY: Form = {
   access_token: "",
   app_secret: "",
   saudacao: "Olá! 👋 Eu sou o assistente do seu condomínio. Como posso ajudar?\n\n1️⃣ 2ª via de boleto\n2️⃣ Status de reserva\n3️⃣ Abrir ocorrência",
+  template_comunicado: TEMPLATE_DEFAULT,
 };
 
 function genToken() {
@@ -69,6 +82,7 @@ function WhatsAppPage() {
             access_token: cfg.access_token ?? "",
             app_secret: cfg.app_secret ?? "",
             saudacao: cfg.saudacao ?? EMPTY.saudacao,
+            template_comunicado: (cfg as any).template_comunicado ?? TEMPLATE_DEFAULT,
           });
         } else {
           setForm({ ...EMPTY, webhook_verify_token: genToken() });
@@ -126,6 +140,7 @@ function WhatsAppPage() {
           access_token: form.access_token || null,
           app_secret: form.app_secret || null,
           saudacao: form.saudacao || null,
+          template_comunicado: form.template_comunicado || null,
         },
       });
       toast.success("Configuração salva");

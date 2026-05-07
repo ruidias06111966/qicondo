@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { FileText, Upload, Download, Trash2, Eye, EyeOff, CheckCircle2, Loader2, MessageCircle, Filter, Send } from "lucide-react";
+import { FileText, Upload, Download, Trash2, Eye, EyeOff, CheckCircle2, Loader2, MessageCircle, Filter, Send, History, RefreshCw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,11 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useServerFn } from "@tanstack/react-start";
-import { notificarDocumentoWA } from "@/server/documentos.functions";
+import {
+  enfileirarNotificacaoDocumento,
+  reenviarFalhasDocumento,
+  historicoNotificacoesDocumento,
+} from "@/server/documentos.functions";
 
 export const Route = createFileRoute("/app/documentos")({
   head: () => ({ meta: [{ title: "Documentos — CONDOZAP" }] }),
@@ -57,7 +61,11 @@ function DocumentosPage() {
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<string>("todos");
   const [notificandoId, setNotificandoId] = useState<string | null>(null);
-  const notificarFn = useServerFn(notificarDocumentoWA);
+  const [historicoOpen, setHistoricoOpen] = useState<string | null>(null);
+  const [historico, setHistorico] = useState<any | null>(null);
+  const notificarFn = useServerFn(enfileirarNotificacaoDocumento);
+  const reenviarFn = useServerFn(reenviarFalhasDocumento);
+  const historicoFn = useServerFn(historicoNotificacoesDocumento);
 
   // form
   const [open, setOpen] = useState(false);
@@ -172,12 +180,37 @@ function DocumentosPage() {
     setNotificandoId(d.id);
     try {
       const r = await notificarFn({ data: { documento_id: d.id } });
-      toast.success(`Enviadas: ${r.enviados} · Falhas: ${r.falhas} (de ${r.total})`);
+      toast.success(`Enfileirados: ${r.enfileirados} · Enviados agora: ${r.enviados} · Falhas: ${r.falhas}`);
     } catch (e: any) {
       const msg = e?.message || "Falha ao notificar";
       toast.error(msg === "wa_nao_configurado" ? "Configure o WhatsApp em /app/whatsapp" : msg);
     } finally {
       setNotificandoId(null);
+    }
+  }
+
+  async function abrirHistorico(d: Doc) {
+    if (historicoOpen === d.id) { setHistoricoOpen(null); setHistorico(null); return; }
+    setHistoricoOpen(d.id);
+    setHistorico(null);
+    try {
+      const r = await historicoFn({ data: { documento_id: d.id } });
+      setHistorico(r);
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao carregar histórico");
+    }
+  }
+
+  async function reenviarFalhas(d: Doc) {
+    try {
+      const r = await reenviarFn({ data: { documento_id: d.id } });
+      toast.success(`Reenvio: ${r.enviados} enviados, ${r.falhas} falharam`);
+      if (historicoOpen === d.id) {
+        const h = await historicoFn({ data: { documento_id: d.id } });
+        setHistorico(h);
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao reenviar");
     }
   }
 
@@ -260,59 +293,115 @@ function DocumentosPage() {
       ) : (
         <div className="grid gap-3">
           {filtrados.map((d) => (
-            <div key={d.id} className="rounded-xl border border-border bg-background p-4 flex items-start justify-between gap-4 flex-wrap">
-              <div className="flex items-start gap-3 min-w-0 flex-1">
-                <div className="h-10 w-10 rounded-lg bg-muted text-muted-foreground flex items-center justify-center shrink-0">
-                  <FileText size={18} />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="font-semibold truncate">{d.titulo}</p>
-                    <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                      {CATEGORIAS.find((c) => c.v === d.categoria)?.l ?? d.categoria}
-                    </span>
-                    {d.aprovado ? (
-                      <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">Aprovado</span>
-                    ) : (
-                      <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-500">Em auditoria</span>
-                    )}
-                    {d.visivel_publico && <span className="text-[10px] uppercase px-2 py-0.5 rounded-full bg-primary/15 text-primary">Público</span>}
-                    {d.disponivel_whatsapp && <span className="text-[10px] uppercase px-2 py-0.5 rounded-full bg-green-500/15 text-green-700 dark:text-green-400">WhatsApp</span>}
+            <div key={d.id} className="rounded-xl border border-border bg-background overflow-hidden">
+              <div className="p-4 flex items-start justify-between gap-4 flex-wrap">
+                <div className="flex items-start gap-3 min-w-0 flex-1">
+                  <div className="h-10 w-10 rounded-lg bg-muted text-muted-foreground flex items-center justify-center shrink-0">
+                    <FileText size={18} />
                   </div>
-                  {d.descricao && <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{d.descricao}</p>}
-                  <p className="text-xs text-muted-foreground mt-1">{fmtBytes(d.tamanho_bytes)} · {new Date(d.created_at).toLocaleDateString("pt-BR")}</p>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-semibold truncate">{d.titulo}</p>
+                      <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                        {CATEGORIAS.find((c) => c.v === d.categoria)?.l ?? d.categoria}
+                      </span>
+                      {d.aprovado ? (
+                        <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">Aprovado</span>
+                      ) : (
+                        <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-500">Em auditoria</span>
+                      )}
+                      {d.visivel_publico && <span className="text-[10px] uppercase px-2 py-0.5 rounded-full bg-primary/15 text-primary">Público</span>}
+                      {d.disponivel_whatsapp && <span className="text-[10px] uppercase px-2 py-0.5 rounded-full bg-green-500/15 text-green-700 dark:text-green-400">WhatsApp</span>}
+                    </div>
+                    {d.descricao && <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{d.descricao}</p>}
+                    <p className="text-xs text-muted-foreground mt-1">{fmtBytes(d.tamanho_bytes)} · {new Date(d.created_at).toLocaleDateString("pt-BR")}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button variant="outline" size="sm" onClick={() => baixar(d)}>
+                    <Download size={14} className="mr-1" /> Baixar
+                  </Button>
+                  {podeGerir && (
+                    <>
+                      <label className="flex items-center gap-2 text-xs px-2">
+                        <Switch checked={d.visivel_publico} onCheckedChange={() => toggleVisibilidade(d, "visivel_publico")} />
+                        {d.visivel_publico ? <Eye size={12} /> : <EyeOff size={12} />} Público
+                      </label>
+                      <label className="flex items-center gap-2 text-xs px-2">
+                        <Switch checked={d.disponivel_whatsapp} onCheckedChange={() => toggleVisibilidade(d, "disponivel_whatsapp")} />
+                        <MessageCircle size={12} /> Bot
+                      </label>
+                      <Button variant={d.aprovado ? "outline" : "default"} size="sm" onClick={() => aprovar(d)}>
+                        <CheckCircle2 size={14} className="mr-1" /> {d.aprovado ? "Reprovar" : "Aprovar"}
+                      </Button>
+                      {isSindico && d.aprovado && d.visivel_publico && (
+                        <>
+                          <Button variant="secondary" size="sm" onClick={() => notificar(d)} disabled={notificandoId === d.id}>
+                            {notificandoId === d.id ? <Loader2 size={14} className="mr-1 animate-spin" /> : <Send size={14} className="mr-1" />}
+                            Notificar
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => abrirHistorico(d)}>
+                            <History size={14} className="mr-1" /> Histórico
+                          </Button>
+                        </>
+                      )}
+                      <Button variant="ghost" size="icon" onClick={() => excluir(d)}>
+                        <Trash2 size={14} className="text-destructive" />
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap">
-                <Button variant="outline" size="sm" onClick={() => baixar(d)}>
-                  <Download size={14} className="mr-1" /> Baixar
-                </Button>
-                {podeGerir && (
-                  <>
-                    <label className="flex items-center gap-2 text-xs px-2">
-                      <Switch checked={d.visivel_publico} onCheckedChange={() => toggleVisibilidade(d, "visivel_publico")} />
-                      {d.visivel_publico ? <Eye size={12} /> : <EyeOff size={12} />} Público
-                    </label>
-                    <label className="flex items-center gap-2 text-xs px-2">
-                      <Switch checked={d.disponivel_whatsapp} onCheckedChange={() => toggleVisibilidade(d, "disponivel_whatsapp")} />
-                      <MessageCircle size={12} /> Bot
-                    </label>
-                    <Button variant={d.aprovado ? "outline" : "default"} size="sm" onClick={() => aprovar(d)}>
-                      <CheckCircle2 size={14} className="mr-1" /> {d.aprovado ? "Reprovar" : "Aprovar"}
-                    </Button>
-                    {isSindico && d.aprovado && d.visivel_publico && (
-                      <Button variant="secondary" size="sm" onClick={() => notificar(d)} disabled={notificandoId === d.id}>
-                        {notificandoId === d.id ? <Loader2 size={14} className="mr-1 animate-spin" /> : <Send size={14} className="mr-1" />}
-                        Notificar WhatsApp
+              {historicoOpen === d.id && (
+                <div className="border-t border-border bg-muted/30 p-4">
+                  <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                    <div className="flex items-center gap-3 text-sm">
+                      <span className="font-semibold">Histórico de envios</span>
+                      {historico ? (
+                        <>
+                          <span className="text-emerald-600 dark:text-emerald-400">✓ {historico.enviados}</span>
+                          <span className="text-amber-600 dark:text-amber-400">⏳ {historico.pendentes}</span>
+                          <span className="text-destructive">✗ {historico.falhas}</span>
+                          <span className="text-muted-foreground">de {historico.total}</span>
+                        </>
+                      ) : <Loader2 size={14} className="animate-spin" />}
+                    </div>
+                    <div className="flex gap-2">
+                      {historico && historico.falhas > 0 && (
+                        <Button size="sm" variant="outline" onClick={() => reenviarFalhas(d)}>
+                          <RefreshCw size={12} className="mr-1" /> Reenviar falhas
+                        </Button>
+                      )}
+                      <Button size="sm" variant="ghost" onClick={() => { setHistoricoOpen(null); setHistorico(null); }}>
+                        <X size={14} />
                       </Button>
-                    )}
-                    <Button variant="ghost" size="icon" onClick={() => excluir(d)}>
-                      <Trash2 size={14} className="text-destructive" />
-                    </Button>
-                  </>
-                )}
-              </div>
+                    </div>
+                  </div>
+                  {historico && historico.jobs.length === 0 && (
+                    <p className="text-sm text-muted-foreground">Nenhum envio registrado.</p>
+                  )}
+                  {historico && historico.jobs.length > 0 && (
+                    <div className="grid gap-1 max-h-72 overflow-y-auto">
+                      {historico.jobs.map((j: any) => (
+                        <div key={j.id} className="flex items-center justify-between gap-3 text-xs py-1 px-2 rounded hover:bg-background">
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate"><span className="font-medium">{j.destinatario_nome ?? j.destinatario_telefone}</span> <span className="text-muted-foreground">· {j.destinatario_telefone}</span></p>
+                            {j.ultimo_erro && <p className="text-destructive truncate">{j.ultimo_erro}</p>}
+                          </div>
+                          <span className="text-muted-foreground whitespace-nowrap">{new Date(j.enviado_em ?? j.created_at).toLocaleString("pt-BR")}</span>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase ${
+                            j.status === "enviado" ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                            : j.status === "falha" || j.status === "desistido" ? "bg-destructive/15 text-destructive"
+                            : "bg-amber-500/15 text-amber-700 dark:text-amber-500"
+                          }`}>{j.status}{j.tentativas > 0 && ` ·${j.tentativas}`}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>

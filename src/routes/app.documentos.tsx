@@ -180,7 +180,7 @@ function DocumentosPage() {
     setNotificandoId(d.id);
     try {
       const r = await notificarFn({ data: { documento_id: d.id } });
-      toast.success(`Enviadas: ${r.enviados} · Falhas: ${r.falhas} (de ${r.total})`);
+      toast.success(`Enfileirados: ${r.enfileirados} · Enviados agora: ${r.enviados} · Falhas: ${r.falhas}`);
     } catch (e: any) {
       const msg = e?.message || "Falha ao notificar";
       toast.error(msg === "wa_nao_configurado" ? "Configure o WhatsApp em /app/whatsapp" : msg);

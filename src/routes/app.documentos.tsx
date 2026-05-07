@@ -301,6 +301,12 @@ function DocumentosPage() {
                     <Button variant={d.aprovado ? "outline" : "default"} size="sm" onClick={() => aprovar(d)}>
                       <CheckCircle2 size={14} className="mr-1" /> {d.aprovado ? "Reprovar" : "Aprovar"}
                     </Button>
+                    {isSindico && d.aprovado && d.visivel_publico && (
+                      <Button variant="secondary" size="sm" onClick={() => notificar(d)} disabled={notificandoId === d.id}>
+                        {notificandoId === d.id ? <Loader2 size={14} className="mr-1 animate-spin" /> : <Send size={14} className="mr-1" />}
+                        Notificar WhatsApp
+                      </Button>
+                    )}
                     <Button variant="ghost" size="icon" onClick={() => excluir(d)}>
                       <Trash2 size={14} className="text-destructive" />
                     </Button>

@@ -239,6 +239,26 @@ async function continuarFluxo(
     }
   }
 
+  if (estado.intent === "documentos" && estado.passo === "escolher") {
+    const idx = parseInt(txt, 10) - 1;
+    const ids: string[] = estado.dados?.ids ?? [];
+    if (Number.isNaN(idx) || idx < 0 || idx >= ids.length) {
+      return responder("Número inválido. Tente novamente ou envie 0 para voltar.");
+    }
+    const { data: doc } = await supabaseAdmin
+      .from("documentos")
+      .select("titulo, storage_path")
+      .eq("id", ids[idx])
+      .single();
+    await limpar();
+    if (!doc) return responder("Documento não encontrado.");
+    const { data: signed } = await supabaseAdmin.storage
+      .from("documentos-condo")
+      .createSignedUrl(doc.storage_path, 60 * 60 * 24);
+    if (!signed?.signedUrl) return responder("Não consegui gerar o link agora. Tente pelo app.");
+    return responder(`📄 ${doc.titulo}\n\nLink válido por 24h:\n${signed.signedUrl}`);
+  }
+
   await limpar();
   return responder(`Voltando ao menu.\n\n${"1️⃣ Boleto  2️⃣ Reservas  3️⃣ Ocorrência  4️⃣ Falar com síndico"}`);
 }

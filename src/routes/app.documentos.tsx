@@ -11,7 +11,11 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useServerFn } from "@tanstack/react-start";
-import { notificarDocumentoWA } from "@/server/documentos.functions";
+import {
+  enfileirarNotificacaoDocumento,
+  reenviarFalhasDocumento,
+  historicoNotificacoesDocumento,
+} from "@/server/documentos.functions";
 
 export const Route = createFileRoute("/app/documentos")({
   head: () => ({ meta: [{ title: "Documentos — CONDOZAP" }] }),

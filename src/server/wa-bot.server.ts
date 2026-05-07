@@ -13,6 +13,7 @@ const MENU = `Olá! 👋 Sou o assistente do condomínio. Escolha uma opção:
 2️⃣ Status das minhas reservas
 3️⃣ Abrir uma ocorrência
 4️⃣ Falar com o síndico
+5️⃣ Documentos oficiais (atas, convenção, regimento)
 
 Responda apenas com o número.`;
 
@@ -100,6 +101,7 @@ export async function processarMensagemBot(
       "Tudo bem! Em breve um responsável entrará em contato. Você também pode mandar sua mensagem agora que repasso.",
     );
   }
+  if (txt === "5") return iniciarDocumentos(conversa, responder, setEstado);
 
   // Confirmação de visitante (resposta a notificação)
   if (contexto?.tipo === "visitante" && (txt === "sim" || txt === "s" || txt === "não" || txt === "nao" || txt === "n")) {
@@ -162,6 +164,24 @@ async function iniciarOcorrencia(c: Conversa, responder: (s: string) => Promise<
   return responder("Vamos abrir uma ocorrência. 📝\n\nQual é o título? (ex.: lâmpada queimada na garagem)\n\nResponda 0 para cancelar.");
 }
 
+async function iniciarDocumentos(c: Conversa, responder: (s: string) => Promise<void>, setEstado: any) {
+  const { data: docs } = await supabaseAdmin
+    .from("documentos")
+    .select("id, titulo, categoria")
+    .eq("condominio_id", c.condominio_id)
+    .eq("aprovado", true)
+    .eq("visivel_publico", true)
+    .order("created_at", { ascending: false })
+    .limit(10);
+  if (!docs || docs.length === 0) {
+    await setEstado("menu", null, {});
+    return responder("📂 Nenhum documento público disponível no momento.");
+  }
+  const linhas = docs.map((d: any, i: number) => `${i + 1}) [${d.categoria}] ${d.titulo}`);
+  await setEstado("documentos", "escolher", { ids: docs.map((d: any) => d.id) });
+  return responder(`📂 Documentos disponíveis:\n\n${linhas.join("\n")}\n\nResponda com o número para receber o link, ou 0 para voltar.`);
+}
+
 async function continuarFluxo(
   estado: any,
   txt: string,
@@ -217,6 +237,26 @@ async function continuarFluxo(
       if (error || !oc) return responder("Não consegui registrar agora. Tente pelo app.");
       return responder(`✅ Ocorrência aberta! Protocolo: ${oc.id.slice(0, 8)}\n\nA gestão recebeu sua solicitação.`);
     }
+  }
+
+  if (estado.intent === "documentos" && estado.passo === "escolher") {
+    const idx = parseInt(txt, 10) - 1;
+    const ids: string[] = estado.dados?.ids ?? [];
+    if (Number.isNaN(idx) || idx < 0 || idx >= ids.length) {
+      return responder("Número inválido. Tente novamente ou envie 0 para voltar.");
+    }
+    const { data: doc } = await supabaseAdmin
+      .from("documentos")
+      .select("titulo, storage_path")
+      .eq("id", ids[idx])
+      .single();
+    await limpar();
+    if (!doc) return responder("Documento não encontrado.");
+    const { data: signed } = await supabaseAdmin.storage
+      .from("documentos-condo")
+      .createSignedUrl(doc.storage_path, 60 * 60 * 24);
+    if (!signed?.signedUrl) return responder("Não consegui gerar o link agora. Tente pelo app.");
+    return responder(`📄 ${doc.titulo}\n\nLink válido por 24h:\n${signed.signedUrl}`);
   }
 
   await limpar();

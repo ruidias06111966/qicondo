@@ -101,6 +101,7 @@ export async function processarMensagemBot(
       "Tudo bem! Em breve um responsável entrará em contato. Você também pode mandar sua mensagem agora que repasso.",
     );
   }
+  if (txt === "5") return iniciarDocumentos(conversa, responder, setEstado);
 
   // Confirmação de visitante (resposta a notificação)
   if (contexto?.tipo === "visitante" && (txt === "sim" || txt === "s" || txt === "não" || txt === "nao" || txt === "n")) {

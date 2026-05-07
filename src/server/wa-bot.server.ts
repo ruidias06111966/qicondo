@@ -13,6 +13,7 @@ const MENU = `Olá! 👋 Sou o assistente do condomínio. Escolha uma opção:
 2️⃣ Status das minhas reservas
 3️⃣ Abrir uma ocorrência
 4️⃣ Falar com o síndico
+5️⃣ Documentos oficiais (atas, convenção, regimento)
 
 Responda apenas com o número.`;
 

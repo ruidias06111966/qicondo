@@ -164,6 +164,24 @@ async function iniciarOcorrencia(c: Conversa, responder: (s: string) => Promise<
   return responder("Vamos abrir uma ocorrência. 📝\n\nQual é o título? (ex.: lâmpada queimada na garagem)\n\nResponda 0 para cancelar.");
 }
 
+async function iniciarDocumentos(c: Conversa, responder: (s: string) => Promise<void>, setEstado: any) {
+  const { data: docs } = await supabaseAdmin
+    .from("documentos")
+    .select("id, titulo, categoria")
+    .eq("condominio_id", c.condominio_id)
+    .eq("aprovado", true)
+    .eq("visivel_publico", true)
+    .order("created_at", { ascending: false })
+    .limit(10);
+  if (!docs || docs.length === 0) {
+    await setEstado("menu", null, {});
+    return responder("📂 Nenhum documento público disponível no momento.");
+  }
+  const linhas = docs.map((d: any, i: number) => `${i + 1}) [${d.categoria}] ${d.titulo}`);
+  await setEstado("documentos", "escolher", { ids: docs.map((d: any) => d.id) });
+  return responder(`📂 Documentos disponíveis:\n\n${linhas.join("\n")}\n\nResponda com o número para receber o link, ou 0 para voltar.`);
+}
+
 async function continuarFluxo(
   estado: any,
   txt: string,

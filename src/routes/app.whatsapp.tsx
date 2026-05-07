@@ -140,6 +140,7 @@ function WhatsAppPage() {
           access_token: form.access_token || null,
           app_secret: form.app_secret || null,
           saudacao: form.saudacao || null,
+          template_comunicado: form.template_comunicado || null,
         },
       });
       toast.success("Configuração salva");

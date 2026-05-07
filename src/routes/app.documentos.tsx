@@ -3,13 +3,15 @@ import { useEffect, useState } from "react";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { FileText, Upload, Download, Trash2, Eye, EyeOff, CheckCircle2, Loader2, MessageCircle, Filter } from "lucide-react";
+import { FileText, Upload, Download, Trash2, Eye, EyeOff, CheckCircle2, Loader2, MessageCircle, Filter, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useServerFn } from "@tanstack/react-start";
+import { notificarDocumentoWA } from "@/server/documentos.functions";
 
 export const Route = createFileRoute("/app/documentos")({
   head: () => ({ meta: [{ title: "Documentos — CONDOZAP" }] }),

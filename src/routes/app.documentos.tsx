@@ -189,6 +189,31 @@ function DocumentosPage() {
     }
   }
 
+  async function abrirHistorico(d: Doc) {
+    if (historicoOpen === d.id) { setHistoricoOpen(null); setHistorico(null); return; }
+    setHistoricoOpen(d.id);
+    setHistorico(null);
+    try {
+      const r = await historicoFn({ data: { documento_id: d.id } });
+      setHistorico(r);
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao carregar histórico");
+    }
+  }
+
+  async function reenviarFalhas(d: Doc) {
+    try {
+      const r = await reenviarFn({ data: { documento_id: d.id } });
+      toast.success(`Reenvio: ${r.enviados} enviados, ${r.falhas} falharam`);
+      if (historicoOpen === d.id) {
+        const h = await historicoFn({ data: { documento_id: d.id } });
+        setHistorico(h);
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao reenviar");
+    }
+  }
+
   const filtrados = filtro === "todos" ? docs : docs.filter((d) => d.categoria === filtro);
 
   return (

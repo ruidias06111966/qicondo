@@ -56,6 +56,8 @@ function DocumentosPage() {
   const [docs, setDocs] = useState<Doc[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<string>("todos");
+  const [notificandoId, setNotificandoId] = useState<string | null>(null);
+  const notificarFn = useServerFn(notificarDocumentoWA);
 
   // form
   const [open, setOpen] = useState(false);

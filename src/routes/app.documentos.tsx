@@ -163,6 +163,24 @@ function DocumentosPage() {
     if (error) toast.error(error.message); else { toast.success("Excluído"); carregar(); }
   }
 
+  async function notificar(d: Doc) {
+    if (!d.aprovado || !d.visivel_publico) {
+      toast.error("Aprove e marque como público antes de notificar");
+      return;
+    }
+    if (!confirm(`Enviar notificação por WhatsApp a todos os moradores sobre "${d.titulo}"?`)) return;
+    setNotificandoId(d.id);
+    try {
+      const r = await notificarFn({ data: { documento_id: d.id } });
+      toast.success(`Enviadas: ${r.enviados} · Falhas: ${r.falhas} (de ${r.total})`);
+    } catch (e: any) {
+      const msg = e?.message || "Falha ao notificar";
+      toast.error(msg === "wa_nao_configurado" ? "Configure o WhatsApp em /app/whatsapp" : msg);
+    } finally {
+      setNotificandoId(null);
+    }
+  }
+
   const filtrados = filtro === "todos" ? docs : docs.filter((d) => d.categoria === filtro);
 
   return (

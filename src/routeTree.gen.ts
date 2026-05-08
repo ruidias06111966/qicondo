@@ -40,6 +40,7 @@ import { Route as AppDocumentosRouteImport } from './routes/app.documentos'
 import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes'
 import { Route as AppCondominioRouteImport } from './routes/app.condominio'
 import { Route as AppFinanceiroIndexRouteImport } from './routes/app.financeiro.index'
+import { Route as AppFinanceiroDespesasRouteImport } from './routes/app.financeiro.despesas'
 import { Route as AppFinanceiroCobrancasRouteImport } from './routes/app.financeiro.cobrancas'
 import { Route as ApiPublicWaWebhookRouteImport } from './routes/api.public.wa-webhook'
 import { Route as ApiPublicWaDrainRouteImport } from './routes/api/public/wa-drain'
@@ -201,6 +202,11 @@ const AppFinanceiroIndexRoute = AppFinanceiroIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppFinanceiroRoute,
 } as any)
+const AppFinanceiroDespesasRoute = AppFinanceiroDespesasRouteImport.update({
+  id: '/despesas',
+  path: '/despesas',
+  getParentRoute: () => AppFinanceiroRoute,
+} as any)
 const AppFinanceiroCobrancasRoute = AppFinanceiroCobrancasRouteImport.update({
   id: '/cobrancas',
   path: '/cobrancas',
@@ -257,6 +263,7 @@ export interface FileRoutesByFullPath {
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
   '/app/financeiro/cobrancas': typeof AppFinanceiroCobrancasRoute
+  '/app/financeiro/despesas': typeof AppFinanceiroDespesasRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
 }
 export interface FileRoutesByTo {
@@ -292,6 +299,7 @@ export interface FileRoutesByTo {
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
   '/app/financeiro/cobrancas': typeof AppFinanceiroCobrancasRoute
+  '/app/financeiro/despesas': typeof AppFinanceiroDespesasRoute
   '/app/financeiro': typeof AppFinanceiroIndexRoute
 }
 export interface FileRoutesById {
@@ -330,6 +338,7 @@ export interface FileRoutesById {
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
   '/app/financeiro/cobrancas': typeof AppFinanceiroCobrancasRoute
+  '/app/financeiro/despesas': typeof AppFinanceiroDespesasRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
 }
 export interface FileRouteTypes {
@@ -369,6 +378,7 @@ export interface FileRouteTypes {
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
     | '/app/financeiro/cobrancas'
+    | '/app/financeiro/despesas'
     | '/app/financeiro/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -404,6 +414,7 @@ export interface FileRouteTypes {
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
     | '/app/financeiro/cobrancas'
+    | '/app/financeiro/despesas'
     | '/app/financeiro'
   id:
     | '__root__'
@@ -441,6 +452,7 @@ export interface FileRouteTypes {
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
     | '/app/financeiro/cobrancas'
+    | '/app/financeiro/despesas'
     | '/app/financeiro/'
   fileRoutesById: FileRoutesById
 }
@@ -687,6 +699,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceiroIndexRouteImport
       parentRoute: typeof AppFinanceiroRoute
     }
+    '/app/financeiro/despesas': {
+      id: '/app/financeiro/despesas'
+      path: '/despesas'
+      fullPath: '/app/financeiro/despesas'
+      preLoaderRoute: typeof AppFinanceiroDespesasRouteImport
+      parentRoute: typeof AppFinanceiroRoute
+    }
     '/app/financeiro/cobrancas': {
       id: '/app/financeiro/cobrancas'
       path: '/cobrancas'
@@ -720,11 +739,13 @@ declare module '@tanstack/react-router' {
 
 interface AppFinanceiroRouteChildren {
   AppFinanceiroCobrancasRoute: typeof AppFinanceiroCobrancasRoute
+  AppFinanceiroDespesasRoute: typeof AppFinanceiroDespesasRoute
   AppFinanceiroIndexRoute: typeof AppFinanceiroIndexRoute
 }
 
 const AppFinanceiroRouteChildren: AppFinanceiroRouteChildren = {
   AppFinanceiroCobrancasRoute: AppFinanceiroCobrancasRoute,
+  AppFinanceiroDespesasRoute: AppFinanceiroDespesasRoute,
   AppFinanceiroIndexRoute: AppFinanceiroIndexRoute,
 }
 

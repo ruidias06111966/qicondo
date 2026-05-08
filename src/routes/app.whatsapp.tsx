@@ -260,6 +260,30 @@ function WhatsAppPage() {
         <Textarea rows={6} value={form.saudacao} onChange={(e) => update("saudacao", e.target.value)} />
       </section>
 
+      {/* Template comunicado */}
+      <section className="rounded-xl border border-border bg-background p-5 space-y-3">
+        <div>
+          <h2 className="font-semibold">Template de comunicados</h2>
+          <p className="text-xs text-muted-foreground">
+            Mensagem enviada automaticamente quando um documento (comunicado/informativo) é aprovado e publicado.
+            Placeholders disponíveis:{" "}
+            <code className="text-[11px] bg-muted px-1 py-0.5 rounded">{"{{condominio}}"}</code>{" "}
+            <code className="text-[11px] bg-muted px-1 py-0.5 rounded">{"{{categoria}}"}</code>{" "}
+            <code className="text-[11px] bg-muted px-1 py-0.5 rounded">{"{{titulo}}"}</code>{" "}
+            <code className="text-[11px] bg-muted px-1 py-0.5 rounded">{"{{link}}"}</code>
+          </p>
+        </div>
+        <Textarea
+          rows={9}
+          value={form.template_comunicado}
+          onChange={(e) => update("template_comunicado", e.target.value)}
+          className="font-mono text-xs"
+        />
+        <Button type="button" variant="outline" size="sm" onClick={() => update("template_comunicado", TEMPLATE_DEFAULT)}>
+          Restaurar padrão
+        </Button>
+      </section>
+
       <div className="flex justify-end gap-2 sticky bottom-4">
         <Button onClick={save} disabled={saving} className="shadow-lg">
           {saving ? <Loader2 className="animate-spin mr-2" size={16} /> : <Save size={16} className="mr-2" />}

@@ -31,6 +31,7 @@ import { Route as AuthCadastroRouteImport } from './routes/auth.cadastro'
 import { Route as AppWhatsappRouteImport } from './routes/app.whatsapp'
 import { Route as AppVisitantesRouteImport } from './routes/app.visitantes'
 import { Route as AppReservasRouteImport } from './routes/app.reservas'
+import { Route as AppPreferenciasNotificacaoRouteImport } from './routes/app.preferencias-notificacao'
 import { Route as AppOcorrenciasRouteImport } from './routes/app.ocorrencias'
 import { Route as AppMoradoresRouteImport } from './routes/app.moradores'
 import { Route as AppFinanceiroRouteImport } from './routes/app.financeiro'
@@ -152,6 +153,12 @@ const AppReservasRoute = AppReservasRouteImport.update({
   path: '/reservas',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPreferenciasNotificacaoRoute =
+  AppPreferenciasNotificacaoRouteImport.update({
+    id: '/preferencias-notificacao',
+    path: '/preferencias-notificacao',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppOcorrenciasRoute = AppOcorrenciasRouteImport.update({
   id: '/ocorrencias',
   path: '/ocorrencias',
@@ -224,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/app/financeiro': typeof AppFinanceiroRoute
   '/app/moradores': typeof AppMoradoresRoute
   '/app/ocorrencias': typeof AppOcorrenciasRoute
+  '/app/preferencias-notificacao': typeof AppPreferenciasNotificacaoRoute
   '/app/reservas': typeof AppReservasRoute
   '/app/visitantes': typeof AppVisitantesRoute
   '/app/whatsapp': typeof AppWhatsappRoute
@@ -257,6 +265,7 @@ export interface FileRoutesByTo {
   '/app/financeiro': typeof AppFinanceiroRoute
   '/app/moradores': typeof AppMoradoresRoute
   '/app/ocorrencias': typeof AppOcorrenciasRoute
+  '/app/preferencias-notificacao': typeof AppPreferenciasNotificacaoRoute
   '/app/reservas': typeof AppReservasRoute
   '/app/visitantes': typeof AppVisitantesRoute
   '/app/whatsapp': typeof AppWhatsappRoute
@@ -292,6 +301,7 @@ export interface FileRoutesById {
   '/app/financeiro': typeof AppFinanceiroRoute
   '/app/moradores': typeof AppMoradoresRoute
   '/app/ocorrencias': typeof AppOcorrenciasRoute
+  '/app/preferencias-notificacao': typeof AppPreferenciasNotificacaoRoute
   '/app/reservas': typeof AppReservasRoute
   '/app/visitantes': typeof AppVisitantesRoute
   '/app/whatsapp': typeof AppWhatsappRoute
@@ -328,6 +338,7 @@ export interface FileRouteTypes {
     | '/app/financeiro'
     | '/app/moradores'
     | '/app/ocorrencias'
+    | '/app/preferencias-notificacao'
     | '/app/reservas'
     | '/app/visitantes'
     | '/app/whatsapp'
@@ -361,6 +372,7 @@ export interface FileRouteTypes {
     | '/app/financeiro'
     | '/app/moradores'
     | '/app/ocorrencias'
+    | '/app/preferencias-notificacao'
     | '/app/reservas'
     | '/app/visitantes'
     | '/app/whatsapp'
@@ -395,6 +407,7 @@ export interface FileRouteTypes {
     | '/app/financeiro'
     | '/app/moradores'
     | '/app/ocorrencias'
+    | '/app/preferencias-notificacao'
     | '/app/reservas'
     | '/app/visitantes'
     | '/app/whatsapp'
@@ -589,6 +602,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppReservasRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/preferencias-notificacao': {
+      id: '/app/preferencias-notificacao'
+      path: '/preferencias-notificacao'
+      fullPath: '/app/preferencias-notificacao'
+      preLoaderRoute: typeof AppPreferenciasNotificacaoRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/ocorrencias': {
       id: '/app/ocorrencias'
       path: '/ocorrencias'
@@ -670,6 +690,7 @@ interface AppRouteChildren {
   AppFinanceiroRoute: typeof AppFinanceiroRoute
   AppMoradoresRoute: typeof AppMoradoresRoute
   AppOcorrenciasRoute: typeof AppOcorrenciasRoute
+  AppPreferenciasNotificacaoRoute: typeof AppPreferenciasNotificacaoRoute
   AppReservasRoute: typeof AppReservasRoute
   AppVisitantesRoute: typeof AppVisitantesRoute
   AppWhatsappRoute: typeof AppWhatsappRoute
@@ -684,6 +705,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppFinanceiroRoute: AppFinanceiroRoute,
   AppMoradoresRoute: AppMoradoresRoute,
   AppOcorrenciasRoute: AppOcorrenciasRoute,
+  AppPreferenciasNotificacaoRoute: AppPreferenciasNotificacaoRoute,
   AppReservasRoute: AppReservasRoute,
   AppVisitantesRoute: AppVisitantesRoute,
   AppWhatsappRoute: AppWhatsappRoute,

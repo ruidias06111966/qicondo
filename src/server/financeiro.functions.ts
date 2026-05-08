@@ -299,3 +299,79 @@ function proximoMes(mes: string) {
   const d = new Date(y, m, 1);
   return d.toISOString().slice(0, 10);
 }
+
+// ===== WhatsApp lembretes =====
+export const enviarLembreteCobranca = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ cobranca_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }): Promise<{ enfileirados: number }> => {
+    const { supabase, userId } = context;
+    const { data: cob, error } = await supabase
+      .from("cobrancas")
+      .select("id, condominio_id, unidade_id, valor, multa, juros, desconto, valor_pago, vencimento, unidades(numero, bloco)")
+      .eq("id", data.cobranca_id)
+      .single();
+    if (error || !cob) throw new Error("cobranca_nao_encontrada");
+
+    const { data: isSind } = await supabase.rpc("is_sindico", { _user_id: userId, _condominio_id: cob.condominio_id } as any);
+    const { data: isCont } = await supabase.rpc("is_contador", { _user_id: userId, _condominio_id: cob.condominio_id } as any);
+    if (!isSind && !isCont) throw new Error("forbidden");
+
+    const { data: mors } = await supabase
+      .from("unidade_moradores")
+      .select("user_id")
+      .eq("unidade_id", cob.unidade_id);
+
+    const userIds = (mors ?? []).map((m: any) => m.user_id);
+    if (userIds.length === 0) return { enfileirados: 0 };
+
+    const { data: profs } = await supabase
+      .from("profiles")
+      .select("id, nome_completo, telefone")
+      .in("id", userIds);
+
+    const restante =
+      Number(cob.valor) + Number(cob.multa) + Number(cob.juros) -
+      Number(cob.desconto) - Number(cob.valor_pago);
+    const u = (cob as any).unidades;
+    const unidadeLabel = u ? `${u.bloco ? u.bloco + "-" : ""}${u.numero}` : "sua unidade";
+    const venc = new Date(cob.vencimento).toLocaleDateString("pt-BR");
+    const valor = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(restante);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let count = 0;
+    for (const p of profs ?? []) {
+      const tel = (p.telefone ?? "").replace(/\D/g, "");
+      if (tel.length < 10) continue;
+      const telFinal = tel.length <= 11 ? "55" + tel : tel;
+      const msg = `Olá ${p.nome_completo ?? ""}! Lembrete da cobrança da ${unidadeLabel}: vencimento ${venc}, saldo devedor ${valor}. Acesse o app para pagar via PIX.`;
+      const { error: insErr } = await supabaseAdmin.from("notificacoes_whatsapp").insert({
+        condominio_id: cob.condominio_id,
+        unidade_id: cob.unidade_id,
+        destinatario_user_id: p.id,
+        destinatario_telefone: telFinal,
+        destinatario_nome: p.nome_completo,
+        mensagem: msg,
+        contexto: "cobranca",
+        contexto_id: cob.id,
+        status: "pendente",
+        link_wa: `https://wa.me/${telFinal}?text=${encodeURIComponent(msg)}`,
+      });
+      if (!insErr) count++;
+    }
+    return { enfileirados: count };
+  });
+
+export const enviarLembretesInadimplencia = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ cobranca_ids: z.array(z.string().uuid()).min(1).max(200) }).parse(d))
+  .handler(async ({ data, context }): Promise<{ enfileirados: number }> => {
+    let total = 0;
+    for (const id of data.cobranca_ids) {
+      try {
+        const r = await (enviarLembreteCobranca as any)({ data: { cobranca_id: id }, context });
+        total += r?.enfileirados ?? 0;
+      } catch {}
+    }
+    return { enfileirados: total };
+  });

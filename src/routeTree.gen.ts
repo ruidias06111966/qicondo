@@ -39,6 +39,7 @@ import { Route as AppEncomendasRouteImport } from './routes/app.encomendas'
 import { Route as AppDocumentosRouteImport } from './routes/app.documentos'
 import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes'
 import { Route as AppCondominioRouteImport } from './routes/app.condominio'
+import { Route as AppFinanceiroIndexRouteImport } from './routes/app.financeiro.index'
 import { Route as ApiPublicWaWebhookRouteImport } from './routes/api.public.wa-webhook'
 import { Route as ApiPublicWaDrainRouteImport } from './routes/api/public/wa-drain'
 import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
@@ -194,6 +195,11 @@ const AppCondominioRoute = AppCondominioRouteImport.update({
   path: '/condominio',
   getParentRoute: () => AppRoute,
 } as any)
+const AppFinanceiroIndexRoute = AppFinanceiroIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppFinanceiroRoute,
+} as any)
 const ApiPublicWaWebhookRoute = ApiPublicWaWebhookRouteImport.update({
   id: '/api/public/wa-webhook',
   path: '/api/public/wa-webhook',
@@ -228,7 +234,7 @@ export interface FileRoutesByFullPath {
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/documentos': typeof AppDocumentosRoute
   '/app/encomendas': typeof AppEncomendasRoute
-  '/app/financeiro': typeof AppFinanceiroRoute
+  '/app/financeiro': typeof AppFinanceiroRouteWithChildren
   '/app/moradores': typeof AppMoradoresRoute
   '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/preferencias-notificacao': typeof AppPreferenciasNotificacaoRoute
@@ -244,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
+  '/app/financeiro/': typeof AppFinanceiroIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -262,7 +269,6 @@ export interface FileRoutesByTo {
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/documentos': typeof AppDocumentosRoute
   '/app/encomendas': typeof AppEncomendasRoute
-  '/app/financeiro': typeof AppFinanceiroRoute
   '/app/moradores': typeof AppMoradoresRoute
   '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/preferencias-notificacao': typeof AppPreferenciasNotificacaoRoute
@@ -278,6 +284,7 @@ export interface FileRoutesByTo {
   '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
+  '/app/financeiro': typeof AppFinanceiroIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -298,7 +305,7 @@ export interface FileRoutesById {
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/documentos': typeof AppDocumentosRoute
   '/app/encomendas': typeof AppEncomendasRoute
-  '/app/financeiro': typeof AppFinanceiroRoute
+  '/app/financeiro': typeof AppFinanceiroRouteWithChildren
   '/app/moradores': typeof AppMoradoresRoute
   '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/preferencias-notificacao': typeof AppPreferenciasNotificacaoRoute
@@ -314,6 +321,7 @@ export interface FileRoutesById {
   '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
+  '/app/financeiro/': typeof AppFinanceiroIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -351,6 +359,7 @@ export interface FileRouteTypes {
     | '/api/public/mp-webhook'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
+    | '/app/financeiro/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -369,7 +378,6 @@ export interface FileRouteTypes {
     | '/app/configuracoes'
     | '/app/documentos'
     | '/app/encomendas'
-    | '/app/financeiro'
     | '/app/moradores'
     | '/app/ocorrencias'
     | '/app/preferencias-notificacao'
@@ -385,6 +393,7 @@ export interface FileRouteTypes {
     | '/api/public/mp-webhook'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
+    | '/app/financeiro'
   id:
     | '__root__'
     | '/'
@@ -420,6 +429,7 @@ export interface FileRouteTypes {
     | '/api/public/mp-webhook'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
+    | '/app/financeiro/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -658,6 +668,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCondominioRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/financeiro/': {
+      id: '/app/financeiro/'
+      path: '/'
+      fullPath: '/app/financeiro/'
+      preLoaderRoute: typeof AppFinanceiroIndexRouteImport
+      parentRoute: typeof AppFinanceiroRoute
+    }
     '/api/public/wa-webhook': {
       id: '/api/public/wa-webhook'
       path: '/api/public/wa-webhook'
@@ -682,12 +699,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppFinanceiroRouteChildren {
+  AppFinanceiroIndexRoute: typeof AppFinanceiroIndexRoute
+}
+
+const AppFinanceiroRouteChildren: AppFinanceiroRouteChildren = {
+  AppFinanceiroIndexRoute: AppFinanceiroIndexRoute,
+}
+
+const AppFinanceiroRouteWithChildren = AppFinanceiroRoute._addFileChildren(
+  AppFinanceiroRouteChildren,
+)
+
 interface AppRouteChildren {
   AppCondominioRoute: typeof AppCondominioRoute
   AppConfiguracoesRoute: typeof AppConfiguracoesRoute
   AppDocumentosRoute: typeof AppDocumentosRoute
   AppEncomendasRoute: typeof AppEncomendasRoute
-  AppFinanceiroRoute: typeof AppFinanceiroRoute
+  AppFinanceiroRoute: typeof AppFinanceiroRouteWithChildren
   AppMoradoresRoute: typeof AppMoradoresRoute
   AppOcorrenciasRoute: typeof AppOcorrenciasRoute
   AppPreferenciasNotificacaoRoute: typeof AppPreferenciasNotificacaoRoute
@@ -702,7 +731,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppConfiguracoesRoute: AppConfiguracoesRoute,
   AppDocumentosRoute: AppDocumentosRoute,
   AppEncomendasRoute: AppEncomendasRoute,
-  AppFinanceiroRoute: AppFinanceiroRoute,
+  AppFinanceiroRoute: AppFinanceiroRouteWithChildren,
   AppMoradoresRoute: AppMoradoresRoute,
   AppOcorrenciasRoute: AppOcorrenciasRoute,
   AppPreferenciasNotificacaoRoute: AppPreferenciasNotificacaoRoute,

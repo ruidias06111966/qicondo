@@ -40,6 +40,7 @@ import { Route as AppDocumentosRouteImport } from './routes/app.documentos'
 import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes'
 import { Route as AppCondominioRouteImport } from './routes/app.condominio'
 import { Route as AppFinanceiroIndexRouteImport } from './routes/app.financeiro.index'
+import { Route as AppFinanceiroCobrancasRouteImport } from './routes/app.financeiro.cobrancas'
 import { Route as ApiPublicWaWebhookRouteImport } from './routes/api.public.wa-webhook'
 import { Route as ApiPublicWaDrainRouteImport } from './routes/api/public/wa-drain'
 import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
@@ -200,6 +201,11 @@ const AppFinanceiroIndexRoute = AppFinanceiroIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppFinanceiroRoute,
 } as any)
+const AppFinanceiroCobrancasRoute = AppFinanceiroCobrancasRouteImport.update({
+  id: '/cobrancas',
+  path: '/cobrancas',
+  getParentRoute: () => AppFinanceiroRoute,
+} as any)
 const ApiPublicWaWebhookRoute = ApiPublicWaWebhookRouteImport.update({
   id: '/api/public/wa-webhook',
   path: '/api/public/wa-webhook',
@@ -250,6 +256,7 @@ export interface FileRoutesByFullPath {
   '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
+  '/app/financeiro/cobrancas': typeof AppFinanceiroCobrancasRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
 }
 export interface FileRoutesByTo {
@@ -284,6 +291,7 @@ export interface FileRoutesByTo {
   '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
+  '/app/financeiro/cobrancas': typeof AppFinanceiroCobrancasRoute
   '/app/financeiro': typeof AppFinanceiroIndexRoute
 }
 export interface FileRoutesById {
@@ -321,6 +329,7 @@ export interface FileRoutesById {
   '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
+  '/app/financeiro/cobrancas': typeof AppFinanceiroCobrancasRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
 }
 export interface FileRouteTypes {
@@ -359,6 +368,7 @@ export interface FileRouteTypes {
     | '/api/public/mp-webhook'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
+    | '/app/financeiro/cobrancas'
     | '/app/financeiro/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -393,6 +403,7 @@ export interface FileRouteTypes {
     | '/api/public/mp-webhook'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
+    | '/app/financeiro/cobrancas'
     | '/app/financeiro'
   id:
     | '__root__'
@@ -429,6 +440,7 @@ export interface FileRouteTypes {
     | '/api/public/mp-webhook'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
+    | '/app/financeiro/cobrancas'
     | '/app/financeiro/'
   fileRoutesById: FileRoutesById
 }
@@ -675,6 +687,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceiroIndexRouteImport
       parentRoute: typeof AppFinanceiroRoute
     }
+    '/app/financeiro/cobrancas': {
+      id: '/app/financeiro/cobrancas'
+      path: '/cobrancas'
+      fullPath: '/app/financeiro/cobrancas'
+      preLoaderRoute: typeof AppFinanceiroCobrancasRouteImport
+      parentRoute: typeof AppFinanceiroRoute
+    }
     '/api/public/wa-webhook': {
       id: '/api/public/wa-webhook'
       path: '/api/public/wa-webhook'
@@ -700,10 +719,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppFinanceiroRouteChildren {
+  AppFinanceiroCobrancasRoute: typeof AppFinanceiroCobrancasRoute
   AppFinanceiroIndexRoute: typeof AppFinanceiroIndexRoute
 }
 
 const AppFinanceiroRouteChildren: AppFinanceiroRouteChildren = {
+  AppFinanceiroCobrancasRoute: AppFinanceiroCobrancasRoute,
   AppFinanceiroIndexRoute: AppFinanceiroIndexRoute,
 }
 

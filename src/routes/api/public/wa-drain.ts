@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { drenarFila } from "@/server/documentos.functions";
+import { drenarFila } from "@/server/documentos.server";
 
 export const Route = createFileRoute("/api/public/wa-drain")({
   server: {

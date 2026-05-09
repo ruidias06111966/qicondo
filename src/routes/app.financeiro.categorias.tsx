@@ -41,7 +41,7 @@ function CategoriasPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-muted-foreground">{rows.length} categoria(s)</p>
+        <p className="text-sm text-muted-foreground">{safeRows.length} categoria(s)</p>
         <button
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90"

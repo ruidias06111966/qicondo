@@ -54,7 +54,7 @@ function CategoriasPage() {
         <div className="flex justify-center py-20">
           <Loader2 className="animate-spin text-muted-foreground" />
         </div>
-      ) : rows.length === 0 ? (
+      ) : safeRows.length === 0 ? (
         <EmptyState icon={Tag} title="Nenhuma categoria" desc="Crie categorias para organizar receitas e despesas." />
       ) : (
         <div className="grid md:grid-cols-2 gap-5">

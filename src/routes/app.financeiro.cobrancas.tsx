@@ -37,15 +37,15 @@ function CobrancasPage() {
     if (!condominioId) return;
     setLoading(true);
     safeCall(listarCobrancas({ data: { condominio_id: condominioId } }))
-      .then((rs) => setRows(rs ?? []))
+      .then((rs) => setRows(Array.isArray(rs) ? rs : []))
       .finally(() => setLoading(false));
   };
   useEffect(reload, [condominioId]);
 
-  const filtered = useMemo(
-    () => (filter === "todos" ? rows : rows.filter((r) => r.status === filter)),
-    [rows, filter],
-  );
+  const filtered = useMemo(() => {
+    const arr = Array.isArray(rows) ? rows : [];
+    return filter === "todos" ? arr : arr.filter((r) => r.status === filter);
+  }, [rows, filter]);
 
   if (!condominioId) return null;
 

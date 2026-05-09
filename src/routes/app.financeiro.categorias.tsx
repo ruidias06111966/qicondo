@@ -27,20 +27,21 @@ function CategoriasPage() {
     if (!condominioId) return;
     setLoading(true);
     safeCall(listarCategorias({ data: { condominio_id: condominioId } }))
-      .then((r) => setRows(r ?? []))
+      .then((r) => setRows(Array.isArray(r) ? r : []))
       .finally(() => setLoading(false));
   };
   useEffect(reload, [condominioId]);
 
   if (!condominioId) return null;
 
-  const receitas = rows.filter((r) => r.tipo === "receita");
-  const despesas = rows.filter((r) => r.tipo === "despesa");
+  const safeRows = Array.isArray(rows) ? rows : [];
+  const receitas = safeRows.filter((r) => r.tipo === "receita");
+  const despesas = safeRows.filter((r) => r.tipo === "despesa");
 
   return (
     <div>
       <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-muted-foreground">{rows.length} categoria(s)</p>
+        <p className="text-sm text-muted-foreground">{safeRows.length} categoria(s)</p>
         <button
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90"
@@ -53,7 +54,7 @@ function CategoriasPage() {
         <div className="flex justify-center py-20">
           <Loader2 className="animate-spin text-muted-foreground" />
         </div>
-      ) : rows.length === 0 ? (
+      ) : safeRows.length === 0 ? (
         <EmptyState icon={Tag} title="Nenhuma categoria" desc="Crie categorias para organizar receitas e despesas." />
       ) : (
         <div className="grid md:grid-cols-2 gap-5">

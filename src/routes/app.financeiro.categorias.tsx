@@ -27,15 +27,16 @@ function CategoriasPage() {
     if (!condominioId) return;
     setLoading(true);
     safeCall(listarCategorias({ data: { condominio_id: condominioId } }))
-      .then((r) => setRows(r ?? []))
+      .then((r) => setRows(Array.isArray(r) ? r : []))
       .finally(() => setLoading(false));
   };
   useEffect(reload, [condominioId]);
 
   if (!condominioId) return null;
 
-  const receitas = rows.filter((r) => r.tipo === "receita");
-  const despesas = rows.filter((r) => r.tipo === "despesa");
+  const safeRows = Array.isArray(rows) ? rows : [];
+  const receitas = safeRows.filter((r) => r.tipo === "receita");
+  const despesas = safeRows.filter((r) => r.tipo === "despesa");
 
   return (
     <div>

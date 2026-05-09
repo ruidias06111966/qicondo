@@ -28,7 +28,7 @@ function DespesasPage() {
     if (!condominioId) return;
     setLoading(true);
     safeCall(listarDespesas({ data: { condominio_id: condominioId, mes: mes || undefined } }))
-      .then((r) => setRows(r ?? []))
+      .then((r) => setRows(Array.isArray(r) ? r : []))
       .finally(() => setLoading(false));
   };
   useEffect(reload, [condominioId, mes]);

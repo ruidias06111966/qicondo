@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useCondominioAtivo } from "@/auth/useCondominio";
-import { resumoFinanceiro } from "@/server/financeiro.functions";
+import { resumoFinanceiro, exportarRelatorioFinanceiro } from "@/server/financeiro.functions";
 import { brl } from "@/lib/format";
 import { Stat, safeCall } from "@/components/financeiro/ui";
+import { baixarCSV, abrirPDF } from "@/lib/exportar-relatorio";
+import { toast } from "sonner";
 import {
-  Wallet, TrendingUp, TrendingDown, AlertTriangle, FileText, Loader2,
+  Wallet, TrendingUp, TrendingDown, AlertTriangle, FileText, Loader2, Download, Printer,
 } from "lucide-react";
 
 export const Route = createFileRoute("/app/financeiro/")({

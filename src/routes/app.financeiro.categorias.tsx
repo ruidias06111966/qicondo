@@ -22,6 +22,7 @@ function CategoriasPage() {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const reload = () => {
     if (!condominioId) return;
@@ -31,6 +32,15 @@ function CategoriasPage() {
       .finally(() => setLoading(false));
   };
   useEffect(reload, [condominioId]);
+
+  // Recarrega quando outras telas alteram categorias
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const h = () => reload();
+    window.addEventListener("categorias:changed", h);
+    return () => window.removeEventListener("categorias:changed", h);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [condominioId]);
 
   if (!condominioId) return null;
 
@@ -58,8 +68,8 @@ function CategoriasPage() {
         <EmptyState icon={Tag} title="Nenhuma categoria" desc="Crie categorias para organizar receitas e despesas." />
       ) : (
         <div className="grid md:grid-cols-2 gap-5">
-          <Bloco titulo="Receitas" cor="emerald" itens={receitas} onDel={(id) => del(id)} />
-          <Bloco titulo="Despesas" cor="rose" itens={despesas} onDel={(id) => del(id)} />
+          <Bloco titulo="Receitas" cor="emerald" itens={receitas} onDel={(id) => del(id)} deletingId={deletingId} />
+          <Bloco titulo="Despesas" cor="rose" itens={despesas} onDel={(id) => del(id)} deletingId={deletingId} />
         </div>
       )}
 
@@ -76,17 +86,19 @@ function CategoriasPage() {
     </div>
   );
 
-  function del(id: string) {
+  async function del(id: string) {
     if (!confirm("Excluir categoria?")) return;
-    safeCall(removerCategoria({ data: { id } })).then((ok) => {
-      if (ok) {
-        toast.success("Categoria excluída");
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("categorias:changed"));
-        }
-        reload();
+    if (deletingId) return;
+    setDeletingId(id);
+    const ok = await safeCall(removerCategoria({ data: { id } }));
+    setDeletingId(null);
+    if (ok) {
+      toast.success("Categoria excluída");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("categorias:changed"));
       }
-    });
+      reload();
+    }
   }
 }
 

@@ -48,6 +48,7 @@ import { Route as AppFinanceiroCategoriasRouteImport } from './routes/app.financ
 import { Route as ApiPublicWaWebhookRouteImport } from './routes/api.public.wa-webhook'
 import { Route as ApiPublicWaDrainRouteImport } from './routes/api/public/wa-drain'
 import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
+import { Route as ApiPublicHooksLembretesCobrancaRouteImport } from './routes/api/public/hooks/lembretes-cobranca'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -246,6 +247,12 @@ const ApiPublicMpWebhookRoute = ApiPublicMpWebhookRouteImport.update({
   path: '/api/public/mp-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksLembretesCobrancaRoute =
+  ApiPublicHooksLembretesCobrancaRouteImport.update({
+    id: '/api/public/hooks/lembretes-cobranca',
+    path: '/api/public/hooks/lembretes-cobranca',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -287,6 +294,7 @@ export interface FileRoutesByFullPath {
   '/app/financeiro/inadimplencia': typeof AppFinanceiroInadimplenciaRoute
   '/app/financeiro/pagamentos': typeof AppFinanceiroPagamentosRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
+  '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -326,6 +334,7 @@ export interface FileRoutesByTo {
   '/app/financeiro/inadimplencia': typeof AppFinanceiroInadimplenciaRoute
   '/app/financeiro/pagamentos': typeof AppFinanceiroPagamentosRoute
   '/app/financeiro': typeof AppFinanceiroIndexRoute
+  '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -368,6 +377,7 @@ export interface FileRoutesById {
   '/app/financeiro/inadimplencia': typeof AppFinanceiroInadimplenciaRoute
   '/app/financeiro/pagamentos': typeof AppFinanceiroPagamentosRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
+  '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -411,6 +421,7 @@ export interface FileRouteTypes {
     | '/app/financeiro/inadimplencia'
     | '/app/financeiro/pagamentos'
     | '/app/financeiro/'
+    | '/api/public/hooks/lembretes-cobranca'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -450,6 +461,7 @@ export interface FileRouteTypes {
     | '/app/financeiro/inadimplencia'
     | '/app/financeiro/pagamentos'
     | '/app/financeiro'
+    | '/api/public/hooks/lembretes-cobranca'
   id:
     | '__root__'
     | '/'
@@ -491,6 +503,7 @@ export interface FileRouteTypes {
     | '/app/financeiro/inadimplencia'
     | '/app/financeiro/pagamentos'
     | '/app/financeiro/'
+    | '/api/public/hooks/lembretes-cobranca'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -515,6 +528,7 @@ export interface RootRouteChildren {
   ApiPublicMpWebhookRoute: typeof ApiPublicMpWebhookRoute
   ApiPublicWaDrainRoute: typeof ApiPublicWaDrainRoute
   ApiPublicWaWebhookRoute: typeof ApiPublicWaWebhookRoute
+  ApiPublicHooksLembretesCobrancaRoute: typeof ApiPublicHooksLembretesCobrancaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -792,6 +806,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMpWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/lembretes-cobranca': {
+      id: '/api/public/hooks/lembretes-cobranca'
+      path: '/api/public/hooks/lembretes-cobranca'
+      fullPath: '/api/public/hooks/lembretes-cobranca'
+      preLoaderRoute: typeof ApiPublicHooksLembretesCobrancaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -871,6 +892,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicMpWebhookRoute: ApiPublicMpWebhookRoute,
   ApiPublicWaDrainRoute: ApiPublicWaDrainRoute,
   ApiPublicWaWebhookRoute: ApiPublicWaWebhookRoute,
+  ApiPublicHooksLembretesCobrancaRoute: ApiPublicHooksLembretesCobrancaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

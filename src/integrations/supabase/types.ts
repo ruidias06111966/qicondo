@@ -603,6 +603,11 @@ export type Database = {
           multa_percentual: number
           pix_chave: string | null
           updated_at: string
+          wa_automacao_ativa: boolean
+          wa_dias_pos_vencimento: number[]
+          wa_dias_pre_vencimento: number[]
+          wa_template_lembrete: string
+          wa_template_vencida: string
         }
         Insert: {
           ativo?: boolean
@@ -617,6 +622,11 @@ export type Database = {
           multa_percentual?: number
           pix_chave?: string | null
           updated_at?: string
+          wa_automacao_ativa?: boolean
+          wa_dias_pos_vencimento?: number[]
+          wa_dias_pre_vencimento?: number[]
+          wa_template_lembrete?: string
+          wa_template_vencida?: string
         }
         Update: {
           ativo?: boolean
@@ -631,6 +641,11 @@ export type Database = {
           multa_percentual?: number
           pix_chave?: string | null
           updated_at?: string
+          wa_automacao_ativa?: boolean
+          wa_dias_pos_vencimento?: number[]
+          wa_dias_pre_vencimento?: number[]
+          wa_template_lembrete?: string
+          wa_template_vencida?: string
         }
         Relationships: [
           {

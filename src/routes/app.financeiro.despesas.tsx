@@ -190,10 +190,19 @@ function ModalNovaDespesa({
   const [cats, setCats] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
+  const reloadCats = () =>
     safeCall(listarCategorias({ data: { condominio_id: condominioId } })).then((cs) =>
-      setCats((cs ?? []).filter((c: any) => c.tipo === "despesa")),
+      setCats((Array.isArray(cs) ? cs : []).filter((c: any) => c.tipo === "despesa")),
     );
+
+  useEffect(() => {
+    reloadCats();
+    const h = () => reloadCats();
+    if (typeof window !== "undefined") window.addEventListener("categorias:changed", h);
+    return () => {
+      if (typeof window !== "undefined") window.removeEventListener("categorias:changed", h);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [condominioId]);
 
   const submit = async () => {

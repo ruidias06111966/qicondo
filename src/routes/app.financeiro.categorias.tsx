@@ -209,26 +209,45 @@ function ModalNova({
           </div>
         </Field>
         <Field label="Cor">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {CORES.map((c) => (
               <button
                 key={c}
+                type="button"
                 onClick={() => setCor(c)}
                 className={`w-8 h-8 rounded-full border-2 ${cor === c ? "border-foreground" : "border-transparent"}`}
                 style={{ backgroundColor: c }}
+                aria-label={`Selecionar cor ${c}`}
               />
             ))}
+            <input
+              type="text"
+              value={cor}
+              onChange={(e) => setCor(e.target.value)}
+              placeholder="#10B981"
+              className={`w-28 px-2 py-1 rounded-lg border text-xs font-mono bg-background ${
+                corValida ? "border-border" : "border-rose-500"
+              }`}
+            />
           </div>
+          {!corValida && (
+            <p className="text-xs text-rose-600 mt-1">Use o formato hexadecimal #RRGGBB.</p>
+          )}
         </Field>
         <div className="flex justify-end gap-2 pt-2">
-          <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-sm font-semibold">
+          <button
+            onClick={onClose}
+            disabled={saving}
+            className="px-4 py-2 rounded-lg border border-border text-sm font-semibold disabled:opacity-60"
+          >
             Cancelar
           </button>
           <button
             onClick={submit}
-            disabled={saving}
-            className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-60"
+            disabled={saving || !corValida || !nome.trim()}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-60"
           >
+            {saving && <Loader2 size={14} className="animate-spin" />}
             {saving ? "Salvando…" : "Salvar"}
           </button>
         </div>

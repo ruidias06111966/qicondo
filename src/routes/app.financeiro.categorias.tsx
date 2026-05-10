@@ -140,14 +140,19 @@ function ModalNova({
   const [saving, setSaving] = useState(false);
 
   const submit = async () => {
-    if (!nome) return toast.error("Informe o nome");
+    const nomeTrim = nome.trim();
+    if (!nomeTrim) return toast.error("Informe o nome da categoria");
+    if (nomeTrim.length > 80) return toast.error("Nome muito longo (máx. 80)");
     setSaving(true);
     const r = await safeCall(
-      criarCategoria({ data: { condominio_id: condominioId, nome, tipo, cor } }),
+      criarCategoria({ data: { condominio_id: condominioId, nome: nomeTrim, tipo, cor } }),
     );
     setSaving(false);
     if (r) {
-      toast.success("Criada");
+      toast.success(`Categoria "${nomeTrim}" criada`);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("categorias:changed"));
+      }
       onDone();
     }
   };

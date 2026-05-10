@@ -246,13 +246,18 @@ const ConfigInput = z.object({
   multa_percentual: z.number().min(0).max(50),
   juros_dia_percentual: z.number().min(0).max(5),
   ativo: z.boolean(),
+  // Automação WhatsApp (opcionais — só atualiza se enviados)
+  wa_automacao_ativa: z.boolean().optional(),
+  wa_dias_pre_vencimento: z.array(z.number().int().min(0).max(60)).max(10).optional(),
+  wa_dias_pos_vencimento: z.array(z.number().int().min(0).max(120)).max(10).optional(),
+  wa_template_lembrete: z.string().min(10).max(1000).optional(),
+  wa_template_vencida: z.string().min(10).max(1000).optional(),
 });
 
 export const salvarConfigPagamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => ConfigInput.parse(d))
   .handler(async ({ data, context }) => {
-    // Verifica se usuário é síndico do condomínio (RLS valida no upsert também)
     const { data: isSind } = await context.supabase.rpc("is_sindico", {
       _user_id: context.userId,
       _condominio_id: data.condominio_id,
@@ -269,7 +274,12 @@ export const salvarConfigPagamento = createServerFn({ method: "POST" })
     if (data.mp_access_token) payload.mp_access_token = data.mp_access_token;
     if (data.mp_public_key) payload.mp_public_key = data.mp_public_key;
     if (data.mp_webhook_secret) payload.mp_webhook_secret = data.mp_webhook_secret;
-    // Usa admin pois RLS de SELECT está bloqueada; o check acima garante autorização
+    if (data.wa_automacao_ativa !== undefined) payload.wa_automacao_ativa = data.wa_automacao_ativa;
+    if (data.wa_dias_pre_vencimento) payload.wa_dias_pre_vencimento = data.wa_dias_pre_vencimento;
+    if (data.wa_dias_pos_vencimento) payload.wa_dias_pos_vencimento = data.wa_dias_pos_vencimento;
+    if (data.wa_template_lembrete) payload.wa_template_lembrete = data.wa_template_lembrete;
+    if (data.wa_template_vencida) payload.wa_template_vencida = data.wa_template_vencida;
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("config_pagamento").upsert(payload);
     if (error) throw new Error(error.message);
@@ -289,7 +299,9 @@ export const obterConfigPagamento = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row } = await supabaseAdmin
       .from("config_pagamento")
-      .select("condominio_id, mp_public_key, pix_chave, multa_percentual, juros_dia_percentual, dias_envio_lembrete, ativo, mp_access_token, mp_webhook_secret")
+      .select(
+        "condominio_id, mp_public_key, pix_chave, multa_percentual, juros_dia_percentual, dias_envio_lembrete, ativo, mp_access_token, mp_webhook_secret, wa_automacao_ativa, wa_dias_pre_vencimento, wa_dias_pos_vencimento, wa_template_lembrete, wa_template_vencida",
+      )
       .eq("condominio_id", data.condominio_id)
       .maybeSingle();
     if (!row) return null;
@@ -304,6 +316,11 @@ export const obterConfigPagamento = createServerFn({ method: "POST" })
       ativo: row.ativo,
       mp_token_configured: !!row.mp_access_token,
       mp_webhook_configured: !!row.mp_webhook_secret,
+      wa_automacao_ativa: row.wa_automacao_ativa ?? false,
+      wa_dias_pre_vencimento: row.wa_dias_pre_vencimento ?? [3, 1],
+      wa_dias_pos_vencimento: row.wa_dias_pos_vencimento ?? [1, 7, 15],
+      wa_template_lembrete: row.wa_template_lembrete ?? "",
+      wa_template_vencida: row.wa_template_vencida ?? "",
     };
   });
 
@@ -387,4 +404,162 @@ export const enviarLembretesInadimplencia = createServerFn({ method: "POST" })
       } catch {}
     }
     return { enfileirados: total };
+  });
+
+// ===== Exportação de relatórios =====
+const RelatorioInput = z.object({
+  condominio_id: z.string().uuid(),
+  mes: z.string().regex(/^\d{4}-\d{2}$/),
+});
+
+export const exportarRelatorioFinanceiro = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => RelatorioInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: isSind } = await supabase.rpc("is_sindico", {
+      _user_id: userId,
+      _condominio_id: data.condominio_id,
+    } as any);
+    const { data: isCont } = await supabase.rpc("is_contador", {
+      _user_id: userId,
+      _condominio_id: data.condominio_id,
+    } as any);
+    if (!isSind && !isCont) throw new Error("forbidden");
+
+    const inicio = `${data.mes}-01`;
+    const fim = proximoMes(data.mes);
+
+    const [{ data: cond }, { data: cobs }, { data: pags }, { data: desps }] = await Promise.all([
+      supabase.from("condominios").select("nome, cnpj").eq("id", data.condominio_id).maybeSingle(),
+      supabase
+        .from("cobrancas")
+        .select("competencia, vencimento, valor, valor_pago, multa, juros, desconto, status, descricao, unidades(numero, bloco), categorias_financeiras(nome)")
+        .eq("condominio_id", data.condominio_id)
+        .gte("competencia", inicio)
+        .lt("competencia", fim)
+        .order("vencimento"),
+      supabase
+        .from("pagamentos")
+        .select("pago_em, valor, forma, cobrancas(competencia, unidades(numero, bloco))")
+        .eq("condominio_id", data.condominio_id)
+        .gte("pago_em", inicio)
+        .lt("pago_em", fim)
+        .order("pago_em"),
+      supabase
+        .from("despesas")
+        .select("data, descricao, fornecedor, valor, forma, categorias_financeiras(nome)")
+        .eq("condominio_id", data.condominio_id)
+        .gte("data", inicio)
+        .lt("data", fim)
+        .order("data"),
+    ]);
+
+    return {
+      condominio: cond ?? null,
+      mes: data.mes,
+      cobrancas: cobs ?? [],
+      pagamentos: pags ?? [],
+      despesas: desps ?? [],
+    };
+  });
+
+// ===== Automação WhatsApp — execução =====
+function renderTemplate(tpl: string, vars: Record<string, string>) {
+  return tpl.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? "");
+}
+
+export const executarAutomacaoLembretes = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ condominio_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }): Promise<{ enfileirados: number; cobrancas: number }> => {
+    const { supabase, userId } = context;
+    const { data: isSind } = await supabase.rpc("is_sindico", {
+      _user_id: userId,
+      _condominio_id: data.condominio_id,
+    } as any);
+    if (!isSind) throw new Error("forbidden");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: cfg } = await supabaseAdmin
+      .from("config_pagamento")
+      .select("wa_automacao_ativa, wa_dias_pre_vencimento, wa_dias_pos_vencimento, wa_template_lembrete, wa_template_vencida")
+      .eq("condominio_id", data.condominio_id)
+      .maybeSingle();
+    if (!cfg || !cfg.wa_automacao_ativa) return { enfileirados: 0, cobrancas: 0 };
+
+    const hoje = new Date();
+    const isoDia = (d: Date) => d.toISOString().slice(0, 10);
+    const datasAlvo: { data: string; tipo: "pre" | "pos" }[] = [];
+    for (const d of cfg.wa_dias_pre_vencimento ?? []) {
+      const dt = new Date(hoje);
+      dt.setDate(dt.getDate() + d);
+      datasAlvo.push({ data: isoDia(dt), tipo: "pre" });
+    }
+    for (const d of cfg.wa_dias_pos_vencimento ?? []) {
+      const dt = new Date(hoje);
+      dt.setDate(dt.getDate() - d);
+      datasAlvo.push({ data: isoDia(dt), tipo: "pos" });
+    }
+
+    const datasUnicas = Array.from(new Set(datasAlvo.map((x) => x.data)));
+    const { data: cobs } = await supabase
+      .from("cobrancas")
+      .select("id, vencimento, valor, valor_pago, multa, juros, desconto, condominio_id, unidade_id, unidades(numero, bloco)")
+      .eq("condominio_id", data.condominio_id)
+      .in("vencimento", datasUnicas)
+      .in("status", ["pendente", "vencida", "parcial"]);
+
+    let count = 0;
+    let cobCount = 0;
+    for (const cob of cobs ?? []) {
+      const tipo = datasAlvo.find((x) => x.data === cob.vencimento)?.tipo ?? "pre";
+      const tpl = tipo === "pre" ? cfg.wa_template_lembrete : cfg.wa_template_vencida;
+      if (!tpl) continue;
+
+      const { data: mors } = await supabase
+        .from("unidade_moradores")
+        .select("user_id")
+        .eq("unidade_id", cob.unidade_id);
+      const userIds = (mors ?? []).map((m: any) => m.user_id);
+      if (userIds.length === 0) continue;
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id, nome_completo, telefone")
+        .in("id", userIds);
+
+      const restante =
+        Number(cob.valor) + Number(cob.multa) + Number(cob.juros) - Number(cob.desconto) - Number(cob.valor_pago);
+      const u = (cob as any).unidades;
+      const unidadeLabel = u ? `${u.bloco ? u.bloco + "-" : ""}${u.numero}` : "sua unidade";
+      const venc = new Date(cob.vencimento).toLocaleDateString("pt-BR");
+      const valor = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(restante);
+
+      cobCount++;
+      for (const p of profs ?? []) {
+        const tel = (p.telefone ?? "").replace(/\D/g, "");
+        if (tel.length < 10) continue;
+        const telFinal = tel.length <= 11 ? "55" + tel : tel;
+        const msg = renderTemplate(tpl, {
+          nome: p.nome_completo ?? "",
+          unidade: unidadeLabel,
+          vencimento: venc,
+          valor,
+        });
+        const { error: insErr } = await supabaseAdmin.from("notificacoes_whatsapp").insert({
+          condominio_id: cob.condominio_id,
+          unidade_id: cob.unidade_id,
+          destinatario_user_id: p.id,
+          destinatario_telefone: telFinal,
+          destinatario_nome: p.nome_completo,
+          mensagem: msg,
+          contexto: "cobranca",
+          contexto_id: cob.id,
+          status: "pendente",
+          link_wa: `https://wa.me/${telFinal}?text=${encodeURIComponent(msg)}`,
+        });
+        if (!insErr) count++;
+      }
+    }
+    return { enfileirados: count, cobrancas: cobCount };
   });

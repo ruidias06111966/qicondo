@@ -19,31 +19,35 @@ export const Route = createFileRoute("/app/financeiro/pagamentos")({
 
 function PagamentosPage() {
   const { condominioId } = useCondominioAtivo();
-  const [tab, setTab] = useState<"recebidos" | "config">("recebidos");
+  const [tab, setTab] = useState<"recebidos" | "config" | "automacao">("recebidos");
 
   if (!condominioId) return null;
 
+  const tabs: { id: typeof tab; label: string }[] = [
+    { id: "recebidos", label: "Recebidos" },
+    { id: "config", label: "Configuração PIX/Mercado Pago" },
+    { id: "automacao", label: "Automação WhatsApp" },
+  ];
+
   return (
     <div>
-      <div className="flex gap-2 mb-5">
-        {(["recebidos", "config"] as const).map((t) => (
+      <div className="flex flex-wrap gap-2 mb-5">
+        {tabs.map((t) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
+            key={t.id}
+            onClick={() => setTab(t.id)}
             className={`px-4 py-2 rounded-lg text-sm font-semibold ${
-              tab === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              tab === t.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
             }`}
           >
-            {t === "recebidos" ? "Recebidos" : "Configuração PIX/Mercado Pago"}
+            {t.label}
           </button>
         ))}
       </div>
 
-      {tab === "recebidos" ? (
-        <PagamentosRecebidos condominioId={condominioId} />
-      ) : (
-        <ConfigPagamento condominioId={condominioId} />
-      )}
+      {tab === "recebidos" && <PagamentosRecebidos condominioId={condominioId} />}
+      {tab === "config" && <ConfigPagamento condominioId={condominioId} />}
+      {tab === "automacao" && <AutomacaoWhatsApp condominioId={condominioId} />}
     </div>
   );
 }

@@ -246,13 +246,18 @@ const ConfigInput = z.object({
   multa_percentual: z.number().min(0).max(50),
   juros_dia_percentual: z.number().min(0).max(5),
   ativo: z.boolean(),
+  // Automação WhatsApp (opcionais — só atualiza se enviados)
+  wa_automacao_ativa: z.boolean().optional(),
+  wa_dias_pre_vencimento: z.array(z.number().int().min(0).max(60)).max(10).optional(),
+  wa_dias_pos_vencimento: z.array(z.number().int().min(0).max(120)).max(10).optional(),
+  wa_template_lembrete: z.string().min(10).max(1000).optional(),
+  wa_template_vencida: z.string().min(10).max(1000).optional(),
 });
 
 export const salvarConfigPagamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => ConfigInput.parse(d))
   .handler(async ({ data, context }) => {
-    // Verifica se usuário é síndico do condomínio (RLS valida no upsert também)
     const { data: isSind } = await context.supabase.rpc("is_sindico", {
       _user_id: context.userId,
       _condominio_id: data.condominio_id,
@@ -269,7 +274,12 @@ export const salvarConfigPagamento = createServerFn({ method: "POST" })
     if (data.mp_access_token) payload.mp_access_token = data.mp_access_token;
     if (data.mp_public_key) payload.mp_public_key = data.mp_public_key;
     if (data.mp_webhook_secret) payload.mp_webhook_secret = data.mp_webhook_secret;
-    // Usa admin pois RLS de SELECT está bloqueada; o check acima garante autorização
+    if (data.wa_automacao_ativa !== undefined) payload.wa_automacao_ativa = data.wa_automacao_ativa;
+    if (data.wa_dias_pre_vencimento) payload.wa_dias_pre_vencimento = data.wa_dias_pre_vencimento;
+    if (data.wa_dias_pos_vencimento) payload.wa_dias_pos_vencimento = data.wa_dias_pos_vencimento;
+    if (data.wa_template_lembrete) payload.wa_template_lembrete = data.wa_template_lembrete;
+    if (data.wa_template_vencida) payload.wa_template_vencida = data.wa_template_vencida;
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("config_pagamento").upsert(payload);
     if (error) throw new Error(error.message);
@@ -289,7 +299,9 @@ export const obterConfigPagamento = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row } = await supabaseAdmin
       .from("config_pagamento")
-      .select("condominio_id, mp_public_key, pix_chave, multa_percentual, juros_dia_percentual, dias_envio_lembrete, ativo, mp_access_token, mp_webhook_secret")
+      .select(
+        "condominio_id, mp_public_key, pix_chave, multa_percentual, juros_dia_percentual, dias_envio_lembrete, ativo, mp_access_token, mp_webhook_secret, wa_automacao_ativa, wa_dias_pre_vencimento, wa_dias_pos_vencimento, wa_template_lembrete, wa_template_vencida",
+      )
       .eq("condominio_id", data.condominio_id)
       .maybeSingle();
     if (!row) return null;
@@ -304,6 +316,11 @@ export const obterConfigPagamento = createServerFn({ method: "POST" })
       ativo: row.ativo,
       mp_token_configured: !!row.mp_access_token,
       mp_webhook_configured: !!row.mp_webhook_secret,
+      wa_automacao_ativa: row.wa_automacao_ativa ?? false,
+      wa_dias_pre_vencimento: row.wa_dias_pre_vencimento ?? [3, 1],
+      wa_dias_pos_vencimento: row.wa_dias_pos_vencimento ?? [1, 7, 15],
+      wa_template_lembrete: row.wa_template_lembrete ?? "",
+      wa_template_vencida: row.wa_template_vencida ?? "",
     };
   });
 

@@ -161,10 +161,14 @@ function ModalNova({
   const [cor, setCor] = useState(CORES[0]);
   const [saving, setSaving] = useState(false);
 
+  const corValida = /^#[0-9A-Fa-f]{6}$/.test(cor);
+
   const submit = async () => {
     const nomeTrim = nome.trim();
     if (!nomeTrim) return toast.error("Informe o nome da categoria");
     if (nomeTrim.length > 80) return toast.error("Nome muito longo (máx. 80)");
+    if (!corValida) return toast.error("Cor inválida — use formato #RRGGBB");
+    if (saving) return;
     setSaving(true);
     const r = await safeCall(
       criarCategoria({ data: { condominio_id: condominioId, nome: nomeTrim, tipo, cor } }),

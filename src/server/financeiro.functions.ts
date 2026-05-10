@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 // ===== Categorias =====
 const CategoriaInput = z.object({
   condominio_id: z.string().uuid(),
-  nome: z.string().min(1).max(80),
+  nome: z.string().trim().min(1, "Informe o nome").max(80, "Máx. 80 caracteres"),
   tipo: z.enum(["receita", "despesa"]),
   cor: z.string().max(20).optional(),
 });
@@ -15,6 +15,16 @@ export const criarCategoria = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => CategoriaInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
+    // Verifica duplicidade no escopo do condomínio + tipo (case-insensitive)
+    const { data: dup } = await supabase
+      .from("categorias_financeiras")
+      .select("id")
+      .eq("condominio_id", data.condominio_id)
+      .eq("tipo", data.tipo)
+      .ilike("nome", data.nome)
+      .maybeSingle();
+    if (dup) throw new Error(`Já existe uma categoria de ${data.tipo} com esse nome`);
+
     const { data: row, error } = await supabase
       .from("categorias_financeiras")
       .insert({ ...data, cor: data.cor ?? "#10B981" })

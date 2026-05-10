@@ -20,6 +20,7 @@ function DashboardPage() {
   const [mes, setMes] = useState(new Date().toISOString().slice(0, 7));
   const [resumo, setResumo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState<null | "csv" | "pdf">(null);
 
   const reload = () => {
     if (!condominioId) return;
@@ -31,7 +32,6 @@ function DashboardPage() {
 
   useEffect(reload, [condominioId, mes]);
 
-  // Recarrega o resumo quando categorias mudam (refletem em despesas/relatórios)
   useEffect(() => {
     if (typeof window === "undefined") return;
     const h = () => reload();
@@ -40,18 +40,54 @@ function DashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [condominioId, mes]);
 
+  const exportar = async (tipo: "csv" | "pdf") => {
+    if (!condominioId || exporting) return;
+    setExporting(tipo);
+    const rel = await safeCall(
+      exportarRelatorioFinanceiro({ data: { condominio_id: condominioId, mes } }),
+    );
+    setExporting(null);
+    if (!rel) return;
+    if (tipo === "csv") {
+      baixarCSV(rel as any);
+      toast.success("CSV exportado");
+    } else {
+      abrirPDF(rel as any);
+      toast.success("Relatório aberto — use Imprimir para salvar em PDF");
+    }
+  };
+
   if (!condominioId) return null;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-muted-foreground">Competência</p>
-        <input
-          type="month"
-          value={mes}
-          onChange={(e) => setMes(e.target.value)}
-          className="px-3 py-2 rounded-lg border border-border bg-background text-sm"
-        />
+      <div className="flex flex-wrap items-center gap-3 mb-5">
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-muted-foreground">Competência</p>
+          <input
+            type="month"
+            value={mes}
+            onChange={(e) => setMes(e.target.value)}
+            className="px-3 py-2 rounded-lg border border-border bg-background text-sm"
+          />
+        </div>
+        <div className="flex-1" />
+        <button
+          onClick={() => exportar("csv")}
+          disabled={!!exporting}
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-background text-sm font-semibold hover:bg-muted disabled:opacity-60"
+        >
+          {exporting === "csv" ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+          CSV
+        </button>
+        <button
+          onClick={() => exportar("pdf")}
+          disabled={!!exporting}
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-background text-sm font-semibold hover:bg-muted disabled:opacity-60"
+        >
+          {exporting === "pdf" ? <Loader2 size={14} className="animate-spin" /> : <Printer size={14} />}
+          PDF
+        </button>
       </div>
 
       {loading || !resumo ? (

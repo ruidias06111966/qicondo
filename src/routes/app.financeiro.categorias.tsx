@@ -107,11 +107,13 @@ function Bloco({
   cor,
   itens,
   onDel,
+  deletingId,
 }: {
   titulo: string;
   cor: string;
   itens: any[];
   onDel: (id: string) => void;
+  deletingId: string | null;
 }) {
   return (
     <div className="bg-background border border-border rounded-2xl overflow-hidden">
@@ -122,18 +124,23 @@ function Bloco({
         <p className="p-5 text-sm text-muted-foreground text-center">Nenhuma categoria.</p>
       ) : (
         <ul className="divide-y divide-border">
-          {itens.map((c) => (
-            <li key={c.id} className="px-5 py-3 flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full" style={{ backgroundColor: c.cor }} />
-              <span className="flex-1 font-medium text-sm">{c.nome}</span>
-              <button
-                onClick={() => onDel(c.id)}
-                className="p-2 rounded hover:bg-muted text-rose-600"
-              >
-                <Trash2 size={14} />
-              </button>
-            </li>
-          ))}
+          {itens.map((c) => {
+            const busy = deletingId === c.id;
+            return (
+              <li key={c.id} className="px-5 py-3 flex items-center gap-3">
+                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: c.cor }} />
+                <span className="flex-1 font-medium text-sm">{c.nome}</span>
+                <button
+                  onClick={() => onDel(c.id)}
+                  disabled={busy || !!deletingId}
+                  className="p-2 rounded hover:bg-muted text-rose-600 disabled:opacity-50"
+                  aria-label="Excluir categoria"
+                >
+                  {busy ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

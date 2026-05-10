@@ -19,12 +19,23 @@ function DashboardPage() {
   const [resumo, setResumo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const reload = () => {
     if (!condominioId) return;
     setLoading(true);
     safeCall(resumoFinanceiro({ data: { condominio_id: condominioId, mes } }))
       .then((r) => setResumo(r))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(reload, [condominioId, mes]);
+
+  // Recarrega o resumo quando categorias mudam (refletem em despesas/relatórios)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const h = () => reload();
+    window.addEventListener("categorias:changed", h);
+    return () => window.removeEventListener("categorias:changed", h);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [condominioId, mes]);
 
   if (!condominioId) return null;

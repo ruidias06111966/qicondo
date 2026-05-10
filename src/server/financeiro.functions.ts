@@ -7,7 +7,10 @@ const CategoriaInput = z.object({
   condominio_id: z.string().uuid(),
   nome: z.string().trim().min(1, "Informe o nome").max(80, "Máx. 80 caracteres"),
   tipo: z.enum(["receita", "despesa"]),
-  cor: z.string().max(20).optional(),
+  cor: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/, "Cor deve estar no formato hex (#RRGGBB)")
+    .optional(),
 });
 
 export const criarCategoria = createServerFn({ method: "POST" })

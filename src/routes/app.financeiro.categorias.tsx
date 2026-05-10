@@ -22,6 +22,7 @@ function CategoriasPage() {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const reload = () => {
     if (!condominioId) return;
@@ -31,6 +32,15 @@ function CategoriasPage() {
       .finally(() => setLoading(false));
   };
   useEffect(reload, [condominioId]);
+
+  // Recarrega quando outras telas alteram categorias
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const h = () => reload();
+    window.addEventListener("categorias:changed", h);
+    return () => window.removeEventListener("categorias:changed", h);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [condominioId]);
 
   if (!condominioId) return null;
 
@@ -58,8 +68,8 @@ function CategoriasPage() {
         <EmptyState icon={Tag} title="Nenhuma categoria" desc="Crie categorias para organizar receitas e despesas." />
       ) : (
         <div className="grid md:grid-cols-2 gap-5">
-          <Bloco titulo="Receitas" cor="emerald" itens={receitas} onDel={(id) => del(id)} />
-          <Bloco titulo="Despesas" cor="rose" itens={despesas} onDel={(id) => del(id)} />
+          <Bloco titulo="Receitas" cor="emerald" itens={receitas} onDel={(id) => del(id)} deletingId={deletingId} />
+          <Bloco titulo="Despesas" cor="rose" itens={despesas} onDel={(id) => del(id)} deletingId={deletingId} />
         </div>
       )}
 
@@ -76,17 +86,19 @@ function CategoriasPage() {
     </div>
   );
 
-  function del(id: string) {
+  async function del(id: string) {
     if (!confirm("Excluir categoria?")) return;
-    safeCall(removerCategoria({ data: { id } })).then((ok) => {
-      if (ok) {
-        toast.success("Categoria excluída");
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("categorias:changed"));
-        }
-        reload();
+    if (deletingId) return;
+    setDeletingId(id);
+    const ok = await safeCall(removerCategoria({ data: { id } }));
+    setDeletingId(null);
+    if (ok) {
+      toast.success("Categoria excluída");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("categorias:changed"));
       }
-    });
+      reload();
+    }
   }
 }
 
@@ -95,11 +107,13 @@ function Bloco({
   cor,
   itens,
   onDel,
+  deletingId,
 }: {
   titulo: string;
   cor: string;
   itens: any[];
   onDel: (id: string) => void;
+  deletingId: string | null;
 }) {
   return (
     <div className="bg-background border border-border rounded-2xl overflow-hidden">
@@ -110,18 +124,23 @@ function Bloco({
         <p className="p-5 text-sm text-muted-foreground text-center">Nenhuma categoria.</p>
       ) : (
         <ul className="divide-y divide-border">
-          {itens.map((c) => (
-            <li key={c.id} className="px-5 py-3 flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full" style={{ backgroundColor: c.cor }} />
-              <span className="flex-1 font-medium text-sm">{c.nome}</span>
-              <button
-                onClick={() => onDel(c.id)}
-                className="p-2 rounded hover:bg-muted text-rose-600"
-              >
-                <Trash2 size={14} />
-              </button>
-            </li>
-          ))}
+          {itens.map((c) => {
+            const busy = deletingId === c.id;
+            return (
+              <li key={c.id} className="px-5 py-3 flex items-center gap-3">
+                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: c.cor }} />
+                <span className="flex-1 font-medium text-sm">{c.nome}</span>
+                <button
+                  onClick={() => onDel(c.id)}
+                  disabled={busy || !!deletingId}
+                  className="p-2 rounded hover:bg-muted text-rose-600 disabled:opacity-50"
+                  aria-label="Excluir categoria"
+                >
+                  {busy ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
@@ -142,10 +161,14 @@ function ModalNova({
   const [cor, setCor] = useState(CORES[0]);
   const [saving, setSaving] = useState(false);
 
+  const corValida = /^#[0-9A-Fa-f]{6}$/.test(cor);
+
   const submit = async () => {
     const nomeTrim = nome.trim();
     if (!nomeTrim) return toast.error("Informe o nome da categoria");
     if (nomeTrim.length > 80) return toast.error("Nome muito longo (máx. 80)");
+    if (!corValida) return toast.error("Cor inválida — use formato #RRGGBB");
+    if (saving) return;
     setSaving(true);
     const r = await safeCall(
       criarCategoria({ data: { condominio_id: condominioId, nome: nomeTrim, tipo, cor } }),
@@ -186,26 +209,45 @@ function ModalNova({
           </div>
         </Field>
         <Field label="Cor">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {CORES.map((c) => (
               <button
                 key={c}
+                type="button"
                 onClick={() => setCor(c)}
                 className={`w-8 h-8 rounded-full border-2 ${cor === c ? "border-foreground" : "border-transparent"}`}
                 style={{ backgroundColor: c }}
+                aria-label={`Selecionar cor ${c}`}
               />
             ))}
+            <input
+              type="text"
+              value={cor}
+              onChange={(e) => setCor(e.target.value)}
+              placeholder="#10B981"
+              className={`w-28 px-2 py-1 rounded-lg border text-xs font-mono bg-background ${
+                corValida ? "border-border" : "border-rose-500"
+              }`}
+            />
           </div>
+          {!corValida && (
+            <p className="text-xs text-rose-600 mt-1">Use o formato hexadecimal #RRGGBB.</p>
+          )}
         </Field>
         <div className="flex justify-end gap-2 pt-2">
-          <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-sm font-semibold">
+          <button
+            onClick={onClose}
+            disabled={saving}
+            className="px-4 py-2 rounded-lg border border-border text-sm font-semibold disabled:opacity-60"
+          >
             Cancelar
           </button>
           <button
             onClick={submit}
-            disabled={saving}
-            className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-60"
+            disabled={saving || !corValida || !nome.trim()}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-60"
           >
+            {saving && <Loader2 size={14} className="animate-spin" />}
             {saving ? "Salvando…" : "Salvar"}
           </button>
         </div>

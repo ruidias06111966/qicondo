@@ -5,11 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   obterConfigPagamento,
   salvarConfigPagamento,
+  executarAutomacaoLembretes,
 } from "@/server/financeiro.functions";
 import { brl, dateBR } from "@/lib/format";
 import { Field, EmptyState, safeCall } from "@/components/financeiro/ui";
 import { toast } from "sonner";
-import { CreditCard, Loader2, Save, CheckCircle2 } from "lucide-react";
+import { CreditCard, Loader2, Save, CheckCircle2, MessageCircle, Send } from "lucide-react";
 
 export const Route = createFileRoute("/app/financeiro/pagamentos")({
   head: () => ({ meta: [{ title: "Pagamentos — Financeiro" }] }),

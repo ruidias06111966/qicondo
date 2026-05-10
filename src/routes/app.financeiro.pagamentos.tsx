@@ -268,3 +268,180 @@ function ConfigPagamento({ condominioId }: { condominioId: string }) {
     </div>
   );
 }
+
+function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [running, setRunning] = useState(false);
+  const [cfg, setCfg] = useState<any>(null);
+
+  const [ativa, setAtiva] = useState(false);
+  const [diasPre, setDiasPre] = useState("3,1");
+  const [diasPos, setDiasPos] = useState("1,7,15");
+  const [tplLembrete, setTplLembrete] = useState("");
+  const [tplVencida, setTplVencida] = useState("");
+
+  const reload = () =>
+    safeCall(obterConfigPagamento({ data: { condominio_id: condominioId } })).then((r) => {
+      setCfg(r);
+      if (r) {
+        setAtiva(r.wa_automacao_ativa ?? false);
+        setDiasPre((r.wa_dias_pre_vencimento ?? [3, 1]).join(","));
+        setDiasPos((r.wa_dias_pos_vencimento ?? [1, 7, 15]).join(","));
+        setTplLembrete(r.wa_template_lembrete ?? "");
+        setTplVencida(r.wa_template_vencida ?? "");
+      }
+      setLoading(false);
+    });
+
+  useEffect(() => {
+    reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [condominioId]);
+
+  const parseDias = (s: string) =>
+    s
+      .split(/[,\s]+/)
+      .map((x) => Number(x.trim()))
+      .filter((n) => Number.isFinite(n) && n >= 0 && n <= 120);
+
+  const submit = async () => {
+    if (!cfg) return toast.error("Configure primeiro a aba PIX/Mercado Pago");
+    if (tplLembrete.trim().length < 10) return toast.error("Modelo de lembrete muito curto");
+    if (tplVencida.trim().length < 10) return toast.error("Modelo de cobrança vencida muito curto");
+    setSaving(true);
+    const r = await safeCall(
+      salvarConfigPagamento({
+        data: {
+          condominio_id: condominioId,
+          mp_access_token: null,
+          mp_public_key: null,
+          mp_webhook_secret: null,
+          pix_chave: null,
+          multa_percentual: cfg.multa_percentual,
+          juros_dia_percentual: cfg.juros_dia_percentual,
+          ativo: cfg.ativo,
+          wa_automacao_ativa: ativa,
+          wa_dias_pre_vencimento: parseDias(diasPre),
+          wa_dias_pos_vencimento: parseDias(diasPos),
+          wa_template_lembrete: tplLembrete,
+          wa_template_vencida: tplVencida,
+        },
+      }),
+    );
+    setSaving(false);
+    if (r) {
+      toast.success("Automação salva");
+      reload();
+    }
+  };
+
+  const executar = async () => {
+    if (running) return;
+    setRunning(true);
+    const r = await safeCall(executarAutomacaoLembretes({ data: { condominio_id: condominioId } }));
+    setRunning(false);
+    if (r) {
+      toast.success(`Disparo concluído: ${r.enfileirados} mensagem(ns) para ${r.cobrancas} cobrança(s)`);
+    }
+  };
+
+  if (loading)
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="animate-spin text-muted-foreground" />
+      </div>
+    );
+
+  return (
+    <div className="bg-background border border-border rounded-2xl p-6 max-w-2xl space-y-5">
+      <div className="flex items-start gap-3">
+        <MessageCircle className="text-emerald-600 mt-1" />
+        <div>
+          <p className="font-semibold">Lembretes automáticos no WhatsApp</p>
+          <p className="text-sm text-muted-foreground">
+            Notifique moradores antes do vencimento e em caso de inadimplência. As mensagens são
+            enfileiradas e disparadas pelo robô do WhatsApp do condomínio.
+          </p>
+        </div>
+      </div>
+
+      <label className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
+        <input
+          type="checkbox"
+          checked={ativa}
+          onChange={(e) => setAtiva(e.target.checked)}
+          className="w-4 h-4"
+        />
+        <div className="flex-1">
+          <p className="font-semibold text-sm">Automação ativa</p>
+          <p className="text-xs text-muted-foreground">
+            Quando ativa, o sistema envia automaticamente nos dias configurados.
+          </p>
+        </div>
+      </label>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Dias ANTES do vencimento (separe por vírgula)">
+          <input
+            value={diasPre}
+            onChange={(e) => setDiasPre(e.target.value)}
+            placeholder="3,1"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono"
+          />
+        </Field>
+        <Field label="Dias APÓS o vencimento">
+          <input
+            value={diasPos}
+            onChange={(e) => setDiasPos(e.target.value)}
+            placeholder="1,7,15"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono"
+          />
+        </Field>
+      </div>
+
+      <Field label="Modelo — lembrete antes do vencimento">
+        <textarea
+          value={tplLembrete}
+          onChange={(e) => setTplLembrete(e.target.value)}
+          rows={3}
+          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+        />
+      </Field>
+      <Field label="Modelo — cobrança vencida">
+        <textarea
+          value={tplVencida}
+          onChange={(e) => setTplVencida(e.target.value)}
+          rows={3}
+          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+        />
+      </Field>
+      <p className="text-xs text-muted-foreground">
+        Variáveis disponíveis: <code className="font-mono">{"{{nome}}"}</code>,{" "}
+        <code className="font-mono">{"{{unidade}}"}</code>,{" "}
+        <code className="font-mono">{"{{vencimento}}"}</code>,{" "}
+        <code className="font-mono">{"{{valor}}"}</code>
+      </p>
+
+      <div className="flex flex-wrap justify-end gap-2 pt-2 border-t border-border">
+        <button
+          onClick={executar}
+          disabled={running || !cfg?.wa_automacao_ativa}
+          title={!cfg?.wa_automacao_ativa ? "Ative e salve antes de disparar" : ""}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-semibold disabled:opacity-60 hover:bg-muted"
+        >
+          {running ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+          Disparar agora
+        </button>
+        <button
+          onClick={submit}
+          disabled={saving}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-60"
+        >
+          {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+          Salvar automação
+        </button>
+      </div>
+    </div>
+  );
+}

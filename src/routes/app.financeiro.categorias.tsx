@@ -80,7 +80,10 @@ function CategoriasPage() {
     if (!confirm("Excluir categoria?")) return;
     safeCall(removerCategoria({ data: { id } })).then((ok) => {
       if (ok) {
-        toast.success("Excluída");
+        toast.success("Categoria excluída");
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("categorias:changed"));
+        }
         reload();
       }
     });

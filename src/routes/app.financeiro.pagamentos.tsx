@@ -306,10 +306,20 @@ function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
       .map((x) => Number(x.trim()))
       .filter((n) => Number.isFinite(n) && n >= 0 && n <= 120);
 
+  const placeholdersFaltando = (tpl: string) =>
+    PLACEHOLDERS_OBRIGATORIOS.filter((p) => !tpl.includes(`{{${p}}}`));
+
+  const faltLembrete = placeholdersFaltando(tplLembrete);
+  const faltVencida = placeholdersFaltando(tplVencida);
+
   const submit = async () => {
     if (!cfg) return toast.error("Configure primeiro a aba PIX/Mercado Pago");
     if (tplLembrete.trim().length < 10) return toast.error("Modelo de lembrete muito curto");
     if (tplVencida.trim().length < 10) return toast.error("Modelo de cobrança vencida muito curto");
+    if (faltLembrete.length > 0)
+      return toast.error(`Lembrete: faltam variáveis ${faltLembrete.map((p) => `{{${p}}}`).join(", ")}`);
+    if (faltVencida.length > 0)
+      return toast.error(`Cobrança vencida: faltam variáveis ${faltVencida.map((p) => `{{${p}}}`).join(", ")}`);
     setSaving(true);
     const r = await safeCall(
       salvarConfigPagamento({

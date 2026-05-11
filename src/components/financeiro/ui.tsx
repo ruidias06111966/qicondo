@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  TrendingUp, FileText, Wallet, AlertTriangle, Tag, CreditCard,
+  TrendingUp, FileText, Wallet, AlertTriangle, Tag, CreditCard, MessageCircle,
 } from "lucide-react";
 
 export function Modal({

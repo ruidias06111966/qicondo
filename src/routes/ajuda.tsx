@@ -5,8 +5,8 @@ import { Search, BookOpen, MessageCircle, CreditCard, Settings } from "lucide-re
 export const Route = createFileRoute("/ajuda")({
   head: () => ({
     meta: [
-      { title: "Central de ajuda — CONDOZAP" },
-      { name: "description", content: "Tutoriais, perguntas frequentes e guias para você usar o CONDOZAP." },
+      { title: "Central de ajuda — WHATSCOND" },
+      { name: "description", content: "Tutoriais, perguntas frequentes e guias para você usar o WHATSCOND." },
     ],
   }),
   component: AjudaPage,

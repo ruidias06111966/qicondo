@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * CONDOZAP Design System
+ * WHATSCOND Design System
  * Primary: WhatsApp green / institutional condo green
  * Display: Syne (bold, headings)
  * Body: Plus Jakarta Sans
@@ -85,7 +85,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.18 0.012 60);
 
-  /* Brand — CONDOZAP green (#0B7A55) */
+  /* Brand — WHATSCOND green (#0B7A55) */
   --primary: oklch(0.49 0.115 161);
   --primary-foreground: oklch(0.99 0.005 160);
   --primary-soft: oklch(0.95 0.035 160);         /* #E6F4EE */

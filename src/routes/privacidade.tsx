@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 
 export const Route = createFileRoute("/privacidade")({
-  head: () => ({ meta: [{ title: "Política de privacidade — CONDOZAP" }, { name: "description", content: "Como o CONDOZAP coleta, usa e protege seus dados." }] }),
+  head: () => ({ meta: [{ title: "Política de privacidade — WHATSCOND" }, { name: "description", content: "Como o WHATSCOND coleta, usa e protege seus dados." }] }),
   component: PrivacidadePage,
 });
 
@@ -16,7 +16,7 @@ function PrivacidadePage() {
         </header>
 
         <div className="space-y-5 text-sm text-muted-foreground leading-relaxed">
-          <p>O CONDOZAP respeita a sua privacidade e segue rigorosamente a Lei Geral de Proteção de Dados (Lei 13.709/2018).</p>
+          <p>O WHATSCOND respeita a sua privacidade e segue rigorosamente a Lei Geral de Proteção de Dados (Lei 13.709/2018).</p>
 
           <h2 className="font-display font-extrabold text-2xl text-foreground mt-10">1. Quais dados coletamos</h2>
           <ul className="list-disc pl-5 space-y-1.5">
@@ -65,7 +65,7 @@ function PrivacidadePage() {
 
           <h2 className="font-display font-extrabold text-2xl text-foreground mt-10">7. Encarregado de dados (DPO)</h2>
           <p>Para exercer seus direitos ou tirar dúvidas sobre privacidade, fale com nosso DPO:</p>
-          <p><a href="mailto:dpo@condozap.app" className="text-primary font-semibold">dpo@condozap.app</a></p>
+          <p><a href="mailto:dpo@whatscond.app" className="text-primary font-semibold">dpo@whatscond.app</a></p>
         </div>
       </article>
     </SiteLayout>

@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Building2, MessageCircle, Users, FileText, Wallet, Settings } from "lucide-react";
 
 export const Route = createFileRoute("/app/configuracoes")({
-  head: () => ({ meta: [{ title: "Configurações — CONDOZAP" }] }),
+  head: () => ({ meta: [{ title: "Configurações — WHATSCOND" }] }),
   component: ConfigPage,
 });
 

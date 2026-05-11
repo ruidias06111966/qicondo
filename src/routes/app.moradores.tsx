@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/app/moradores")({
-  head: () => ({ meta: [{ title: "Moradores — CONDOZAP" }] }),
+  head: () => ({ meta: [{ title: "Moradores — WHATSCOND" }] }),
   component: MoradoresPage,
 });
 

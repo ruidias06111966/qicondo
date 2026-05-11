@@ -9,7 +9,7 @@ import { Logo } from "@/components/site/Logo";
 import { Building2, Users, Sparkles, ArrowRight, Loader2, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/onboarding")({
-  head: () => ({ meta: [{ title: "Bem-vindo — CONDOZAP" }] }),
+  head: () => ({ meta: [{ title: "Bem-vindo — WHATSCOND" }] }),
   component: OnboardingPage,
 });
 
@@ -120,7 +120,7 @@ function OnboardingPage() {
         {step === "intro" && (
           <div>
             <p className="text-sm text-muted-foreground">Olá, {(profile?.nome_completo || user.email || "").split(" ")[0]}</p>
-            <h1 className="font-display text-4xl font-extrabold mt-2">Como você vai usar o CONDOZAP?</h1>
+            <h1 className="font-display text-4xl font-extrabold mt-2">Como você vai usar o WHATSCOND?</h1>
             <p className="mt-3 text-muted-foreground">Escolha como quer começar. Você pode sempre adicionar mais condomínios depois.</p>
 
             <div className="mt-8 grid sm:grid-cols-2 gap-4">
@@ -193,7 +193,7 @@ function OnboardingPage() {
         )}
 
         {step === "pronto" && (
-          <Card title="Tudo pronto!" subtitle="Seu condomínio já está no CONDOZAP.">
+          <Card title="Tudo pronto!" subtitle="Seu condomínio já está no WHATSCOND.">
             <div className="flex items-start gap-3 p-4 bg-primary/5 rounded-lg">
               <Sparkles className="text-primary shrink-0" />
               <div className="text-sm">

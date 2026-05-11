@@ -20,13 +20,13 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CONDOZAP — Gestão de condomínio pelo WhatsApp" },
+      { title: "WHATSCOND — Gestão de condomínio pelo WhatsApp" },
       {
         name: "description",
         content:
           "Cobranças automáticas, reservas, encomendas e prestação de contas pelo WhatsApp. Sistema profissional para pequenos condomínios. R$ 29/mês.",
       },
-      { property: "og:title", content: "CONDOZAP — Condomínio na palma da sua mão" },
+      { property: "og:title", content: "WHATSCOND — Condomínio na palma da sua mão" },
       {
         property: "og:description",
         content:
@@ -106,11 +106,11 @@ function HomePage() {
               <span className="h-2.5 w-2.5 rounded-full bg-destructive/70" />
               <span className="h-2.5 w-2.5 rounded-full bg-warning/70" />
               <span className="h-2.5 w-2.5 rounded-full bg-success/70" />
-              <span className="ml-3 text-[11px] text-muted-foreground">condozap.app — Painel do Síndico</span>
+              <span className="ml-3 text-[11px] text-muted-foreground">whatscond.app — Painel do Síndico</span>
             </div>
             <div className="grid grid-cols-12 min-h-[360px]">
               <aside className="hidden md:flex md:col-span-3 bg-sidebar text-sidebar-foreground p-4 flex-col gap-1 text-xs">
-                <div className="font-display font-extrabold text-white text-sm mb-3">CONDOZAP</div>
+                <div className="font-display font-extrabold text-white text-sm mb-3">WHATSCOND</div>
                 {["Dashboard", "Unidades", "Pagamentos", "Reservas", "Assembleias", "Ocorrências", "Configurações"].map((it, i) => (
                   <div key={it} className={`px-2.5 py-2 rounded-md flex items-center gap-2 ${i === 0 ? "bg-sidebar-accent text-white" : "text-white/60 hover:bg-sidebar-accent/40"}`}>
                     <span className="h-1.5 w-1.5 rounded-full bg-success" /> {it}

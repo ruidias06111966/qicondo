@@ -13,7 +13,7 @@ export function Logo({ size = "md", inverse = false }: { size?: "sm" | "md" | "l
       <span
         className={`font-display font-extrabold tracking-tight ${text} ${inverse ? "text-white" : "text-foreground"}`}
       >
-        CONDOZAP
+        WHATSCOND
       </span>
     </Link>
   );

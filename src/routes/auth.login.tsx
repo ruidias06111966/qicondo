@@ -9,7 +9,7 @@ import { Logo } from "@/components/site/Logo";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth/login")({
-  head: () => ({ meta: [{ title: "Entrar — CONDOZAP" }] }),
+  head: () => ({ meta: [{ title: "Entrar — WHATSCOND" }] }),
   component: LoginPage,
 });
 
@@ -63,7 +63,7 @@ function LoginPage() {
             Entre para ver cobranças, reservas, encomendas e a prestação de contas — sem instalar app.
           </p>
         </div>
-        <p className="text-sm text-primary-foreground/70">© CONDOZAP</p>
+        <p className="text-sm text-primary-foreground/70">© WHATSCOND</p>
       </div>
 
       <div className="flex items-center justify-center p-6 sm:p-12">

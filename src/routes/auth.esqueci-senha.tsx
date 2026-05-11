@@ -7,7 +7,7 @@ import { Logo } from "@/components/site/Logo";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth/esqueci-senha")({
-  head: () => ({ meta: [{ title: "Recuperar senha — CONDOZAP" }] }),
+  head: () => ({ meta: [{ title: "Recuperar senha — WHATSCOND" }] }),
   component: EsqueciPage,
 });
 

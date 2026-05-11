@@ -3,7 +3,7 @@ import { useCondominioAtivo } from "@/auth/useCondominio";
 import { FinanceiroSubNav } from "@/components/financeiro/ui";
 
 export const Route = createFileRoute("/app/financeiro")({
-  head: () => ({ meta: [{ title: "Financeiro — CONDOZAP" }] }),
+  head: () => ({ meta: [{ title: "Financeiro — WHATSCOND" }] }),
   component: FinanceiroLayout,
 });
 

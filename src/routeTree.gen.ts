@@ -40,6 +40,7 @@ import { Route as AppDocumentosRouteImport } from './routes/app.documentos'
 import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes'
 import { Route as AppCondominioRouteImport } from './routes/app.condominio'
 import { Route as AppFinanceiroIndexRouteImport } from './routes/app.financeiro.index'
+import { Route as AppFinanceiroWhatsappRouteImport } from './routes/app.financeiro.whatsapp'
 import { Route as AppFinanceiroPagamentosRouteImport } from './routes/app.financeiro.pagamentos'
 import { Route as AppFinanceiroInadimplenciaRouteImport } from './routes/app.financeiro.inadimplencia'
 import { Route as AppFinanceiroDespesasRouteImport } from './routes/app.financeiro.despesas'
@@ -206,6 +207,11 @@ const AppFinanceiroIndexRoute = AppFinanceiroIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppFinanceiroRoute,
 } as any)
+const AppFinanceiroWhatsappRoute = AppFinanceiroWhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
+  getParentRoute: () => AppFinanceiroRoute,
+} as any)
 const AppFinanceiroPagamentosRoute = AppFinanceiroPagamentosRouteImport.update({
   id: '/pagamentos',
   path: '/pagamentos',
@@ -293,6 +299,7 @@ export interface FileRoutesByFullPath {
   '/app/financeiro/despesas': typeof AppFinanceiroDespesasRoute
   '/app/financeiro/inadimplencia': typeof AppFinanceiroInadimplenciaRoute
   '/app/financeiro/pagamentos': typeof AppFinanceiroPagamentosRoute
+  '/app/financeiro/whatsapp': typeof AppFinanceiroWhatsappRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
 }
@@ -333,6 +340,7 @@ export interface FileRoutesByTo {
   '/app/financeiro/despesas': typeof AppFinanceiroDespesasRoute
   '/app/financeiro/inadimplencia': typeof AppFinanceiroInadimplenciaRoute
   '/app/financeiro/pagamentos': typeof AppFinanceiroPagamentosRoute
+  '/app/financeiro/whatsapp': typeof AppFinanceiroWhatsappRoute
   '/app/financeiro': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
 }
@@ -376,6 +384,7 @@ export interface FileRoutesById {
   '/app/financeiro/despesas': typeof AppFinanceiroDespesasRoute
   '/app/financeiro/inadimplencia': typeof AppFinanceiroInadimplenciaRoute
   '/app/financeiro/pagamentos': typeof AppFinanceiroPagamentosRoute
+  '/app/financeiro/whatsapp': typeof AppFinanceiroWhatsappRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
 }
@@ -420,6 +429,7 @@ export interface FileRouteTypes {
     | '/app/financeiro/despesas'
     | '/app/financeiro/inadimplencia'
     | '/app/financeiro/pagamentos'
+    | '/app/financeiro/whatsapp'
     | '/app/financeiro/'
     | '/api/public/hooks/lembretes-cobranca'
   fileRoutesByTo: FileRoutesByTo
@@ -460,6 +470,7 @@ export interface FileRouteTypes {
     | '/app/financeiro/despesas'
     | '/app/financeiro/inadimplencia'
     | '/app/financeiro/pagamentos'
+    | '/app/financeiro/whatsapp'
     | '/app/financeiro'
     | '/api/public/hooks/lembretes-cobranca'
   id:
@@ -502,6 +513,7 @@ export interface FileRouteTypes {
     | '/app/financeiro/despesas'
     | '/app/financeiro/inadimplencia'
     | '/app/financeiro/pagamentos'
+    | '/app/financeiro/whatsapp'
     | '/app/financeiro/'
     | '/api/public/hooks/lembretes-cobranca'
   fileRoutesById: FileRoutesById
@@ -750,6 +762,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceiroIndexRouteImport
       parentRoute: typeof AppFinanceiroRoute
     }
+    '/app/financeiro/whatsapp': {
+      id: '/app/financeiro/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/app/financeiro/whatsapp'
+      preLoaderRoute: typeof AppFinanceiroWhatsappRouteImport
+      parentRoute: typeof AppFinanceiroRoute
+    }
     '/app/financeiro/pagamentos': {
       id: '/app/financeiro/pagamentos'
       path: '/pagamentos'
@@ -822,6 +841,7 @@ interface AppFinanceiroRouteChildren {
   AppFinanceiroDespesasRoute: typeof AppFinanceiroDespesasRoute
   AppFinanceiroInadimplenciaRoute: typeof AppFinanceiroInadimplenciaRoute
   AppFinanceiroPagamentosRoute: typeof AppFinanceiroPagamentosRoute
+  AppFinanceiroWhatsappRoute: typeof AppFinanceiroWhatsappRoute
   AppFinanceiroIndexRoute: typeof AppFinanceiroIndexRoute
 }
 
@@ -831,6 +851,7 @@ const AppFinanceiroRouteChildren: AppFinanceiroRouteChildren = {
   AppFinanceiroDespesasRoute: AppFinanceiroDespesasRoute,
   AppFinanceiroInadimplenciaRoute: AppFinanceiroInadimplenciaRoute,
   AppFinanceiroPagamentosRoute: AppFinanceiroPagamentosRoute,
+  AppFinanceiroWhatsappRoute: AppFinanceiroWhatsappRoute,
   AppFinanceiroIndexRoute: AppFinanceiroIndexRoute,
 }
 

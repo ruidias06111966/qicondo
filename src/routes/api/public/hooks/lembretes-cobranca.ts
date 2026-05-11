@@ -83,10 +83,24 @@ export const Route = createFileRoute("/api/public/hooks/lembretes-cobranca")({
             const valor = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(restante);
 
             totalCob++;
+            const inicioHoje = new Date(); inicioHoje.setHours(0, 0, 0, 0);
+            const inicioHojeISO = inicioHoje.toISOString();
             for (const p of profs ?? []) {
               const tel = (p.telefone ?? "").replace(/\D/g, "");
               if (tel.length < 10) continue;
               const telFinal = tel.length <= 11 ? "55" + tel : tel;
+
+              const { data: jaExiste } = await sb
+                .from("notificacoes_whatsapp")
+                .select("id")
+                .eq("contexto", "cobranca")
+                .eq("contexto_id", cob.id)
+                .eq("destinatario_telefone", telFinal)
+                .gte("created_at", inicioHojeISO)
+                .limit(1)
+                .maybeSingle();
+              if (jaExiste) continue;
+
               const msg = renderTemplate(tpl, {
                 nome: p.nome_completo ?? "",
                 unidade: unidadeLabel,

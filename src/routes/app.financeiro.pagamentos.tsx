@@ -6,11 +6,12 @@ import {
   obterConfigPagamento,
   salvarConfigPagamento,
   executarAutomacaoLembretes,
+  PLACEHOLDERS_OBRIGATORIOS,
 } from "@/server/financeiro.functions";
 import { brl, dateBR } from "@/lib/format";
 import { Field, EmptyState, safeCall } from "@/components/financeiro/ui";
 import { toast } from "sonner";
-import { CreditCard, Loader2, Save, CheckCircle2, MessageCircle, Send } from "lucide-react";
+import { CreditCard, Loader2, Save, CheckCircle2, MessageCircle, Send, Eye } from "lucide-react";
 
 export const Route = createFileRoute("/app/financeiro/pagamentos")({
   head: () => ({ meta: [{ title: "Pagamentos — Financeiro" }] }),
@@ -305,10 +306,20 @@ function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
       .map((x) => Number(x.trim()))
       .filter((n) => Number.isFinite(n) && n >= 0 && n <= 120);
 
+  const placeholdersFaltando = (tpl: string) =>
+    PLACEHOLDERS_OBRIGATORIOS.filter((p) => !tpl.includes(`{{${p}}}`));
+
+  const faltLembrete = placeholdersFaltando(tplLembrete);
+  const faltVencida = placeholdersFaltando(tplVencida);
+
   const submit = async () => {
     if (!cfg) return toast.error("Configure primeiro a aba PIX/Mercado Pago");
     if (tplLembrete.trim().length < 10) return toast.error("Modelo de lembrete muito curto");
     if (tplVencida.trim().length < 10) return toast.error("Modelo de cobrança vencida muito curto");
+    if (faltLembrete.length > 0)
+      return toast.error(`Lembrete: faltam variáveis ${faltLembrete.map((p) => `{{${p}}}`).join(", ")}`);
+    if (faltVencida.length > 0)
+      return toast.error(`Cobrança vencida: faltam variáveis ${faltVencida.map((p) => `{{${p}}}`).join(", ")}`);
     setSaving(true);
     const r = await safeCall(
       salvarConfigPagamento({
@@ -407,6 +418,11 @@ function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
           rows={3}
           className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
         />
+        {faltLembrete.length > 0 && (
+          <p className="text-xs text-rose-600 mt-1">
+            ⚠ Variáveis obrigatórias ausentes: {faltLembrete.map((p) => `{{${p}}}`).join(", ")}
+          </p>
+        )}
       </Field>
       <Field label="Modelo — cobrança vencida">
         <textarea
@@ -415,13 +431,20 @@ function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
           rows={3}
           className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
         />
+        {faltVencida.length > 0 && (
+          <p className="text-xs text-rose-600 mt-1">
+            ⚠ Variáveis obrigatórias ausentes: {faltVencida.map((p) => `{{${p}}}`).join(", ")}
+          </p>
+        )}
       </Field>
       <p className="text-xs text-muted-foreground">
-        Variáveis disponíveis: <code className="font-mono">{"{{nome}}"}</code>,{" "}
+        Variáveis obrigatórias: <code className="font-mono">{"{{nome}}"}</code>,{" "}
         <code className="font-mono">{"{{unidade}}"}</code>,{" "}
         <code className="font-mono">{"{{vencimento}}"}</code>,{" "}
         <code className="font-mono">{"{{valor}}"}</code>
       </p>
+
+      <PreviewWA tplLembrete={tplLembrete} tplVencida={tplVencida} />
 
       <div className="flex flex-wrap justify-end gap-2 pt-2 border-t border-border">
         <button
@@ -441,6 +464,49 @@ function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
           {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
           Salvar automação
         </button>
+      </div>
+    </div>
+  );
+}
+
+function renderPreview(tpl: string, vars: Record<string, string>) {
+  return tpl.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? `{{${k}}}`);
+}
+
+function PreviewWA({ tplLembrete, tplVencida }: { tplLembrete: string; tplVencida: string }) {
+  const vars = {
+    nome: "Maria Silva",
+    unidade: "B-204",
+    vencimento: new Date().toLocaleDateString("pt-BR"),
+    valor: "R$ 450,00",
+  };
+  const previewLembrete = renderPreview(tplLembrete, vars);
+  const previewVencida = renderPreview(tplVencida, vars);
+
+  return (
+    <div className="border-t border-border pt-4">
+      <p className="font-semibold text-sm flex items-center gap-2 mb-3">
+        <Eye size={14} /> Pré-visualização (com dados de exemplo)
+      </p>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <PhoneBubble title="Lembrete" text={previewLembrete} />
+        <PhoneBubble title="Cobrança vencida" text={previewVencida} />
+      </div>
+    </div>
+  );
+}
+
+function PhoneBubble({ title, text }: { title: string; text: string }) {
+  return (
+    <div>
+      <p className="text-xs font-semibold text-muted-foreground uppercase mb-1.5">{title}</p>
+      <div className="bg-[#e5ddd5] dark:bg-muted rounded-xl p-3 min-h-[120px]">
+        <div className="bg-[#dcf8c6] dark:bg-emerald-950/40 text-foreground text-sm rounded-lg rounded-tr-sm p-3 ml-auto max-w-[90%] shadow-sm whitespace-pre-wrap">
+          {text || <span className="text-muted-foreground italic">Modelo vazio…</span>}
+          <div className="text-[10px] text-muted-foreground text-right mt-1">
+            {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} ✓✓
+          </div>
+        </div>
       </div>
     </div>
   );

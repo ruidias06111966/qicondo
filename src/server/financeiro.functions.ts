@@ -606,10 +606,25 @@ export const executarAutomacaoLembretes = createServerFn({ method: "POST" })
       const valor = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(restante);
 
       cobCount++;
+      const inicioHoje = new Date(); inicioHoje.setHours(0, 0, 0, 0);
+      const inicioHojeISO = inicioHoje.toISOString();
       for (const p of profs ?? []) {
         const tel = (p.telefone ?? "").replace(/\D/g, "");
         if (tel.length < 10) continue;
         const telFinal = tel.length <= 11 ? "55" + tel : tel;
+
+        // Idempotência: já existe notificação hoje para essa cobrança + telefone?
+        const { data: jaExiste } = await supabaseAdmin
+          .from("notificacoes_whatsapp")
+          .select("id")
+          .eq("contexto", "cobranca")
+          .eq("contexto_id", cob.id)
+          .eq("destinatario_telefone", telFinal)
+          .gte("created_at", inicioHojeISO)
+          .limit(1)
+          .maybeSingle();
+        if (jaExiste) continue;
+
         const msg = renderTemplate(tpl, {
           nome: p.nome_completo ?? "",
           unidade: unidadeLabel,

@@ -57,7 +57,7 @@ function ContatoPage() {
         <aside className="md:col-span-2 space-y-4">
           {[
             { icon: MessageCircle, title: "WhatsApp", value: "+55 (11) 99999-0000", href: "https://wa.me/5511999990000" },
-            { icon: Mail, title: "Email", value: "ola@condozap.app", href: "mailto:ola@condozap.app" },
+            { icon: Mail, title: "Email", value: "ola@whatscond.app", href: "mailto:ola@whatscond.app" },
             { icon: MapPin, title: "Onde estamos", value: "100% remoto · time no Brasil", href: null },
           ].map((c) => (
             <a

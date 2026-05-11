@@ -106,7 +106,7 @@ function HomePage() {
               <span className="h-2.5 w-2.5 rounded-full bg-destructive/70" />
               <span className="h-2.5 w-2.5 rounded-full bg-warning/70" />
               <span className="h-2.5 w-2.5 rounded-full bg-success/70" />
-              <span className="ml-3 text-[11px] text-muted-foreground">condozap.app — Painel do Síndico</span>
+              <span className="ml-3 text-[11px] text-muted-foreground">whatscond.app — Painel do Síndico</span>
             </div>
             <div className="grid grid-cols-12 min-h-[360px]">
               <aside className="hidden md:flex md:col-span-3 bg-sidebar text-sidebar-foreground p-4 flex-col gap-1 text-xs">

@@ -418,6 +418,11 @@ function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
           rows={3}
           className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
         />
+        {faltLembrete.length > 0 && (
+          <p className="text-xs text-rose-600 mt-1">
+            ⚠ Variáveis obrigatórias ausentes: {faltLembrete.map((p) => `{{${p}}}`).join(", ")}
+          </p>
+        )}
       </Field>
       <Field label="Modelo — cobrança vencida">
         <textarea
@@ -426,13 +431,20 @@ function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
           rows={3}
           className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
         />
+        {faltVencida.length > 0 && (
+          <p className="text-xs text-rose-600 mt-1">
+            ⚠ Variáveis obrigatórias ausentes: {faltVencida.map((p) => `{{${p}}}`).join(", ")}
+          </p>
+        )}
       </Field>
       <p className="text-xs text-muted-foreground">
-        Variáveis disponíveis: <code className="font-mono">{"{{nome}}"}</code>,{" "}
+        Variáveis obrigatórias: <code className="font-mono">{"{{nome}}"}</code>,{" "}
         <code className="font-mono">{"{{unidade}}"}</code>,{" "}
         <code className="font-mono">{"{{vencimento}}"}</code>,{" "}
         <code className="font-mono">{"{{valor}}"}</code>
       </p>
+
+      <PreviewWA tplLembrete={tplLembrete} tplVencida={tplVencida} />
 
       <div className="flex flex-wrap justify-end gap-2 pt-2 border-t border-border">
         <button

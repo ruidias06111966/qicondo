@@ -124,6 +124,7 @@ const SUB: SubItem[] = [
   { to: "/app/financeiro/inadimplencia", label: "Inadimplência", icon: AlertTriangle, restrito: true },
   { to: "/app/financeiro/categorias", label: "Categorias", icon: Tag, restrito: true },
   { to: "/app/financeiro/pagamentos", label: "Pagamentos", icon: CreditCard, restrito: true },
+  { to: "/app/financeiro/whatsapp", label: "Mensagens WhatsApp", icon: MessageCircle, restrito: true },
 ];
 
 export function FinanceiroSubNav({ podeGerir }: { podeGerir: boolean }) {

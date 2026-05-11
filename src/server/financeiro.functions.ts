@@ -469,6 +469,76 @@ function renderTemplate(tpl: string, vars: Record<string, string>) {
   return tpl.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? "");
 }
 
+/** Placeholders obrigatórios em qualquer template de cobrança. */
+export const PLACEHOLDERS_OBRIGATORIOS = ["nome", "unidade", "vencimento", "valor"] as const;
+
+// ===== Histórico de notificações WhatsApp =====
+export const listarNotificacoesWA = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        condominio_id: z.string().uuid(),
+        data_inicio: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+        data_fim: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+        status: z.enum(["pendente", "enviada", "erro"]).optional(),
+        contexto: z.enum(["encomenda", "visitante", "reserva", "cobranca"]).optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    let q = context.supabase
+      .from("notificacoes_whatsapp")
+      .select("*")
+      .eq("condominio_id", data.condominio_id)
+      .order("created_at", { ascending: false })
+      .limit(500);
+    if (data.status) q = q.eq("status", data.status);
+    if (data.contexto) q = q.eq("contexto", data.contexto);
+    if (data.data_inicio) q = q.gte("created_at", `${data.data_inicio}T00:00:00`);
+    if (data.data_fim) q = q.lte("created_at", `${data.data_fim}T23:59:59`);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+export const reenviarNotificacaoWA = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: orig, error } = await supabase
+      .from("notificacoes_whatsapp")
+      .select("*")
+      .eq("id", data.id)
+      .single();
+    if (error || !orig) throw new Error("notificacao_nao_encontrada");
+    const { data: isSind } = await supabase.rpc("is_sindico", {
+      _user_id: userId, _condominio_id: orig.condominio_id,
+    } as any);
+    if (!isSind) throw new Error("forbidden");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: novo, error: insErr } = await supabaseAdmin
+      .from("notificacoes_whatsapp")
+      .insert({
+        condominio_id: orig.condominio_id,
+        unidade_id: orig.unidade_id,
+        destinatario_user_id: orig.destinatario_user_id,
+        destinatario_telefone: orig.destinatario_telefone,
+        destinatario_nome: orig.destinatario_nome,
+        mensagem: orig.mensagem,
+        contexto: orig.contexto,
+        contexto_id: orig.contexto_id,
+        status: "pendente",
+        link_wa: orig.link_wa,
+      })
+      .select()
+      .single();
+    if (insErr) throw new Error(insErr.message);
+    return novo;
+  });
+
 export const executarAutomacaoLembretes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ condominio_id: z.string().uuid() }).parse(d))

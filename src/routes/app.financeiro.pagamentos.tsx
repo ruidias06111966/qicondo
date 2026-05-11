@@ -468,3 +468,46 @@ function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
     </div>
   );
 }
+
+function renderPreview(tpl: string, vars: Record<string, string>) {
+  return tpl.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? `{{${k}}}`);
+}
+
+function PreviewWA({ tplLembrete, tplVencida }: { tplLembrete: string; tplVencida: string }) {
+  const vars = {
+    nome: "Maria Silva",
+    unidade: "B-204",
+    vencimento: new Date().toLocaleDateString("pt-BR"),
+    valor: "R$ 450,00",
+  };
+  const previewLembrete = renderPreview(tplLembrete, vars);
+  const previewVencida = renderPreview(tplVencida, vars);
+
+  return (
+    <div className="border-t border-border pt-4">
+      <p className="font-semibold text-sm flex items-center gap-2 mb-3">
+        <Eye size={14} /> Pré-visualização (com dados de exemplo)
+      </p>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <PhoneBubble title="Lembrete" text={previewLembrete} />
+        <PhoneBubble title="Cobrança vencida" text={previewVencida} />
+      </div>
+    </div>
+  );
+}
+
+function PhoneBubble({ title, text }: { title: string; text: string }) {
+  return (
+    <div>
+      <p className="text-xs font-semibold text-muted-foreground uppercase mb-1.5">{title}</p>
+      <div className="bg-[#e5ddd5] dark:bg-muted rounded-xl p-3 min-h-[120px]">
+        <div className="bg-[#dcf8c6] dark:bg-emerald-950/40 text-foreground text-sm rounded-lg rounded-tr-sm p-3 ml-auto max-w-[90%] shadow-sm whitespace-pre-wrap">
+          {text || <span className="text-muted-foreground italic">Modelo vazio…</span>}
+          <div className="text-[10px] text-muted-foreground text-right mt-1">
+            {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} ✓✓
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

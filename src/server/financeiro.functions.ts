@@ -481,7 +481,7 @@ export const listarNotificacoesWA = createServerFn({ method: "POST" })
         condominio_id: z.string().uuid(),
         data_inicio: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
         data_fim: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-        status: z.enum(["pendente", "enviada", "erro"]).optional(),
+        status: z.enum(["pendente", "enviado", "falhou"]).optional(),
         contexto: z.enum(["encomenda", "visitante", "reserva", "cobranca"]).optional(),
       })
       .parse(d),

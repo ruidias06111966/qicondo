@@ -32,15 +32,15 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "CONDOZAP — Gestão de condomínio pelo WhatsApp" },
+      { title: "WHATSCOND — Gestão de condomínio pelo WhatsApp" },
       {
         name: "description",
         content:
-          "CONDOZAP é o sistema de gestão para pequenos condomínios feito para o WhatsApp. Cobranças, assembleias, reservas e prestação de contas em um só lugar. A partir de R$ 29/mês.",
+          "WHATSCOND é o sistema de gestão para pequenos condomínios feito para o WhatsApp. Cobranças, assembleias, reservas e prestação de contas em um só lugar. A partir de R$ 29/mês.",
       },
-      { name: "author", content: "CONDOZAP" },
+      { name: "author", content: "WHATSCOND" },
       { name: "theme-color", content: "#0B7A55" },
-      { property: "og:title", content: "CONDOZAP — Gestão de condomínio pelo WhatsApp" },
+      { property: "og:title", content: "WHATSCOND — Gestão de condomínio pelo WhatsApp" },
       {
         property: "og:description",
         content:

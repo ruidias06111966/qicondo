@@ -9,7 +9,7 @@ import { Logo } from "@/components/site/Logo";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth/cadastro")({
-  head: () => ({ meta: [{ title: "Criar conta — CONDOZAP" }] }),
+  head: () => ({ meta: [{ title: "Criar conta — WHATSCOND" }] }),
   component: CadastroPage,
 });
 
@@ -71,7 +71,7 @@ function CadastroPage() {
             <li>✓ 14 dias de avaliação no plano Profissional</li>
           </ul>
         </div>
-        <p className="text-sm text-primary-foreground/70">© CONDOZAP</p>
+        <p className="text-sm text-primary-foreground/70">© WHATSCOND</p>
       </div>
 
       <div className="flex items-center justify-center p-6 sm:p-12 overflow-y-auto">

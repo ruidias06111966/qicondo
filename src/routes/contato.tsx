@@ -7,8 +7,8 @@ import { Mail, MessageCircle, MapPin, Send, CheckCircle2 } from "lucide-react";
 export const Route = createFileRoute("/contato")({
   head: () => ({
     meta: [
-      { title: "Contato — CONDOZAP" },
-      { name: "description", content: "Fale com a equipe CONDOZAP. Responda em até 1 dia útil. WhatsApp e email." },
+      { title: "Contato — WHATSCOND" },
+      { name: "description", content: "Fale com a equipe WHATSCOND. Responda em até 1 dia útil. WhatsApp e email." },
     ],
   }),
   component: ContatoPage,

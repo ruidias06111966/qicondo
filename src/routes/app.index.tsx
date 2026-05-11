@@ -8,7 +8,7 @@ import { brl } from "@/lib/format";
 import { Building2, Users, Wallet, AlertCircle, TrendingUp, MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/app/")({
-  head: () => ({ meta: [{ title: "Painel — CONDOZAP" }] }),
+  head: () => ({ meta: [{ title: "Painel — WHATSCOND" }] }),
   component: DashboardPage,
 });
 

@@ -6,9 +6,9 @@ import { CheckCircle2, ChevronDown, X } from "lucide-react";
 export const Route = createFileRoute("/precos")({
   head: () => ({
     meta: [
-      { title: "Preços — CONDOZAP" },
+      { title: "Preços — WHATSCOND" },
       { name: "description", content: "Planos a partir de R$ 29/mês para condomínios de até 30 unidades. Sem taxa de setup, sem contrato, primeiro mês grátis." },
-      { property: "og:title", content: "Preços do CONDOZAP" },
+      { property: "og:title", content: "Preços do WHATSCOND" },
     ],
   }),
   component: PrecosPage,

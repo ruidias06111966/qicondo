@@ -18,7 +18,7 @@ import {
 } from "@/server/documentos.functions";
 
 export const Route = createFileRoute("/app/documentos")({
-  head: () => ({ meta: [{ title: "Documentos — CONDOZAP" }] }),
+  head: () => ({ meta: [{ title: "Documentos — WHATSCOND" }] }),
   component: DocumentosPage,
 });
 

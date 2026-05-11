@@ -66,7 +66,7 @@ export const criarPixCobranca = createServerFn({ method: "POST" })
       },
       body: JSON.stringify({
         transaction_amount: Number(valorTotal.toFixed(2)),
-        description: cob.descricao || `CONDOZAP - Cobrança ${cob.id.slice(0, 8)}`,
+        description: cob.descricao || `WHATSCOND - Cobrança ${cob.id.slice(0, 8)}`,
         payment_method_id: "pix",
         external_reference: cob.id,
         date_of_expiration: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),

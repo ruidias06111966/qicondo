@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { buscarCEP, formatCEP, formatCNPJ, isValidCNPJ, onlyDigits } from "@/lib/br-validators";
 
 export const Route = createFileRoute("/app/condominio")({
-  head: () => ({ meta: [{ title: "Condomínio — CONDOZAP" }] }),
+  head: () => ({ meta: [{ title: "Condomínio — WHATSCOND" }] }),
   component: CondominioPage,
 });
 

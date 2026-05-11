@@ -7,7 +7,7 @@ import { Logo } from "@/components/site/Logo";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth/redefinir-senha")({
-  head: () => ({ meta: [{ title: "Nova senha — CONDOZAP" }] }),
+  head: () => ({ meta: [{ title: "Nova senha — WHATSCOND" }] }),
   component: RedefinirPage,
 });
 

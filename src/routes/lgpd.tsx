@@ -3,7 +3,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { Shield, Lock, Database, FileCheck, UserCheck, Mail } from "lucide-react";
 
 export const Route = createFileRoute("/lgpd")({
-  head: () => ({ meta: [{ title: "LGPD — CONDOZAP" }, { name: "description", content: "Compromisso do CONDOZAP com a Lei Geral de Proteção de Dados." }] }),
+  head: () => ({ meta: [{ title: "LGPD — WHATSCOND" }, { name: "description", content: "Compromisso do WHATSCOND com a Lei Geral de Proteção de Dados." }] }),
   component: LgpdPage,
 });
 

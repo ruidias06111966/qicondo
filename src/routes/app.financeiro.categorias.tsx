@@ -5,10 +5,11 @@ import {
   listarCategorias,
   criarCategoria,
   removerCategoria,
+  semearCategoriasPadrao,
 } from "@/server/financeiro.functions";
 import { Modal, Field, EmptyState, safeCall } from "@/components/financeiro/ui";
 import { toast } from "sonner";
-import { Tag, Plus, Loader2, Trash2 } from "lucide-react";
+import { Tag, Plus, Loader2, Trash2, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/app/financeiro/categorias")({
   head: () => ({ meta: [{ title: "Categorias — Financeiro" }] }),

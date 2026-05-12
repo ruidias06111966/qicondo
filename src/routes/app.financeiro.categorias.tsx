@@ -64,14 +64,24 @@ function CategoriasPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-5 gap-2 flex-wrap">
         <p className="text-sm text-muted-foreground">{safeRows.length} categoria(s)</p>
-        <button
-          onClick={() => setShowNew(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90"
-        >
-          <Plus size={16} /> Nova categoria
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={seed}
+            disabled={seeding}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-semibold hover:bg-muted disabled:opacity-60"
+          >
+            {seeding ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+            Criar categorias padrão
+          </button>
+          <button
+            onClick={() => setShowNew(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90"
+          >
+            <Plus size={16} /> Nova categoria
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -79,7 +89,9 @@ function CategoriasPage() {
           <Loader2 className="animate-spin text-muted-foreground" />
         </div>
       ) : safeRows.length === 0 ? (
-        <EmptyState icon={Tag} title="Nenhuma categoria" desc="Crie categorias para organizar receitas e despesas." />
+        <div className="space-y-4">
+          <EmptyState icon={Tag} title="Nenhuma categoria" desc="Crie categorias para organizar receitas e despesas, ou use o botão acima para gerar um conjunto padrão." />
+        </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-5">
           <Bloco titulo="Receitas" cor="emerald" itens={receitas} onDel={(id) => del(id)} deletingId={deletingId} />

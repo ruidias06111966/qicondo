@@ -15,7 +15,7 @@ export const Route = createFileRoute("/app/")({
 type Cond = { id: string; nome: string; codigo_publico: string; total_unidades: number };
 
 function DashboardPage() {
-  const { profile, roles } = useAuth();
+  const { profile, roles, user } = useAuth();
   const { condominioId } = useCondominioAtivo();
   const [conds, setConds] = useState<Cond[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,10 +37,20 @@ function DashboardPage() {
   }, [roles]);
 
   useEffect(() => {
-    if (!condominioId) return;
-    const mes = new Date().toISOString().slice(0, 7);
-    resumoFinanceiro({ data: { condominio_id: condominioId, mes } }).then(setResumo).catch(() => {});
-  }, [condominioId]);
+    if (!condominioId || !user) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const mes = new Date().toISOString().slice(0, 7);
+        const r = await resumoFinanceiro({ data: { condominio_id: condominioId, mes } });
+        if (!cancelled) setResumo(r);
+      } catch (err) {
+        // 401/500 silencioso — painel apenas omite o cartão financeiro
+        console.warn("[app] resumoFinanceiro falhou:", err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [condominioId, user]);
 
   const isSindico = roles.some((r) => r.role === "sindico");
 

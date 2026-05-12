@@ -24,6 +24,19 @@ function CategoriasPage() {
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [seeding, setSeeding] = useState(false);
+
+  const seed = async () => {
+    if (!condominioId || seeding) return;
+    setSeeding(true);
+    const r = await safeCall(semearCategoriasPadrao({ data: { condominio_id: condominioId } }));
+    setSeeding(false);
+    if (r) {
+      toast.success(r.inseridas > 0 ? `${r.inseridas} categoria(s) padrão criada(s)` : "Já existem categorias padrão");
+      if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("categorias:changed"));
+      reload();
+    }
+  };
 
   const reload = () => {
     if (!condominioId) return;

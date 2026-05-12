@@ -61,6 +61,42 @@ export const removerCategoria = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const CATEGORIAS_PADRAO: Array<{ nome: string; tipo: "receita" | "despesa"; cor: string }> = [
+  { nome: "Taxa condominial", tipo: "receita", cor: "#10B981" },
+  { nome: "Fundo de reserva", tipo: "receita", cor: "#14B8A6" },
+  { nome: "Multas e juros", tipo: "receita", cor: "#F59E0B" },
+  { nome: "Taxa de uso de áreas", tipo: "receita", cor: "#3B82F6" },
+  { nome: "Outras receitas", tipo: "receita", cor: "#8B5CF6" },
+  { nome: "Água", tipo: "despesa", cor: "#3B82F6" },
+  { nome: "Energia", tipo: "despesa", cor: "#F59E0B" },
+  { nome: "Limpeza", tipo: "despesa", cor: "#14B8A6" },
+  { nome: "Manutenção", tipo: "despesa", cor: "#EF4444" },
+  { nome: "Segurança", tipo: "despesa", cor: "#8B5CF6" },
+  { nome: "Administração", tipo: "despesa", cor: "#EC4899" },
+  { nome: "Salários e encargos", tipo: "despesa", cor: "#F97316" },
+  { nome: "Outras despesas", tipo: "despesa", cor: "#64748B" },
+];
+
+export const semearCategoriasPadrao = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ condominio_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: existentes, error: errSel } = await supabase
+      .from("categorias_financeiras")
+      .select("nome, tipo")
+      .eq("condominio_id", data.condominio_id);
+    if (errSel) throw new Error(errSel.message);
+    const chaves = new Set((existentes ?? []).map((c) => `${c.tipo}|${(c.nome || "").toLowerCase()}`));
+    const novas = CATEGORIAS_PADRAO
+      .filter((c) => !chaves.has(`${c.tipo}|${c.nome.toLowerCase()}`))
+      .map((c) => ({ ...c, condominio_id: data.condominio_id }));
+    if (novas.length === 0) return { inseridas: 0 };
+    const { error } = await supabase.from("categorias_financeiras").insert(novas);
+    if (error) throw new Error(error.message);
+    return { inseridas: novas.length };
+  });
+
 // ===== Cobranças =====
 export const listarCobrancas = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

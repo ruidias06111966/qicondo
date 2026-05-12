@@ -7,7 +7,7 @@ function NotFoundComponent() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground font-display font-extrabold text-xl">
-          CZ
+          WC
         </div>
         <h1 className="font-display text-7xl font-extrabold text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Página não encontrada</h2>
@@ -60,7 +60,8 @@ export const Route = createRootRoute({
       },
       {
         rel: "icon",
-        href: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B7A55'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='26' fill='white'%3ECZ%3C/text%3E%3C/svg%3E",
+        type: "image/svg+xml",
+        href: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B7A55'/%3E%3Cpath d='M14 18c0-2.2 1.8-4 4-4h28c2.2 0 4 1.8 4 4v20c0 2.2-1.8 4-4 4H26l-8 7v-7h-0c-2.2 0-4-1.8-4-4V18z' fill='white'/%3E%3Cpath d='M24 36V24l6-4 6 4v4h6v8H24z' fill='%230B7A55'/%3E%3C/svg%3E",
       },
     ],
   }),

@@ -156,6 +156,9 @@ export function FinanceiroSubNav({ podeGerir }: { podeGerir: boolean }) {
 
 /** Wrapper que captura erros de Server Function (que vêm como Response). */
 export async function safeCall<T>(p: Promise<T>): Promise<T | null> {
+  // Anexa um handler imediato para evitar 'unhandledrejection' a nível de janela
+  // (o overlay de runtime-errors do preview captura isso como blank screen).
+  p.catch(() => {});
   try {
     return await p;
   } catch (e: any) {

@@ -79,13 +79,13 @@ function DocumentosPage() {
   const carregar = async () => {
     if (!condominioId) return;
     setLoading(true);
-    const { data, error } = await supabase
+    const r = await safeCall(supabase
       .from("documentos")
       .select("*")
       .eq("condominio_id", condominioId)
-      .order("created_at", { ascending: false });
-    if (error) toast.error(error.message);
-    setDocs((data as Doc[]) ?? []);
+      .order("created_at", { ascending: false }));
+    if (r?.error) toast.error(r.error.message);
+    setDocs((r?.data as Doc[]) ?? []);
     setLoading(false);
   };
 

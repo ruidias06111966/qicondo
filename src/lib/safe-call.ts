@@ -7,8 +7,8 @@ import { toast } from "sonner";
  * Anexa um handler imediato (`p.catch`) para impedir que rejeições virem
  * `unhandledrejection` (o overlay do preview captura isso como blank screen).
  */
-export async function safeCall<T>(p: Promise<T>): Promise<T | null> {
-  p.catch(() => {});
+export async function safeCall<T>(p: PromiseLike<T>): Promise<T | null> {
+  Promise.resolve(p).catch(() => {});
   try {
     return await p;
   } catch (e: any) {

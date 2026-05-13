@@ -9,6 +9,7 @@ import {
   Clock, Users, MapPin, AlertTriangle, Settings2, Ban, Trash2
 } from "lucide-react";
 import { toast } from "sonner";
+import { safeCall } from "@/lib/safe-call";
 
 export const Route = createFileRoute("/app/reservas")({
   component: ReservasPage,

@@ -10,6 +10,7 @@ import {
   Truck, Hash, Camera, MapPin
 } from "lucide-react";
 import { toast } from "sonner";
+import { safeCall } from "@/lib/safe-call";
 
 export const Route = createFileRoute("/app/encomendas")({
   component: EncomendasPage,

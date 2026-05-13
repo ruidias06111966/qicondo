@@ -55,12 +55,15 @@ function EncomendasPage() {
   const carregar = async () => {
     if (!condominioId) return;
     setLoading(true);
-    const [e, u] = await Promise.all([
+    const r = await safeCall(Promise.all([
       supabase.from("encomendas").select("*").eq("condominio_id", condominioId).order("recebido_em", { ascending: false }),
       supabase.from("unidades").select("id, numero, bloco").eq("condominio_id", condominioId).order("numero"),
-    ]);
-    if (e.data) setEncomendas(e.data as Encomenda[]);
-    if (u.data) setUnidades(u.data as Unidade[]);
+    ]));
+    if (r) {
+      const [e, u] = r;
+      if (e.data) setEncomendas(e.data as Encomenda[]);
+      if (u.data) setUnidades(u.data as Unidade[]);
+    }
     setLoading(false);
   };
 

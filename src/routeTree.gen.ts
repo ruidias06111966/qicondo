@@ -40,6 +40,7 @@ import { Route as AppDocumentosRouteImport } from './routes/app.documentos'
 import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes'
 import { Route as AppCondominioRouteImport } from './routes/app.condominio'
 import { Route as AppFinanceiroIndexRouteImport } from './routes/app.financeiro.index'
+import { Route as AuthConviteTokenRouteImport } from './routes/auth.convite.$token'
 import { Route as AppFinanceiroWhatsappRouteImport } from './routes/app.financeiro.whatsapp'
 import { Route as AppFinanceiroPagamentosRouteImport } from './routes/app.financeiro.pagamentos'
 import { Route as AppFinanceiroInadimplenciaRouteImport } from './routes/app.financeiro.inadimplencia'
@@ -207,6 +208,11 @@ const AppFinanceiroIndexRoute = AppFinanceiroIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppFinanceiroRoute,
 } as any)
+const AuthConviteTokenRoute = AuthConviteTokenRouteImport.update({
+  id: '/auth/convite/$token',
+  path: '/auth/convite/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppFinanceiroWhatsappRoute = AppFinanceiroWhatsappRouteImport.update({
   id: '/whatsapp',
   path: '/whatsapp',
@@ -300,6 +306,7 @@ export interface FileRoutesByFullPath {
   '/app/financeiro/inadimplencia': typeof AppFinanceiroInadimplenciaRoute
   '/app/financeiro/pagamentos': typeof AppFinanceiroPagamentosRoute
   '/app/financeiro/whatsapp': typeof AppFinanceiroWhatsappRoute
+  '/auth/convite/$token': typeof AuthConviteTokenRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
 }
@@ -341,6 +348,7 @@ export interface FileRoutesByTo {
   '/app/financeiro/inadimplencia': typeof AppFinanceiroInadimplenciaRoute
   '/app/financeiro/pagamentos': typeof AppFinanceiroPagamentosRoute
   '/app/financeiro/whatsapp': typeof AppFinanceiroWhatsappRoute
+  '/auth/convite/$token': typeof AuthConviteTokenRoute
   '/app/financeiro': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
 }
@@ -385,6 +393,7 @@ export interface FileRoutesById {
   '/app/financeiro/inadimplencia': typeof AppFinanceiroInadimplenciaRoute
   '/app/financeiro/pagamentos': typeof AppFinanceiroPagamentosRoute
   '/app/financeiro/whatsapp': typeof AppFinanceiroWhatsappRoute
+  '/auth/convite/$token': typeof AuthConviteTokenRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
 }
@@ -430,6 +439,7 @@ export interface FileRouteTypes {
     | '/app/financeiro/inadimplencia'
     | '/app/financeiro/pagamentos'
     | '/app/financeiro/whatsapp'
+    | '/auth/convite/$token'
     | '/app/financeiro/'
     | '/api/public/hooks/lembretes-cobranca'
   fileRoutesByTo: FileRoutesByTo
@@ -471,6 +481,7 @@ export interface FileRouteTypes {
     | '/app/financeiro/inadimplencia'
     | '/app/financeiro/pagamentos'
     | '/app/financeiro/whatsapp'
+    | '/auth/convite/$token'
     | '/app/financeiro'
     | '/api/public/hooks/lembretes-cobranca'
   id:
@@ -514,6 +525,7 @@ export interface FileRouteTypes {
     | '/app/financeiro/inadimplencia'
     | '/app/financeiro/pagamentos'
     | '/app/financeiro/whatsapp'
+    | '/auth/convite/$token'
     | '/app/financeiro/'
     | '/api/public/hooks/lembretes-cobranca'
   fileRoutesById: FileRoutesById
@@ -540,6 +552,7 @@ export interface RootRouteChildren {
   ApiPublicMpWebhookRoute: typeof ApiPublicMpWebhookRoute
   ApiPublicWaDrainRoute: typeof ApiPublicWaDrainRoute
   ApiPublicWaWebhookRoute: typeof ApiPublicWaWebhookRoute
+  AuthConviteTokenRoute: typeof AuthConviteTokenRoute
   ApiPublicHooksLembretesCobrancaRoute: typeof ApiPublicHooksLembretesCobrancaRoute
 }
 
@@ -762,6 +775,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceiroIndexRouteImport
       parentRoute: typeof AppFinanceiroRoute
     }
+    '/auth/convite/$token': {
+      id: '/auth/convite/$token'
+      path: '/auth/convite/$token'
+      fullPath: '/auth/convite/$token'
+      preLoaderRoute: typeof AuthConviteTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/financeiro/whatsapp': {
       id: '/app/financeiro/whatsapp'
       path: '/whatsapp'
@@ -913,17 +933,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicMpWebhookRoute: ApiPublicMpWebhookRoute,
   ApiPublicWaDrainRoute: ApiPublicWaDrainRoute,
   ApiPublicWaWebhookRoute: ApiPublicWaWebhookRoute,
+  AuthConviteTokenRoute: AuthConviteTokenRoute,
   ApiPublicHooksLembretesCobrancaRoute: ApiPublicHooksLembretesCobrancaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

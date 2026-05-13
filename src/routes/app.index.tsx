@@ -27,12 +27,15 @@ function DashboardPage() {
     (async () => {
       const ids = Array.from(new Set(roles.map((r) => r.condominio_id)));
       if (ids.length === 0) { setLoading(false); return; }
-      const [{ data: cs }, { count }] = await Promise.all([
+      const r = await safeCall(Promise.all([
         supabase.from("condominios").select("id, nome, codigo_publico, total_unidades").in("id", ids),
         supabase.from("unidades").select("*", { count: "exact", head: true }).in("condominio_id", ids),
-      ]);
-      setConds((cs as Cond[]) ?? []);
-      setUnidadesCount(count ?? 0);
+      ]));
+      if (r) {
+        const [{ data: cs }, { count }] = r;
+        setConds((cs as Cond[]) ?? []);
+        setUnidadesCount(count ?? 0);
+      }
       setLoading(false);
     })();
   }, [roles]);

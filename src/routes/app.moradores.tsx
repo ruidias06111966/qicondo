@@ -33,26 +33,28 @@ function MoradoresPage() {
   const carregar = async () => {
     if (!condominioId) return;
     setLoading(true);
-    const { data: roles } = await supabase
+    const rolesRes = await safeCall(supabase
       .from("user_roles")
       .select("user_id, role")
-      .eq("condominio_id", condominioId);
-    const ids = (roles ?? []).map((r) => r.user_id);
-    const { data: profs } = ids.length
-      ? await supabase.from("profiles").select("id, nome_completo, telefone").in("id", ids)
-      : { data: [] as any[] };
-    const merged: Membro[] = (roles ?? []).map((r) => {
-      const p = profs?.find((x: any) => x.id === r.user_id);
+      .eq("condominio_id", condominioId));
+    const roles = rolesRes?.data ?? [];
+    const ids = roles.map((r) => r.user_id);
+    const profsRes = ids.length
+      ? await safeCall(supabase.from("profiles").select("id, nome_completo, telefone").in("id", ids))
+      : null;
+    const profs = profsRes?.data ?? [];
+    const merged: Membro[] = roles.map((r) => {
+      const p = profs.find((x: any) => x.id === r.user_id);
       return { user_id: r.user_id, role: r.role, nome: p?.nome_completo ?? null, telefone: p?.telefone ?? null, email: null };
     });
     setMembros(merged);
 
-    const { data: c } = await supabase
+    const cRes = await safeCall(supabase
       .from("convites")
       .select("id, email, nome, role, status, expira_em, token, created_at")
       .eq("condominio_id", condominioId)
-      .order("created_at", { ascending: false });
-    setConvites(c ?? []);
+      .order("created_at", { ascending: false }));
+    setConvites(cRes?.data ?? []);
     setLoading(false);
   };
 

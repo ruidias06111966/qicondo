@@ -9,6 +9,7 @@ import {
   Clock, Users, MapPin, AlertTriangle, Settings2, Ban, Trash2
 } from "lucide-react";
 import { toast } from "sonner";
+import { safeCall } from "@/lib/safe-call";
 
 export const Route = createFileRoute("/app/reservas")({
   component: ReservasPage,
@@ -96,30 +97,33 @@ function ReservasPage() {
   const carregar = async () => {
     if (!condominioId) return;
     setLoading(true);
-    const [a, r, b, u] = await Promise.all([
+    const r0 = await safeCall(Promise.all([
       supabase.from("areas_comuns").select("*").eq("condominio_id", condominioId).order("ordem").order("nome"),
       supabase.from("reservas").select("*").eq("condominio_id", condominioId).order("inicio", { ascending: false }),
       supabase.from("area_bloqueios").select("*").eq("condominio_id", condominioId),
       supabase.from("unidades").select("id, numero, bloco").eq("condominio_id", condominioId).order("numero"),
-    ]);
-    if (a.data) setAreas(a.data as Area[]);
-    if (r.data) setReservas(r.data as Reserva[]);
-    if (b.data) setBloqueios(b.data as Bloqueio[]);
-    if (u.data) setUnidades(u.data as Unidade[]);
+    ]));
+    if (r0) {
+      const [a, r, b, u] = r0;
+      if (a.data) setAreas(a.data as Area[]);
+      if (r.data) setReservas(r.data as Reserva[]);
+      if (b.data) setBloqueios(b.data as Bloqueio[]);
+      if (u.data) setUnidades(u.data as Unidade[]);
 
-    if (user && !podeGerenciar) {
-      const { data } = await supabase
-        .from("unidade_moradores")
-        .select("unidade_id, unidades(id, numero, bloco)")
-        .eq("user_id", user.id);
-      if (data) {
-        const mu = data
-          .map((d: any) => d.unidades)
-          .filter(Boolean) as Unidade[];
-        setMinhasUnidades(mu);
+      if (user && !podeGerenciar) {
+        const r1 = await safeCall(supabase
+          .from("unidade_moradores")
+          .select("unidade_id, unidades(id, numero, bloco)")
+          .eq("user_id", user.id));
+        if (r1?.data) {
+          const mu = r1.data
+            .map((d: any) => d.unidades)
+            .filter(Boolean) as Unidade[];
+          setMinhasUnidades(mu);
+        }
+      } else {
+        setMinhasUnidades(u.data as Unidade[] ?? []);
       }
-    } else {
-      setMinhasUnidades(u.data as Unidade[] ?? []);
     }
     setLoading(false);
   };

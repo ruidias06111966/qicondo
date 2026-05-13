@@ -9,6 +9,7 @@ import {
   AlertCircle, CheckCircle2, Clock, User, Tag, Send, Lock
 } from "lucide-react";
 import { toast } from "sonner";
+import { safeCall } from "@/lib/safe-call";
 
 export const Route = createFileRoute("/app/ocorrencias")({
   component: OcorrenciasPage,
@@ -100,14 +101,17 @@ function OcorrenciasPage() {
   const carregar = async () => {
     if (!condominioId) return;
     setLoading(true);
-    const [o, u, m] = await Promise.all([
+    const r = await safeCall(Promise.all([
       supabase.from("ocorrencias").select("*").eq("condominio_id", condominioId).order("created_at", { ascending: false }),
       supabase.from("unidades").select("id, numero, bloco").eq("condominio_id", condominioId).order("numero"),
       user ? supabase.from("unidade_moradores").select("unidade_id").eq("user_id", user.id) : Promise.resolve({ data: [] as any[] }),
-    ]);
-    if (o.data) setOcorrencias(o.data as Ocorrencia[]);
-    if (u.data) setUnidades(u.data as Unidade[]);
-    if (m.data) setMinhasUnidades((m.data as any[]).map((x) => x.unidade_id));
+    ]));
+    if (r) {
+      const [o, u, m] = r;
+      if (o.data) setOcorrencias(o.data as Ocorrencia[]);
+      if (u.data) setUnidades(u.data as Unidade[]);
+      if (m.data) setMinhasUnidades((m.data as any[]).map((x) => x.unidade_id));
+    }
     setLoading(false);
   };
 

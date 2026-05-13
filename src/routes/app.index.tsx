@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { resumoFinanceiro } from "@/server/financeiro.functions";
 import { brl } from "@/lib/format";
 import { Building2, Users, Wallet, AlertCircle, TrendingUp, MessageCircle } from "lucide-react";
+import { safeCall } from "@/lib/safe-call";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({ meta: [{ title: "Painel — WHATSCOND" }] }),
@@ -26,12 +27,15 @@ function DashboardPage() {
     (async () => {
       const ids = Array.from(new Set(roles.map((r) => r.condominio_id)));
       if (ids.length === 0) { setLoading(false); return; }
-      const [{ data: cs }, { count }] = await Promise.all([
+      const r = await safeCall(Promise.all([
         supabase.from("condominios").select("id, nome, codigo_publico, total_unidades").in("id", ids),
         supabase.from("unidades").select("*", { count: "exact", head: true }).in("condominio_id", ids),
-      ]);
-      setConds((cs as Cond[]) ?? []);
-      setUnidadesCount(count ?? 0);
+      ]));
+      if (r) {
+        const [{ data: cs }, { count }] = r;
+        setConds((cs as Cond[]) ?? []);
+        setUnidadesCount(count ?? 0);
+      }
       setLoading(false);
     })();
   }, [roles]);

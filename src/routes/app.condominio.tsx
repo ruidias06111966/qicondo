@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { safeCall } from "@/lib/safe-call";
 import { Building2, Save, Loader2, Copy, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,15 +33,17 @@ function CondominioPage() {
   useEffect(() => {
     if (!condominioId) return;
     setLoading(true);
-    supabase.from("condominios").select("*").eq("id", condominioId).maybeSingle().then(({ data, error }) => {
-      if (error) toast.error(error.message);
+    (async () => {
+      const r = await safeCall(supabase.from("condominios").select("*").eq("id", condominioId).maybeSingle());
+      if (r?.error) toast.error(r.error.message);
+      const data = r?.data;
       if (data) setF({
         nome: data.nome ?? "", cnpj: data.cnpj ?? "", endereco: data.endereco ?? "",
         cidade: data.cidade ?? "", estado: data.estado ?? "", cep: data.cep ?? "",
         whatsapp_numero: data.whatsapp_numero ?? "", codigo_publico: data.codigo_publico ?? "",
       });
       setLoading(false);
-    });
+    })();
   }, [condominioId]);
 
   const upd = <K extends keyof Form>(k: K, v: Form[K]) => setF((p) => ({ ...p, [k]: v }));

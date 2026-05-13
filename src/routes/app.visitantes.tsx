@@ -9,6 +9,7 @@ import {
   Car, IdCard, LogIn, LogOut, Clock, MapPin, AlertTriangle
 } from "lucide-react";
 import { toast } from "sonner";
+import { safeCall } from "@/lib/safe-call";
 
 export const Route = createFileRoute("/app/visitantes")({
   component: VisitantesPage,
@@ -71,12 +72,15 @@ function VisitantesPage() {
   const carregar = async () => {
     if (!condominioId) return;
     setLoading(true);
-    const [v, u] = await Promise.all([
+    const r = await safeCall(Promise.all([
       supabase.from("visitantes").select("*").eq("condominio_id", condominioId).order("created_at", { ascending: false }).limit(500),
       supabase.from("unidades").select("id, numero, bloco").eq("condominio_id", condominioId).order("numero"),
-    ]);
-    if (v.data) setVisitantes(v.data as Visitante[]);
-    if (u.data) setUnidades(u.data as Unidade[]);
+    ]));
+    if (r) {
+      const [v, u] = r;
+      if (v.data) setVisitantes(v.data as Visitante[]);
+      if (u.data) setUnidades(u.data as Unidade[]);
+    }
     setLoading(false);
   };
 

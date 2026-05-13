@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { resumoFinanceiro } from "@/server/financeiro.functions";
 import { brl } from "@/lib/format";
 import { Building2, Users, Wallet, AlertCircle, TrendingUp, MessageCircle } from "lucide-react";
+import { safeCall } from "@/lib/safe-call";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({ meta: [{ title: "Painel — WHATSCOND" }] }),

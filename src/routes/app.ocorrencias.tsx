@@ -9,6 +9,7 @@ import {
   AlertCircle, CheckCircle2, Clock, User, Tag, Send, Lock
 } from "lucide-react";
 import { toast } from "sonner";
+import { safeCall } from "@/lib/safe-call";
 
 export const Route = createFileRoute("/app/ocorrencias")({
   component: OcorrenciasPage,

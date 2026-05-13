@@ -206,7 +206,7 @@ function OnboardingPage() {
               </div>
             </div>
             <Actions>
-              <button onClick={() => navigate({ to: "/app" })} className="btn-primary">Ir para o painel <ArrowRight size={16} /></button>
+              <button onClick={async () => { await refresh(); navigate({ to: "/app" }); }} className="btn-primary">Ir para o painel <ArrowRight size={16} /></button>
             </Actions>
           </Card>
         )}

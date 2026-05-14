@@ -267,6 +267,7 @@ function ModalGerarLote({
     setSaving(false);
     if (r) {
       toast.success(`${r.criadas} cobrança(s) gerada(s)`);
+      emitChanged("cobrancas:changed");
       onDone();
     }
   };
@@ -392,6 +393,8 @@ function ModalRegistrarPagamento({
     setSaving(false);
     if (r) {
       toast.success("Pagamento registrado");
+      emitChanged("pagamentos:changed");
+      emitChanged("cobrancas:changed");
       onDone();
     }
   };

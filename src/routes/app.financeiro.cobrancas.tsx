@@ -14,6 +14,7 @@ import { brl, dateBR, competenciaBR } from "@/lib/format";
 import {
   Modal, Field, EmptyState, StatusBadge, safeCall,
 } from "@/components/financeiro/ui";
+import { emitChanged } from "@/lib/safe-call";
 import { toast } from "sonner";
 import {
   FileText, Plus, Loader2, X, CheckCircle2, QrCode, Copy, MessageCircle,

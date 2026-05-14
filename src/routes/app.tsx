@@ -62,7 +62,7 @@ function AppLayout() {
       <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-background">
         <div className="h-16 flex items-center px-6 border-b border-border"><Logo /></div>
         <nav className="flex-1 p-3 space-y-1">
-          {NAV.map((item) => (
+          {navItems.map((item) => (
             <Link
               key={item.to}
               to={item.to}
@@ -95,7 +95,7 @@ function AppLayout() {
       </div>
       {open && (
         <div className="lg:hidden fixed inset-0 top-14 bg-background z-30 p-4 space-y-1">
-          {NAV.map((item) => (
+          {navItems.map((item) => (
             <Link key={item.to} to={item.to} onClick={() => setOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${isActive(item.to, item.exact) ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
               <item.icon size={18} /> {item.label}
             </Link>

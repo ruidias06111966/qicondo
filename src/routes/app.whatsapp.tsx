@@ -144,6 +144,9 @@ function WhatsAppPage() {
         },
       });
       toast.success("Configuração salva");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("wa:changed"));
+      }
     } catch (e: any) {
       toast.error(e.message ?? "Erro ao salvar");
     } finally {

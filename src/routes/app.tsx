@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/auth/AuthProvider";
+import { useCondominioAtivo } from "@/auth/useCondominio";
 import { Logo } from "@/components/site/Logo";
 import {
   LayoutDashboard, Users, Building2, MessageCircle, LogOut, Loader2,
@@ -11,24 +12,33 @@ export const Route = createFileRoute("/app")({
   component: AppLayout,
 });
 
-type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
+type Role = "sindico" | "morador" | "contador" | "porteiro";
+type NavItem = {
+  to: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  exact?: boolean;
+  roles?: Role[]; // se omitido, todos veem
+};
 const NAV: NavItem[] = [
   { to: "/app", label: "Visão geral", icon: LayoutDashboard, exact: true },
   { to: "/app/financeiro", label: "Financeiro", icon: Wallet },
   { to: "/app/reservas", label: "Reservas", icon: Calendar },
-  { to: "/app/encomendas", label: "Encomendas", icon: Package },
+  { to: "/app/encomendas", label: "Encomendas", icon: Package, roles: ["sindico", "porteiro"] },
   { to: "/app/ocorrencias", label: "Ocorrências", icon: Wrench },
-  { to: "/app/moradores", label: "Moradores", icon: Users },
-  { to: "/app/condominio", label: "Condomínio", icon: Building2 },
-  { to: "/app/whatsapp", label: "WhatsApp", icon: MessageCircle },
+  { to: "/app/moradores", label: "Moradores", icon: Users, roles: ["sindico"] },
+  { to: "/app/condominio", label: "Condomínio", icon: Building2, roles: ["sindico"] },
+  { to: "/app/whatsapp", label: "WhatsApp", icon: MessageCircle, roles: ["sindico"] },
   { to: "/app/configuracoes", label: "Configurações", icon: Settings },
 ];
 
 function AppLayout() {
   const navigate = useNavigate();
   const { loading, user, hasAnyRole, profile, signOut } = useAuth();
+  const { role } = useCondominioAtivo();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
+  const navItems = NAV.filter((it) => !it.roles || (role && it.roles.includes(role as Role)));
 
   useEffect(() => {
     if (loading) return;

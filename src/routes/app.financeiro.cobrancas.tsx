@@ -14,6 +14,7 @@ import { brl, dateBR, competenciaBR } from "@/lib/format";
 import {
   Modal, Field, EmptyState, StatusBadge, safeCall,
 } from "@/components/financeiro/ui";
+import { emitChanged } from "@/lib/safe-call";
 import { toast } from "sonner";
 import {
   FileText, Plus, Loader2, X, CheckCircle2, QrCode, Copy, MessageCircle,
@@ -42,6 +43,18 @@ function CobrancasPage() {
   };
   useEffect(reload, [condominioId]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const h = () => reload();
+    window.addEventListener("cobrancas:changed", h);
+    window.addEventListener("pagamentos:changed", h);
+    return () => {
+      window.removeEventListener("cobrancas:changed", h);
+      window.removeEventListener("pagamentos:changed", h);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [condominioId]);
+
   const filtered = useMemo(() => {
     const arr = Array.isArray(rows) ? rows : [];
     return filter === "todos" ? arr : arr.filter((r) => r.status === filter);
@@ -51,7 +64,10 @@ function CobrancasPage() {
 
   const lembrar = async (cobrancaId: string) => {
     const r = await safeCall(enviarLembreteCobranca({ data: { cobranca_id: cobrancaId } }));
-    if (r) toast.success(`Lembrete enfileirado para ${r.enfileirados} morador(es)`);
+    if (r) {
+      toast.success(`Lembrete enfileirado para ${r.enfileirados} morador(es)`);
+      emitChanged("wa:changed");
+    }
   };
 
   return (
@@ -159,6 +175,7 @@ function CobrancasPage() {
                                   safeCall(cancelarCobranca({ data: { id: r.id } })).then((ok) => {
                                     if (ok) {
                                       toast.success("Cancelada");
+                                      emitChanged("cobrancas:changed");
                                       reload();
                                     }
                                   });
@@ -253,6 +270,7 @@ function ModalGerarLote({
     setSaving(false);
     if (r) {
       toast.success(`${r.criadas} cobrança(s) gerada(s)`);
+      emitChanged("cobrancas:changed");
       onDone();
     }
   };
@@ -378,6 +396,8 @@ function ModalRegistrarPagamento({
     setSaving(false);
     if (r) {
       toast.success("Pagamento registrado");
+      emitChanged("pagamentos:changed");
+      emitChanged("cobrancas:changed");
       onDone();
     }
   };

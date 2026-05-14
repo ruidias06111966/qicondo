@@ -27,3 +27,12 @@ export async function safeCall<T>(p: PromiseLike<T>): Promise<T | null> {
     return null;
   }
 }
+
+/**
+ * Dispara um evento global no `window` para sincronizar telas abertas.
+ * Use em conjunto com `useChangedEvent` para escutar.
+ */
+export function emitChanged(name: string, detail?: unknown) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(name, { detail }));
+}

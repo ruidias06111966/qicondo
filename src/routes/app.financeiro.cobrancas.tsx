@@ -43,6 +43,18 @@ function CobrancasPage() {
   };
   useEffect(reload, [condominioId]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const h = () => reload();
+    window.addEventListener("cobrancas:changed", h);
+    window.addEventListener("pagamentos:changed", h);
+    return () => {
+      window.removeEventListener("cobrancas:changed", h);
+      window.removeEventListener("pagamentos:changed", h);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [condominioId]);
+
   const filtered = useMemo(() => {
     const arr = Array.isArray(rows) ? rows : [];
     return filter === "todos" ? arr : arr.filter((r) => r.status === filter);
@@ -160,6 +172,7 @@ function CobrancasPage() {
                                   safeCall(cancelarCobranca({ data: { id: r.id } })).then((ok) => {
                                     if (ok) {
                                       toast.success("Cancelada");
+                                      emitChanged("cobrancas:changed");
                                       reload();
                                     }
                                   });

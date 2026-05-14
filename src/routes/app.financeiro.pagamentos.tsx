@@ -10,6 +10,7 @@ import {
 } from "@/server/financeiro.functions";
 import { brl, dateBR } from "@/lib/format";
 import { Field, EmptyState, safeCall } from "@/components/financeiro/ui";
+import { emitChanged } from "@/lib/safe-call";
 import { toast } from "sonner";
 import { CreditCard, Loader2, Save, CheckCircle2, MessageCircle, Send, Eye } from "lucide-react";
 
@@ -57,7 +58,7 @@ function PagamentosRecebidos({ condominioId }: { condominioId: string }) {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const reload = () => {
     setLoading(true);
     supabase
       .from("pagamentos")
@@ -69,6 +70,16 @@ function PagamentosRecebidos({ condominioId }: { condominioId: string }) {
         setRows(data ?? []);
         setLoading(false);
       });
+  };
+
+  useEffect(reload, [condominioId]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const h = () => reload();
+    window.addEventListener("pagamentos:changed", h);
+    return () => window.removeEventListener("pagamentos:changed", h);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [condominioId]);
 
   if (loading)
@@ -354,6 +365,7 @@ function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
     setRunning(false);
     if (r) {
       toast.success(`Disparo concluído: ${r.enfileirados} mensagem(ns) para ${r.cobrancas} cobrança(s)`);
+      emitChanged("wa:changed");
     }
   };
 

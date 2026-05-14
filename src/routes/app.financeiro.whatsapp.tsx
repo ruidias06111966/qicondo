@@ -51,6 +51,14 @@ function HistoricoWA() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [condominioId, status, contexto, ini, fim]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const h = () => reload();
+    window.addEventListener("wa:changed", h);
+    return () => window.removeEventListener("wa:changed", h);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [condominioId, status, contexto, ini, fim]);
+
   const stats = useMemo(() => {
     const c = { total: rows.length, pendente: 0, enviado: 0, falhou: 0 };
     for (const r of rows) (c as any)[r.status] = ((c as any)[r.status] ?? 0) + 1;
@@ -63,6 +71,10 @@ function HistoricoWA() {
     setReenviando(null);
     if (r) {
       toast.success("Mensagem reenfileirada");
+      // notifica outras telas (ex.: dashboard, /app/whatsapp)
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("wa:changed"));
+      }
       reload();
     }
   };

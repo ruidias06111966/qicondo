@@ -64,7 +64,10 @@ function CobrancasPage() {
 
   const lembrar = async (cobrancaId: string) => {
     const r = await safeCall(enviarLembreteCobranca({ data: { cobranca_id: cobrancaId } }));
-    if (r) toast.success(`Lembrete enfileirado para ${r.enfileirados} morador(es)`);
+    if (r) {
+      toast.success(`Lembrete enfileirado para ${r.enfileirados} morador(es)`);
+      emitChanged("wa:changed");
+    }
   };
 
   return (

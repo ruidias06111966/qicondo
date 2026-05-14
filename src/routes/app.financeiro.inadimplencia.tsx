@@ -4,6 +4,7 @@ import { useCondominioAtivo } from "@/auth/useCondominio";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, dateBR } from "@/lib/format";
 import { EmptyState } from "@/components/financeiro/ui";
+import { emitChanged } from "@/lib/safe-call";
 import { enviarLembretesInadimplencia } from "@/server/financeiro.functions";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, MessageCircle } from "lucide-react";
@@ -20,7 +21,7 @@ function InadimplenciaPage() {
   const [sel, setSel] = useState<Set<string>>(new Set());
   const [sending, setSending] = useState(false);
 
-  useEffect(() => {
+  const reload = () => {
     if (!condominioId) return;
     setLoading(true);
     supabase
@@ -34,6 +35,20 @@ function InadimplenciaPage() {
         setRows(data ?? []);
         setLoading(false);
       });
+  };
+
+  useEffect(reload, [condominioId]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const h = () => reload();
+    window.addEventListener("cobrancas:changed", h);
+    window.addEventListener("pagamentos:changed", h);
+    return () => {
+      window.removeEventListener("cobrancas:changed", h);
+      window.removeEventListener("pagamentos:changed", h);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [condominioId]);
 
   const toggle = (id: string) => {
@@ -55,6 +70,7 @@ function InadimplenciaPage() {
         data: { cobranca_ids: Array.from(sel) },
       });
       toast.success(`${r.enfileirados} lembrete(s) enfileirados via WhatsApp`);
+      emitChanged("wa:changed");
       setSel(new Set());
     } catch (e: any) {
       toast.error(e?.message || "Erro ao enviar lembretes");

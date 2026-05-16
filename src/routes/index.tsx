@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import {
   MessageCircle,
@@ -23,9 +24,21 @@ import {
   Building2,
   HeartHandshake,
   FileText,
+  X,
+  Sparkles,
+  PartyPopper,
 } from "lucide-react";
 
 const SITE_URL = "https://qidominio.lovable.app";
+// Número oficial do QiDomínio para o botão flutuante e captura de leads.
+// (Trocar para o número real assim que disponível.)
+const WHATSAPP_NUMBER = "5511999999999";
+const WHATSAPP_DEFAULT_MSG =
+  "Olá! Vim pelo site do QiDomínio e quero saber mais sobre a gestão de condomínio pelo WhatsApp.";
+
+function waLink(message: string) {
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -57,11 +70,7 @@ export const Route = createFileRoute("/")({
           operatingSystem: "Web, iOS, Android",
           description:
             "Sistema de gestão de condomínios via WhatsApp: cobranças, reservas, encomendas, ocorrências e prestação de contas.",
-          offers: {
-            "@type": "Offer",
-            price: "29",
-            priceCurrency: "BRL",
-          },
+          offers: { "@type": "Offer", price: "29", priceCurrency: "BRL" },
           aggregateRating: {
             "@type": "AggregateRating",
             ratingValue: "4.9",
@@ -75,69 +84,21 @@ export const Route = createFileRoute("/")({
 });
 
 const features = [
-  {
-    icon: Receipt,
-    title: "Cobrança automática via WhatsApp",
-    desc: "Lembretes antes do vencimento, cobranças no atraso e cálculo automático de multa e juros. PIX e boleto direto na conversa.",
-  },
-  {
-    icon: PieChart,
-    title: "Prestação de contas mensal",
-    desc: "Relatório de receitas, despesas e inadimplência enviado todo dia 5 para todos os moradores. Transparência sem esforço.",
-  },
-  {
-    icon: CheckCircle2,
-    title: "Confirmação de pagamentos",
-    desc: "O morador envia o comprovante pelo WhatsApp e o síndico aprova com um clique. Conciliação automática por PIX.",
-  },
-  {
-    icon: Calendar,
-    title: "Reserva de áreas comuns",
-    desc: "Salão, churrasqueira e quadra com calendário, regras e taxas. Reserva e confirmação no próprio WhatsApp.",
-  },
-  {
-    icon: Package,
-    title: "Encomendas e visitantes",
-    desc: "Portaria registra, morador recebe foto na hora e libera visitas com QR Code temporário.",
-  },
-  {
-    icon: Wrench,
-    title: "Ocorrências e chamados",
-    desc: "Manutenção, barulho ou reclamações com foto, status e atribuição. O síndico nunca mais perde um pedido.",
-  },
-  {
-    icon: LayoutDashboard,
-    title: "Painel web completo",
-    desc: "Dashboard com inadimplência, fluxo de caixa, documentos e configurações. Funciona no celular e no computador.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Conforme com a LGPD",
-    desc: "Backup diário, logs de auditoria, controle por perfil (síndico, morador, contador, porteiro) e exportação a qualquer momento.",
-  },
-  {
-    icon: FileText,
-    title: "Documentos do condomínio",
-    desc: "Atas, convenção, regimento e atas de assembleia em um só lugar, acessíveis ao morador via WhatsApp.",
-  },
+  { icon: Receipt, title: "Cobrança automática via WhatsApp", desc: "Lembretes antes do vencimento, cobranças no atraso e cálculo automático de multa e juros. PIX e boleto direto na conversa." },
+  { icon: PieChart, title: "Prestação de contas mensal", desc: "Relatório de receitas, despesas e inadimplência enviado todo dia 5 para todos os moradores. Transparência sem esforço." },
+  { icon: CheckCircle2, title: "Confirmação de pagamentos", desc: "O morador envia o comprovante pelo WhatsApp e o síndico aprova com um clique. Conciliação automática por PIX." },
+  { icon: Calendar, title: "Reserva de áreas comuns", desc: "Salão, churrasqueira e quadra com calendário, regras e taxas. Reserva e confirmação no próprio WhatsApp." },
+  { icon: Package, title: "Encomendas e visitantes", desc: "Portaria registra, morador recebe foto na hora e libera visitas com QR Code temporário." },
+  { icon: Wrench, title: "Ocorrências e chamados", desc: "Manutenção, barulho ou reclamações com foto, status e atribuição. O síndico nunca mais perde um pedido." },
+  { icon: LayoutDashboard, title: "Painel web completo", desc: "Dashboard com inadimplência, fluxo de caixa, documentos e configurações. Funciona no celular e no computador." },
+  { icon: ShieldCheck, title: "Conforme com a LGPD", desc: "Backup diário, logs de auditoria, controle por perfil e exportação a qualquer momento." },
+  { icon: FileText, title: "Documentos do condomínio", desc: "Atas, convenção, regimento e atas de assembleia em um só lugar, acessíveis ao morador via WhatsApp." },
 ];
 
 const audiences = [
-  {
-    icon: Building2,
-    title: "Síndicos moradores",
-    desc: "Você não é gestor profissional, mas precisa cobrar, prestar contas e organizar o condomínio sem virar refém de planilhas.",
-  },
-  {
-    icon: Users,
-    title: "Pequenos condomínios",
-    desc: "De 6 a 50 unidades, em autogestão. O QiDomínio foi desenhado para essa realidade — não é um sistema corporativo caro e complicado.",
-  },
-  {
-    icon: HeartHandshake,
-    title: "Administradoras enxutas",
-    desc: "Quer atender mais condomínios sem aumentar a equipe? Centralize a comunicação e automatize o financeiro de cada cliente.",
-  },
+  { icon: Building2, title: "Síndicos moradores", desc: "Você não é gestor profissional, mas precisa cobrar, prestar contas e organizar o condomínio sem virar refém de planilhas." },
+  { icon: Users, title: "Pequenos condomínios", desc: "De 6 a 50 unidades, em autogestão. O QiDomínio foi desenhado para essa realidade — não é um sistema corporativo caro e complicado." },
+  { icon: HeartHandshake, title: "Administradoras enxutas", desc: "Quer atender mais condomínios sem aumentar a equipe? Centralize a comunicação e automatize o financeiro de cada cliente." },
 ];
 
 const benefits = [
@@ -147,47 +108,116 @@ const benefits = [
   { icon: MessageCircle, value: "100%", label: "da comunicação no WhatsApp oficial" },
 ];
 
+// Fluxo WhatsApp em 4 etapas (visual)
 const whatsappFlow = [
   {
     icon: Send,
-    title: "1. O sistema envia",
-    desc: "QiDomínio dispara mensagens automáticas no WhatsApp do morador: boleto, lembrete de vencimento, aviso da assembleia, recibo de pagamento.",
+    badge: "Etapa 1",
+    title: "Mensagem enviada",
+    desc: "O QiDomínio dispara automaticamente o boleto, lembrete ou aviso no WhatsApp do morador — sempre pelo número oficial verificado.",
+    example: "Olá, Maria! Sua taxa de maio (R$ 280) vence em 3 dias. Pague pelo PIX qidominio@cond.com",
+    side: "left" as const,
   },
   {
     icon: Bot,
-    title: "2. O morador responde por palavras-chave",
-    desc: "BOLETO pede a 2ª via. PAGUEI envia o comprovante. RESERVAR agenda o salão. PROBLEMA abre uma ocorrência. AJUDA mostra o que ele pode fazer.",
+    badge: "Etapa 2",
+    title: "Resposta por palavra-chave",
+    desc: "O morador responde com palavras simples — PAGUEI, BOLETO, RESERVAR, PROBLEMA, AJUDA — e o bot entende imediatamente.",
+    example: "PAGUEI [comprovante.jpg]",
+    side: "right" as const,
   },
   {
     icon: LayoutDashboard,
-    title: "3. Tudo cai no painel do síndico",
-    desc: "Cada interação vira um registro: cobrança paga, reserva confirmada, ocorrência aberta. Você só aprova quando precisa.",
+    badge: "Etapa 3",
+    title: "Registro no painel",
+    desc: "Cada interação vira automaticamente um registro no painel do síndico: cobrança, reserva, encomenda ou ocorrência.",
+    example: "Painel · Cobrança #128 → Comprovante recebido · aguardando aprovação",
+    side: "left" as const,
+  },
+  {
+    icon: CheckCircle2,
+    badge: "Etapa 4",
+    title: "Confirmação automática",
+    desc: "O sistema responde o morador com recibo, status atualizado ou próximos passos. Tudo dentro da mesma conversa.",
+    example: "Recebemos seu pagamento ✅ Recibo #128 anexado.",
+    side: "right" as const,
   },
 ];
 
+// Planos — Starter e Profissional + comparação
+const plans = [
+  {
+    name: "Starter",
+    price: "29",
+    tagline: "Para condomínios de até 30 unidades em autogestão.",
+    highlight: false,
+    cta: "Começar grátis",
+    features: [
+      "Até 30 unidades",
+      "Cobranças automáticas via WhatsApp",
+      "Confirmação de pagamentos PIX",
+      "Prestação de contas mensal",
+      "Reserva de 1 área comum",
+      "Encomendas e ocorrências",
+      "Painel web do síndico",
+      "Suporte por e-mail",
+    ],
+  },
+  {
+    name: "Profissional",
+    price: "59",
+    tagline: "Para condomínios maiores e administradoras enxutas.",
+    highlight: true,
+    cta: "Quero o Profissional",
+    features: [
+      "Até 80 unidades",
+      "Tudo do Starter, mais:",
+      "Assembleias virtuais com ata digital",
+      "Reserva ilimitada de áreas comuns",
+      "Visitantes com QR Code",
+      "Boleto registrado + PIX",
+      "Painel do contador (export OFX/CSV)",
+      "Número WhatsApp dedicado",
+      "Suporte prioritário em até 4h",
+    ],
+  },
+];
+
+const compareRows = [
+  { label: "Unidades incluídas", starter: "até 30", pro: "até 80" },
+  { label: "Cobrança via WhatsApp", starter: true, pro: true },
+  { label: "Prestação de contas mensal", starter: true, pro: true },
+  { label: "Reserva de áreas comuns", starter: "1 área", pro: "ilimitado" },
+  { label: "Visitantes com QR Code", starter: false, pro: true },
+  { label: "Boleto registrado", starter: false, pro: true },
+  { label: "Assembleias virtuais", starter: false, pro: true },
+  { label: "Painel do contador", starter: false, pro: true },
+  { label: "Número WhatsApp dedicado", starter: false, pro: true },
+  { label: "Suporte prioritário", starter: false, pro: true },
+];
+
+// FAQ direcionado por plano
+const faqsByPlan: Record<"Starter" | "Profissional", { q: string; a: string }[]> = {
+  Starter: [
+    { q: "O Starter cobre todas as cobranças automáticas?", a: "Sim. Lembretes, cobranças e confirmação de pagamento por PIX já vêm inclusos — sem limite de mensagens." },
+    { q: "Posso usar com mais de 30 unidades?", a: "Tecnicamente sim, mas o plano é dimensionado para até 30. Acima disso recomendamos o Profissional, que tem melhor performance e mais recursos." },
+    { q: "Preciso ter número WhatsApp próprio?", a: "Não. No Starter, seu condomínio compartilha o número oficial do QiDomínio com identidade personalizada nas mensagens." },
+  ],
+  Profissional: [
+    { q: "Como funciona o número dedicado?", a: "Você recebe um número WhatsApp Business API exclusivo do condomínio, com nome verificado pela Meta. Ideal para administradoras." },
+    { q: "O que entra no painel do contador?", a: "Acesso somente-leitura para o contador, exportações em CSV/OFX, conciliação bancária e relatórios fiscais prontos." },
+    { q: "Quanto tempo leva o suporte prioritário?", a: "Resposta em até 4h úteis, com canal direto via WhatsApp e e-mail. Para administradoras incluímos onboarding assistido." },
+  ],
+};
+
+// Depoimentos com números concretos
 const testimonials = [
-  { name: "Carlos M.", role: "Síndico · Ed. Recanto Verde, 18 unidades", text: "Reduzi a inadimplência de 27% para 8% em 3 meses só pela facilidade do WhatsApp.", avatar: "CM" },
-  { name: "Patricia R.", role: "Síndica · Cond. Vila Nova, 24 unidades", text: "Antes eu gastava 6h por mês fazendo prestação de contas. Agora é automático e ninguém mais reclama de falta de transparência.", avatar: "PR" },
-  { name: "Roberto L.", role: "Síndico · Ed. Aurora, 12 unidades", text: "Os moradores adoraram. Tudo no WhatsApp, sem instalar app nenhum. Até quem tem 70 anos consegue usar.", avatar: "RL" },
-];
-
-const faqs = [
-  {
-    q: "O QiDomínio funciona no WhatsApp pessoal do síndico?",
-    a: "Não. Usamos o WhatsApp Business API oficial da Meta, com número verificado, para garantir entregabilidade, conformidade com a LGPD e que o seu número pessoal não fique exposto.",
-  },
-  {
-    q: "Os moradores precisam instalar algum aplicativo?",
-    a: "Não. O morador conversa com o número do condomínio dentro do WhatsApp que ele já usa todos os dias. Para acompanhar histórico e documentos, existe também uma área web — opcional.",
-  },
-  {
-    q: "Como funcionam os pagamentos?",
-    a: "Geramos cobranças com PIX (e boleto registrado no plano Profissional). O morador paga, o sistema concilia automaticamente e atualiza o status. Multa e juros calculados conforme a convenção.",
-  },
-  {
-    q: "Para qual tamanho de condomínio o QiDomínio serve?",
-    a: "É feito para pequenos condomínios em autogestão, normalmente de 6 a 50 unidades. Acima disso continua funcionando, mas o foco do produto é resolver bem essa faixa que costuma ser mal atendida.",
-  },
+  { name: "Carlos M.", role: "Síndico · Ed. Recanto Verde", units: "18 unidades", text: "Reduzi a inadimplência de 27% para 8% em 3 meses só pela facilidade do WhatsApp.", metric: "−70% inadimplência", avatar: "CM" },
+  { name: "Patricia R.", role: "Síndica · Cond. Vila Nova", units: "24 unidades", text: "Antes eu gastava 6h por mês fazendo prestação de contas. Agora é automático e ninguém mais reclama de transparência.", metric: "6h economizadas/mês", avatar: "PR" },
+  { name: "Roberto L.", role: "Síndico · Ed. Aurora", units: "12 unidades", text: "Os moradores adoraram. Tudo no WhatsApp, sem instalar app. Até quem tem 70 anos consegue usar.", metric: "100% adesão", avatar: "RL" },
+  { name: "Fernanda S.", role: "Síndica · Res. Bosque", units: "36 unidades", text: "A primeira assembleia virtual teve 89% de presença. Antes a gente não passava de 40%.", metric: "+49 p.p. presença", avatar: "FS" },
+  { name: "Marcos T.", role: "Administradora Conviva", units: "9 condomínios", text: "Conseguimos absorver 3 novos condomínios sem contratar ninguém. O WhatsApp resolveu 80% do atendimento.", metric: "+33% portfólio", avatar: "MT" },
+  { name: "Beatriz A.", role: "Síndica · Cond. Mirante", units: "22 unidades", text: "Acabou aquela história de 'não recebi o boleto'. Cai no WhatsApp, é entregue, é lido. Fim.", metric: "0 boletos perdidos", avatar: "BA" },
 ];
 
 function HomePage() {
@@ -222,96 +252,20 @@ function HomePage() {
               Começar grátis por 30 dias
               <ArrowRight size={16} />
             </Link>
-            <Link
-              to="/recursos"
-              className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-6 py-3.5 text-sm font-semibold text-foreground hover:border-primary hover:text-primary transition-colors"
+            <a
+              href={waLink(WHATSAPP_DEFAULT_MSG)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-6 py-3.5 text-sm font-semibold text-foreground hover:border-success hover:text-success transition-colors"
             >
-              Ver recursos em detalhe
-            </Link>
+              <MessageCircle size={16} /> Falar no WhatsApp
+            </a>
           </div>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-success" /> Sem cartão de crédito</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-success" /> Cancele quando quiser</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-success" /> WhatsApp Business oficial</span>
-          </div>
-
-          {/* Mock conversa WhatsApp + painel */}
-          <div className="mt-14 mx-auto max-w-5xl grid md:grid-cols-5 gap-4 text-left">
-            {/* Conversa WhatsApp */}
-            <div className="md:col-span-2 rounded-2xl border border-border bg-[#075E54] p-3 shadow-[var(--shadow-card)]">
-              <div className="rounded-xl bg-[#ECE5DD] p-3 min-h-[360px] flex flex-col gap-2 text-[12px]">
-                <div className="self-start max-w-[85%] rounded-lg bg-white px-3 py-2 shadow-sm">
-                  <div className="text-[10px] font-bold text-primary mb-0.5">QiDomínio</div>
-                  Olá, Maria! Sua taxa de maio (R$ 280) vence em 3 dias.
-                  <div className="mt-1 text-[10px] text-muted-foreground">PIX: qidominio@cond.com</div>
-                </div>
-                <div className="self-end max-w-[85%] rounded-lg bg-[#DCF8C6] px-3 py-2 shadow-sm">PAGUEI</div>
-                <div className="self-end max-w-[85%] rounded-lg bg-[#DCF8C6] px-3 py-2 shadow-sm">[foto do comprovante]</div>
-                <div className="self-start max-w-[85%] rounded-lg bg-white px-3 py-2 shadow-sm">
-                  <div className="text-[10px] font-bold text-primary mb-0.5">QiDomínio</div>
-                  Recebido! O síndico vai confirmar e você recebe o recibo aqui mesmo. ✅
-                </div>
-                <div className="self-end max-w-[85%] rounded-lg bg-[#DCF8C6] px-3 py-2 shadow-sm">RESERVAR SALÃO 15/06</div>
-                <div className="self-start max-w-[85%] rounded-lg bg-white px-3 py-2 shadow-sm">
-                  <div className="text-[10px] font-bold text-primary mb-0.5">QiDomínio</div>
-                  Salão disponível em 15/06. Taxa R$ 80. Confirmar reserva? Responda SIM.
-                </div>
-              </div>
-            </div>
-
-            {/* Painel */}
-            <div className="md:col-span-3 rounded-2xl border border-border bg-surface shadow-[var(--shadow-card)] overflow-hidden">
-              <div className="h-9 border-b border-border bg-surface-2 flex items-center gap-1.5 px-4">
-                <span className="h-2.5 w-2.5 rounded-full bg-destructive/70" />
-                <span className="h-2.5 w-2.5 rounded-full bg-warning/70" />
-                <span className="h-2.5 w-2.5 rounded-full bg-success/70" />
-                <span className="ml-3 text-[11px] text-muted-foreground">qidominio.app — Painel do síndico</span>
-              </div>
-              <div className="p-5">
-                <div className="text-sm font-semibold text-foreground mb-4">Maio de 2026 · Ed. Recanto Verde</div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-                  {[
-                    { label: "Unidades", value: "18", color: "text-foreground" },
-                    { label: "Pagaram", value: "15", color: "text-success" },
-                    { label: "Atraso", value: "2", color: "text-destructive" },
-                    { label: "Caixa", value: "R$ 4.2k", color: "text-success" },
-                  ].map((c) => (
-                    <div key={c.label} className="rounded-lg border border-border bg-background p-3">
-                      <div className="text-[11px] text-muted-foreground">{c.label}</div>
-                      <div className={`font-display font-extrabold text-lg mt-0.5 ${c.color}`}>{c.value}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="rounded-lg border border-border overflow-hidden text-xs">
-                  <div className="grid grid-cols-5 gap-2 px-3 py-2 bg-muted text-muted-foreground font-semibold">
-                    <span>Unid.</span><span>Morador</span><span>Valor</span><span>Venc.</span><span>Status</span>
-                  </div>
-                  {[
-                    ["101", "João Silva", "R$ 280", "10/05", "pago"],
-                    ["102", "Maria Costa", "R$ 280", "10/05", "pago"],
-                    ["103", "Pedro Nunes", "R$ 280", "10/05", "atraso"],
-                    ["201", "Ana Ferreira", "R$ 280", "10/05", "pendente"],
-                  ].map((r) => (
-                    <div key={r[0]} className="grid grid-cols-5 gap-2 px-3 py-2 border-t border-border items-center">
-                      <span className="font-semibold">{r[0]}</span>
-                      <span className="truncate">{r[1]}</span>
-                      <span>{r[2]}</span>
-                      <span>{r[3]}</span>
-                      <span>
-                        <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                          r[4] === "pago" ? "bg-success/15 text-success" :
-                          r[4] === "atraso" ? "bg-destructive/15 text-destructive" :
-                          "bg-warning/20 text-[var(--color-warning-foreground)]"
-                        }`}>
-                          {r[4] === "pago" ? "Pago" : r[4] === "atraso" ? "Atraso" : "Pendente"}
-                        </span>
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -329,28 +283,76 @@ function HomePage() {
         </div>
       </section>
 
-      {/* HOW WHATSAPP WORKS */}
-      <section className="mx-auto max-w-7xl px-4 md:px-8 py-20">
-        <div className="text-center mb-12">
+      {/* HOW WHATSAPP WORKS — Visual flow */}
+      <section className="mx-auto max-w-6xl px-4 md:px-8 py-20">
+        <div className="text-center mb-14">
           <div className="inline-block text-xs font-bold uppercase tracking-wider text-primary mb-3">Como funciona o WhatsApp</div>
-          <h2 className="font-display font-extrabold text-3xl md:text-4xl">A conversa vira gestão</h2>
+          <h2 className="font-display font-extrabold text-3xl md:text-4xl">A conversa vira gestão em 4 passos</h2>
           <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-            Usamos o WhatsApp Business API oficial — o mesmo que bancos e grandes
-            empresas usam — com número verificado, opt-in registrado e tudo
-            dentro da LGPD.
+            Exemplos reais do QiDomínio — sem app, sem treino, dentro do WhatsApp Business API oficial da Meta.
           </p>
         </div>
-        <div className="grid md:grid-cols-3 gap-5">
+
+        <ol className="relative space-y-6 md:space-y-10 before:hidden md:before:block before:absolute before:left-1/2 before:top-0 before:bottom-0 before:w-px before:bg-border">
           {whatsappFlow.map((s) => (
-            <div key={s.title} className="rounded-2xl border border-border bg-surface p-6">
-              <div className="h-11 w-11 rounded-xl bg-primary-soft text-primary flex items-center justify-center mb-4">
-                <s.icon size={20} />
+            <li
+              key={s.title}
+              className={`relative md:grid md:grid-cols-2 md:gap-10 items-center ${s.side === "right" ? "md:[&>div:first-child]:order-2" : ""}`}
+            >
+              {/* Card de descrição */}
+              <div className={`rounded-2xl border border-border bg-surface p-6 ${s.side === "left" ? "md:text-right md:pr-10" : "md:pl-10"}`}>
+                <div className={`flex items-center gap-2 mb-2 ${s.side === "left" ? "md:justify-end" : ""}`}>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary-soft px-2 py-0.5 rounded-full">{s.badge}</span>
+                </div>
+                <h3 className="font-display font-extrabold text-xl mb-2">{s.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
               </div>
-              <h3 className="font-display font-extrabold text-lg mb-2">{s.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
-            </div>
+
+              {/* Bolinha central (desktop) */}
+              <span className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-primary text-primary-foreground items-center justify-center shadow-[var(--shadow-glow)] ring-4 ring-background z-10">
+                <s.icon size={18} />
+              </span>
+
+              {/* Mock exemplo */}
+              <div className={`mt-4 md:mt-0 ${s.side === "left" ? "md:pl-10" : "md:pr-10"}`}>
+                {s.badge === "Etapa 3" ? (
+                  <div className="rounded-2xl border border-border bg-surface shadow-[var(--shadow-card)] overflow-hidden">
+                    <div className="h-8 border-b border-border bg-surface-2 flex items-center gap-1.5 px-3">
+                      <span className="h-2 w-2 rounded-full bg-destructive/70" />
+                      <span className="h-2 w-2 rounded-full bg-warning/70" />
+                      <span className="h-2 w-2 rounded-full bg-success/70" />
+                      <span className="ml-2 text-[10px] text-muted-foreground">Painel do síndico</span>
+                    </div>
+                    <div className="p-4 text-xs">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold">Cobrança #128 · Unid. 102</span>
+                        <span className="px-2 py-0.5 rounded-full bg-warning/20 text-[var(--color-warning-foreground)] text-[10px] font-semibold">aguardando</span>
+                      </div>
+                      <div className="text-muted-foreground mb-1">Maria Costa · R$ 280,00</div>
+                      <div className="text-muted-foreground">Comprovante recebido às 14:32 · PIX</div>
+                      <button className="mt-3 w-full rounded-md bg-primary text-primary-foreground py-1.5 text-[11px] font-semibold">Aprovar pagamento</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={`rounded-2xl border border-border bg-[#075E54] p-2 shadow-[var(--shadow-card)] max-w-sm ${s.side === "left" ? "md:ml-0" : "md:ml-auto"}`}>
+                    <div className="rounded-xl bg-[#ECE5DD] p-3 text-[12px] flex">
+                      {s.badge === "Etapa 2" ? (
+                        <div className="self-end ml-auto max-w-[90%] rounded-lg bg-[#DCF8C6] px-3 py-2 shadow-sm">
+                          {s.example}
+                        </div>
+                      ) : (
+                        <div className="max-w-[90%] rounded-lg bg-white px-3 py-2 shadow-sm">
+                          <div className="text-[10px] font-bold text-primary mb-0.5">QiDomínio</div>
+                          {s.example}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </li>
           ))}
-        </div>
+        </ol>
       </section>
 
       {/* AUDIENCES */}
@@ -394,32 +396,36 @@ function HomePage() {
             </div>
           ))}
         </div>
-        <div className="mt-10 text-center">
-          <Link to="/recursos" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
-            Ver todos os recursos em detalhes <ArrowRight size={14} />
-          </Link>
-        </div>
       </section>
+
+      {/* PRICING */}
+      <PricingSection />
 
       {/* TESTIMONIALS */}
       <section className="bg-surface-2 border-y border-border">
         <div className="mx-auto max-w-7xl px-4 md:px-8 py-20">
           <div className="text-center mb-12">
-            <div className="inline-block text-xs font-bold uppercase tracking-wider text-primary mb-3">Depoimentos</div>
+            <div className="inline-block text-xs font-bold uppercase tracking-wider text-primary mb-3">Casos reais</div>
             <h2 className="font-display font-extrabold text-3xl md:text-4xl">Síndicos que dormem melhor</h2>
+            <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+              Mais de 200 condomínios brasileiros — números reais de quem usa o QiDomínio no dia a dia.
+            </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-5">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {testimonials.map((t) => (
-              <div key={t.name} className="rounded-2xl border border-border bg-surface p-6">
-                <div className="flex gap-0.5 mb-3 text-warning">
-                  {[1, 2, 3, 4, 5].map((i) => <Star key={i} size={14} fill="currentColor" />)}
+              <div key={t.name} className="rounded-2xl border border-border bg-surface p-6 flex flex-col">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex gap-0.5 text-warning">
+                    {[1, 2, 3, 4, 5].map((i) => <Star key={i} size={14} fill="currentColor" />)}
+                  </div>
+                  <span className="text-[11px] font-bold text-success bg-success/10 px-2 py-1 rounded-full">{t.metric}</span>
                 </div>
-                <p className="text-sm text-foreground leading-relaxed mb-5">"{t.text}"</p>
+                <p className="text-sm text-foreground leading-relaxed mb-5 flex-1">"{t.text}"</p>
                 <div className="flex items-center gap-3 pt-4 border-t border-border">
                   <div className="h-10 w-10 rounded-full bg-primary-soft text-primary font-display font-extrabold flex items-center justify-center text-sm">{t.avatar}</div>
-                  <div>
-                    <div className="text-sm font-semibold">{t.name}</div>
-                    <div className="text-xs text-muted-foreground">{t.role}</div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold truncate">{t.name}</div>
+                    <div className="text-xs text-muted-foreground truncate">{t.role} · {t.units}</div>
                   </div>
                 </div>
               </div>
@@ -428,14 +434,127 @@ function HomePage() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="mx-auto max-w-3xl px-4 md:px-8 py-20">
-        <div className="text-center mb-10">
-          <div className="inline-block text-xs font-bold uppercase tracking-wider text-primary mb-3">Perguntas frequentes</div>
-          <h2 className="font-display font-extrabold text-3xl md:text-4xl">Dúvidas comuns</h2>
+      {/* LEAD FORM + CTA */}
+      <LeadFormSection />
+
+      {/* Floating WhatsApp button */}
+      <FloatingWhatsApp />
+    </SiteLayout>
+  );
+}
+
+/* -------------------- PRICING SECTION -------------------- */
+function PricingSection() {
+  const [activePlan, setActivePlan] = useState<"Starter" | "Profissional">("Profissional");
+  const planFaqs = faqsByPlan[activePlan];
+
+  return (
+    <section id="precos" className="mx-auto max-w-7xl px-4 md:px-8 py-20">
+      <div className="text-center mb-12">
+        <div className="inline-block text-xs font-bold uppercase tracking-wider text-primary mb-3">Preços</div>
+        <h2 className="font-display font-extrabold text-3xl md:text-4xl">Planos simples e transparentes</h2>
+        <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+          Primeiro mês grátis. Sem taxa de setup, sem contrato, sem fidelidade.
+        </p>
+      </div>
+
+      {/* Cards */}
+      <div className="grid md:grid-cols-2 gap-5 max-w-4xl mx-auto">
+        {plans.map((p) => {
+          const isPro = p.highlight;
+          return (
+            <div
+              key={p.name}
+              className={`rounded-2xl p-7 flex flex-col ${
+                isPro
+                  ? "bg-gradient-brand text-white shadow-[var(--shadow-glow)] md:scale-[1.02] border border-primary"
+                  : "bg-surface border border-border"
+              }`}
+            >
+              {isPro && (
+                <div className="inline-block self-start text-[10px] font-bold uppercase tracking-wider bg-warning text-[var(--color-warning-foreground)] px-2 py-0.5 rounded-full mb-3">
+                  Mais popular
+                </div>
+              )}
+              <div className={`text-sm font-semibold mb-2 ${isPro ? "text-white/80" : "text-muted-foreground"}`}>{p.name}</div>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className={`text-sm ${isPro ? "text-white/80" : "text-muted-foreground"}`}>R$</span>
+                <span className="font-display font-extrabold text-5xl">{p.price}</span>
+                <span className={`text-sm ${isPro ? "text-white/80" : "text-muted-foreground"}`}>/mês</span>
+              </div>
+              <p className={`text-sm mb-5 ${isPro ? "text-white/85" : "text-foreground"}`}>{p.tagline}</p>
+
+              <ul className="space-y-2.5 mb-7 flex-1">
+                {p.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 size={16} className={`shrink-0 mt-0.5 ${isPro ? "text-white" : "text-success"}`} />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                to="/auth/cadastro"
+                className={`block text-center rounded-lg py-3 text-sm font-bold transition-all ${
+                  isPro
+                    ? "bg-white text-primary hover:scale-[1.02]"
+                    : "bg-primary text-primary-foreground hover:bg-[var(--color-primary-deep)]"
+                }`}
+              >
+                {p.cta}
+              </Link>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Comparison table */}
+      <div className="mt-14 max-w-4xl mx-auto">
+        <h3 className="text-center font-display font-extrabold text-2xl mb-6">Compare recurso a recurso</h3>
+        <div className="rounded-2xl border border-border overflow-hidden bg-surface">
+          <div className="grid grid-cols-3 bg-surface-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <div className="px-4 py-3">Recurso</div>
+            <div className="px-4 py-3 text-center">Starter</div>
+            <div className="px-4 py-3 text-center text-primary">Profissional</div>
+          </div>
+          {compareRows.map((r, i) => (
+            <div key={r.label} className={`grid grid-cols-3 text-sm items-center ${i % 2 === 1 ? "bg-surface-2/40" : ""}`}>
+              <div className="px-4 py-3 text-foreground">{r.label}</div>
+              <div className="px-4 py-3 text-center text-muted-foreground">
+                {typeof r.starter === "boolean"
+                  ? r.starter ? <CheckCircle2 size={16} className="inline text-success" /> : <X size={16} className="inline text-muted-foreground/40" />
+                  : r.starter}
+              </div>
+              <div className="px-4 py-3 text-center font-semibold text-foreground">
+                {typeof r.pro === "boolean"
+                  ? r.pro ? <CheckCircle2 size={16} className="inline text-success" /> : <X size={16} className="inline text-muted-foreground/40" />
+                  : r.pro}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Per-plan FAQ */}
+      <div className="mt-14 max-w-3xl mx-auto">
+        <h3 className="text-center font-display font-extrabold text-2xl mb-6">Dúvidas sobre cada plano</h3>
+        <div className="flex justify-center gap-2 mb-6">
+          {(["Starter", "Profissional"] as const).map((p) => (
+            <button
+              key={p}
+              onClick={() => setActivePlan(p)}
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                activePlan === p
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-surface border border-border text-foreground hover:border-primary"
+              }`}
+            >
+              {p}
+            </button>
+          ))}
         </div>
         <div className="space-y-3">
-          {faqs.map((f) => (
+          {planFaqs.map((f) => (
             <details key={f.q} className="group rounded-xl border border-border bg-surface p-5">
               <summary className="cursor-pointer list-none flex items-center justify-between gap-4 font-semibold text-foreground">
                 {f.q}
@@ -445,38 +564,211 @@ function HomePage() {
             </details>
           ))}
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
-      {/* CTA */}
-      <section className="mx-auto max-w-7xl px-4 md:px-8 pb-20">
-        <div className="rounded-3xl bg-gradient-brand text-primary-foreground p-10 md:p-16 text-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid-soft opacity-10" />
-          <div className="relative">
-            <Zap size={28} className="mx-auto mb-4 text-warning" />
-            <h2 className="font-display font-extrabold text-3xl md:text-5xl text-white">
-              Seu condomínio merece mais leveza
+/* -------------------- LEAD FORM + FINAL CTA -------------------- */
+function LeadFormSection() {
+  const [nome, setNome] = useState("");
+  const [condominio, setCondominio] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [enviado, setEnviado] = useState(false);
+
+  const waLeadLink = useMemo(() => {
+    const msg = `Olá! Sou ${nome || "[seu nome]"}, do condomínio ${condominio || "[nome do condomínio]"}. Meu WhatsApp: ${telefone || "[seu telefone]"}. Quero conhecer o QiDomínio.`;
+    return waLink(msg);
+  }, [nome, condominio, telefone]);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!nome.trim() || !condominio.trim() || !telefone.trim()) return;
+    // Captura local (poderá ser plugada num endpoint /api/public/leads no futuro)
+    try {
+      const leads = JSON.parse(localStorage.getItem("qd_leads") || "[]");
+      leads.push({ nome, condominio, telefone, ts: Date.now() });
+      localStorage.setItem("qd_leads", JSON.stringify(leads));
+    } catch {
+      /* noop */
+    }
+    setEnviado(true);
+    // Abre conversa no WhatsApp
+    window.open(waLeadLink, "_blank", "noopener,noreferrer");
+  }
+
+  return (
+    <section id="comecar" className="mx-auto max-w-7xl px-4 md:px-8 py-20">
+      <div className="rounded-3xl bg-gradient-brand text-primary-foreground p-8 md:p-14 relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-soft opacity-10" />
+        <div className="relative grid md:grid-cols-2 gap-10 items-center">
+          {/* Pitch */}
+          <div>
+            <Sparkles size={28} className="mb-4 text-warning" />
+            <h2 className="font-display font-extrabold text-3xl md:text-4xl text-white leading-tight">
+              Vamos conversar sobre o seu condomínio?
             </h2>
-            <p className="mt-4 text-white/85 max-w-xl mx-auto">
-              Cadastre o seu condomínio em 5 minutos. Funciona no celular e no
-              computador. Sem contrato, sem taxa de setup.
+            <p className="mt-4 text-white/85 max-w-md">
+              Preencha 3 campos e abrimos uma conversa no WhatsApp com você em menos de 1 minuto.
+              Sem compromisso, sem cartão.
             </p>
-            <Link
-              to="/auth/cadastro"
-              className="mt-7 inline-flex items-center gap-2 rounded-lg bg-warning px-7 py-3.5 text-sm font-bold text-[var(--color-warning-foreground)] hover:bg-warning/90 transition-colors shadow-lg"
-            >
-              Criar conta grátis — é rápido
-              <ArrowRight size={16} />
-            </Link>
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/75">
-              <span className="flex items-center gap-1.5"><Lock size={12} /> Dados seguros · LGPD</span>
-              <span>·</span>
-              <span>30 dias grátis</span>
-              <span>·</span>
-              <span>Suporte humano em português</span>
-            </div>
+            <ul className="mt-6 space-y-2 text-sm text-white/85">
+              <li className="flex items-center gap-2"><CheckCircle2 size={16} /> Atendimento humano em português</li>
+              <li className="flex items-center gap-2"><CheckCircle2 size={16} /> 30 dias grátis · cancele quando quiser</li>
+              <li className="flex items-center gap-2"><Lock size={16} /> Seus dados protegidos pela LGPD</li>
+            </ul>
+          </div>
+
+          {/* Form / Confirmação */}
+          <div className="bg-background rounded-2xl p-6 md:p-7 text-foreground shadow-2xl">
+            {enviado ? (
+              <div className="text-center py-4">
+                <div className="mx-auto h-14 w-14 rounded-full bg-success/15 text-success flex items-center justify-center mb-4">
+                  <PartyPopper size={28} />
+                </div>
+                <h3 className="font-display font-extrabold text-2xl mb-2">Pronto, {nome.split(" ")[0]}!</h3>
+                <p className="text-sm text-muted-foreground mb-5">
+                  Abrimos uma conversa no WhatsApp com a nossa equipe.
+                  Em até <strong className="text-foreground">10 minutos</strong> em horário comercial alguém te responde.
+                </p>
+                <div className="rounded-xl bg-surface-2 border border-border p-4 text-left text-xs space-y-1.5">
+                  <div className="font-bold uppercase tracking-wider text-muted-foreground text-[10px] mb-1">Próximos passos</div>
+                  <div className="flex gap-2"><span className="text-primary font-bold">1.</span> Confirme seus dados na conversa do WhatsApp</div>
+                  <div className="flex gap-2"><span className="text-primary font-bold">2.</span> Recebe um link para criar sua conta grátis</div>
+                  <div className="flex gap-2"><span className="text-primary font-bold">3.</span> Importamos seus moradores junto com você</div>
+                </div>
+                <div className="mt-5 flex flex-col sm:flex-row gap-2">
+                  <a
+                    href={waLeadLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-success text-white px-4 py-3 text-sm font-bold hover:opacity-90 transition-opacity"
+                  >
+                    <MessageCircle size={16} /> Reabrir WhatsApp
+                  </a>
+                  <Link
+                    to="/auth/cadastro"
+                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-3 text-sm font-bold hover:border-primary hover:text-primary transition-colors"
+                  >
+                    Criar conta agora <ArrowRight size={14} />
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="text-center mb-2">
+                  <h3 className="font-display font-extrabold text-2xl">Comece em 1 minuto</h3>
+                  <p className="text-xs text-muted-foreground mt-1">3 campos. Sem cartão. Sem enrolação.</p>
+                </div>
+
+                <div>
+                  <label htmlFor="lead-nome" className="text-xs font-semibold text-foreground mb-1.5 block">Seu nome</label>
+                  <input
+                    id="lead-nome" type="text" required maxLength={100} value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    placeholder="Ex: Carlos Mendes"
+                    className="w-full h-11 rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="lead-cond" className="text-xs font-semibold text-foreground mb-1.5 block">Nome do condomínio</label>
+                  <input
+                    id="lead-cond" type="text" required maxLength={120} value={condominio}
+                    onChange={(e) => setCondominio(e.target.value)}
+                    placeholder="Ex: Ed. Recanto Verde"
+                    className="w-full h-11 rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="lead-tel" className="text-xs font-semibold text-foreground mb-1.5 block">WhatsApp</label>
+                  <input
+                    id="lead-tel" type="tel" required maxLength={20} value={telefone}
+                    onChange={(e) => setTelefone(e.target.value)}
+                    placeholder="(11) 98765-4321"
+                    className="w-full h-11 rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3.5 text-sm font-bold text-primary-foreground hover:bg-[var(--color-primary-deep)] transition-colors shadow-[var(--shadow-glow)]"
+                >
+                  Falar com o QiDomínio <ArrowRight size={16} />
+                </button>
+                <p className="text-[11px] text-center text-muted-foreground">
+                  Ao enviar, abrimos automaticamente uma conversa no WhatsApp.
+                </p>
+              </form>
+            )}
           </div>
         </div>
-      </section>
-    </SiteLayout>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------- FLOATING WHATSAPP BUTTON -------------------- */
+function FloatingWhatsApp() {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState(WHATSAPP_DEFAULT_MSG);
+
+  return (
+    <>
+      {/* Painel */}
+      {open && (
+        <div className="fixed bottom-24 right-4 md:right-6 z-50 w-[calc(100vw-2rem)] sm:w-80 rounded-2xl border border-border bg-surface shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+          <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full bg-white/15 flex items-center justify-center">
+              <MessageCircle size={18} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-bold text-sm">QiDomínio</div>
+              <div className="text-[11px] text-white/80 flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-success" /> Online · resposta em ~10 min
+              </div>
+            </div>
+            <button onClick={() => setOpen(false)} aria-label="Fechar" className="text-white/80 hover:text-white">
+              <X size={16} />
+            </button>
+          </div>
+          <div className="p-4">
+            <div className="rounded-lg bg-surface-2 border border-border p-3 text-xs text-foreground mb-3">
+              Olá! 👋 Sou do time QiDomínio. Conta um pouco do seu condomínio que a gente te ajuda.
+            </div>
+            <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">Sua mensagem</label>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              rows={3}
+              maxLength={500}
+              className="w-full rounded-lg border border-input bg-background p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            />
+            <a
+              href={waLink(message)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-success text-white px-4 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity"
+            >
+              <MessageCircle size={16} /> Abrir WhatsApp
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Botão */}
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-label="Falar no WhatsApp"
+        className="fixed bottom-5 right-4 md:right-6 z-50 inline-flex items-center gap-2 rounded-full bg-success text-white pl-4 pr-5 py-3.5 text-sm font-bold shadow-2xl hover:scale-105 transition-transform"
+        style={{ boxShadow: "0 10px 30px -5px rgba(37, 211, 102, 0.5)" }}
+      >
+        <span className="relative flex h-5 w-5 items-center justify-center">
+          <span className="absolute inline-flex h-full w-full rounded-full bg-white/40 animate-ping" />
+          <MessageCircle size={18} />
+        </span>
+        Falar no WhatsApp
+      </button>
+    </>
   );
 }

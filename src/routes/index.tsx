@@ -490,9 +490,29 @@ function HomePage() {
 function PricingSection() {
   const [activePlan, setActivePlan] = useState<"Starter" | "Profissional">("Profissional");
   const planFaqs = faqsByPlan[activePlan];
+  const ref = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!ref.current || typeof window === "undefined") return;
+    if (sessionStorage.getItem("qd_pricing_viewed")) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            track("pricing_view");
+            sessionStorage.setItem("qd_pricing_viewed", "1");
+            observer.disconnect();
+          }
+        }
+      },
+      { threshold: 0.3 },
+    );
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section id="precos" className="mx-auto max-w-7xl px-4 md:px-8 py-20">
+    <section id="precos" ref={ref} className="mx-auto max-w-7xl px-4 md:px-8 py-20">
       <div className="text-center mb-12">
         <div className="inline-block text-xs font-bold uppercase tracking-wider text-primary mb-3">Preços</div>
         <h2 className="font-display font-extrabold text-3xl md:text-4xl">Planos simples e transparentes</h2>

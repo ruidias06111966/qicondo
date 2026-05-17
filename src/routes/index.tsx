@@ -558,6 +558,7 @@ function PricingSection() {
 
               <Link
                 to="/auth/cadastro"
+                onClick={() => track("plan_cta_click", { plan: p.name })}
                 className={`block text-center rounded-lg py-3 text-sm font-bold transition-all ${
                   isPro
                     ? "bg-white text-primary hover:scale-[1.02]"

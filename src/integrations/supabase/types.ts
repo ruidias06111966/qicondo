@@ -909,6 +909,54 @@ export type Database = {
         }
         Relationships: []
       }
+      leads: {
+        Row: {
+          condominio: string
+          consent_lgpd: boolean
+          created_at: string
+          id: string
+          mensagem: string | null
+          nome: string
+          observacoes_internas: string | null
+          origem: string
+          quer_demo: boolean
+          status: string
+          telefone: string
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          condominio: string
+          consent_lgpd?: boolean
+          created_at?: string
+          id?: string
+          mensagem?: string | null
+          nome: string
+          observacoes_internas?: string | null
+          origem?: string
+          quer_demo?: boolean
+          status?: string
+          telefone: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          condominio?: string
+          consent_lgpd?: boolean
+          created_at?: string
+          id?: string
+          mensagem?: string | null
+          nome?: string
+          observacoes_internas?: string | null
+          origem?: string
+          quer_demo?: boolean
+          status?: string
+          telefone?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       notificacoes_whatsapp: {
         Row: {
           condominio_id: string

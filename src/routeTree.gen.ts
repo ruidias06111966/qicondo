@@ -34,6 +34,7 @@ import { Route as AppReservasRouteImport } from './routes/app.reservas'
 import { Route as AppPreferenciasNotificacaoRouteImport } from './routes/app.preferencias-notificacao'
 import { Route as AppOcorrenciasRouteImport } from './routes/app.ocorrencias'
 import { Route as AppMoradoresRouteImport } from './routes/app.moradores'
+import { Route as AppLeadsRouteImport } from './routes/app.leads'
 import { Route as AppFinanceiroRouteImport } from './routes/app.financeiro'
 import { Route as AppEncomendasRouteImport } from './routes/app.encomendas'
 import { Route as AppDocumentosRouteImport } from './routes/app.documentos'
@@ -178,6 +179,11 @@ const AppMoradoresRoute = AppMoradoresRouteImport.update({
   path: '/moradores',
   getParentRoute: () => AppRoute,
 } as any)
+const AppLeadsRoute = AppLeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
   id: '/financeiro',
   path: '/financeiro',
@@ -285,6 +291,7 @@ export interface FileRoutesByFullPath {
   '/app/documentos': typeof AppDocumentosRoute
   '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRouteWithChildren
+  '/app/leads': typeof AppLeadsRoute
   '/app/moradores': typeof AppMoradoresRoute
   '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/preferencias-notificacao': typeof AppPreferenciasNotificacaoRoute
@@ -327,6 +334,7 @@ export interface FileRoutesByTo {
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/documentos': typeof AppDocumentosRoute
   '/app/encomendas': typeof AppEncomendasRoute
+  '/app/leads': typeof AppLeadsRoute
   '/app/moradores': typeof AppMoradoresRoute
   '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/preferencias-notificacao': typeof AppPreferenciasNotificacaoRoute
@@ -372,6 +380,7 @@ export interface FileRoutesById {
   '/app/documentos': typeof AppDocumentosRoute
   '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRouteWithChildren
+  '/app/leads': typeof AppLeadsRoute
   '/app/moradores': typeof AppMoradoresRoute
   '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/preferencias-notificacao': typeof AppPreferenciasNotificacaoRoute
@@ -418,6 +427,7 @@ export interface FileRouteTypes {
     | '/app/documentos'
     | '/app/encomendas'
     | '/app/financeiro'
+    | '/app/leads'
     | '/app/moradores'
     | '/app/ocorrencias'
     | '/app/preferencias-notificacao'
@@ -460,6 +470,7 @@ export interface FileRouteTypes {
     | '/app/configuracoes'
     | '/app/documentos'
     | '/app/encomendas'
+    | '/app/leads'
     | '/app/moradores'
     | '/app/ocorrencias'
     | '/app/preferencias-notificacao'
@@ -504,6 +515,7 @@ export interface FileRouteTypes {
     | '/app/documentos'
     | '/app/encomendas'
     | '/app/financeiro'
+    | '/app/leads'
     | '/app/moradores'
     | '/app/ocorrencias'
     | '/app/preferencias-notificacao'
@@ -733,6 +745,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMoradoresRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/leads': {
+      id: '/app/leads'
+      path: '/leads'
+      fullPath: '/app/leads'
+      preLoaderRoute: typeof AppLeadsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/financeiro': {
       id: '/app/financeiro'
       path: '/financeiro'
@@ -885,6 +904,7 @@ interface AppRouteChildren {
   AppDocumentosRoute: typeof AppDocumentosRoute
   AppEncomendasRoute: typeof AppEncomendasRoute
   AppFinanceiroRoute: typeof AppFinanceiroRouteWithChildren
+  AppLeadsRoute: typeof AppLeadsRoute
   AppMoradoresRoute: typeof AppMoradoresRoute
   AppOcorrenciasRoute: typeof AppOcorrenciasRoute
   AppPreferenciasNotificacaoRoute: typeof AppPreferenciasNotificacaoRoute
@@ -900,6 +920,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDocumentosRoute: AppDocumentosRoute,
   AppEncomendasRoute: AppEncomendasRoute,
   AppFinanceiroRoute: AppFinanceiroRouteWithChildren,
+  AppLeadsRoute: AppLeadsRoute,
   AppMoradoresRoute: AppMoradoresRoute,
   AppOcorrenciasRoute: AppOcorrenciasRoute,
   AppPreferenciasNotificacaoRoute: AppPreferenciasNotificacaoRoute,

@@ -5,7 +5,7 @@ import { useCondominioAtivo } from "@/auth/useCondominio";
 import { Logo } from "@/components/site/Logo";
 import {
   LayoutDashboard, Users, Building2, MessageCircle, LogOut, Loader2,
-  Calendar, Package, Wrench, Wallet, Settings, Menu, X
+  Calendar, Package, Wrench, Wallet, Settings, Menu, X, Inbox
 } from "lucide-react";
 
 export const Route = createFileRoute("/app")({
@@ -29,6 +29,7 @@ const NAV: NavItem[] = [
   { to: "/app/moradores", label: "Moradores", icon: Users, roles: ["sindico"] },
   { to: "/app/condominio", label: "Condomínio", icon: Building2, roles: ["sindico"] },
   { to: "/app/whatsapp", label: "WhatsApp", icon: MessageCircle, roles: ["sindico"] },
+  { to: "/app/leads", label: "Leads do site", icon: Inbox, roles: ["sindico"] },
   { to: "/app/configuracoes", label: "Configurações", icon: Settings },
 ];
 

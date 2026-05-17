@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/track";
+import { toast } from "sonner";
 import {
   MessageCircle,
   PieChart,
@@ -27,6 +30,8 @@ import {
   X,
   Sparkles,
   PartyPopper,
+  CalendarClock,
+  Loader2,
 } from "lucide-react";
 
 const SITE_URL = "https://qidominio.lovable.app";
@@ -36,9 +41,28 @@ const WHATSAPP_NUMBER = "5511999999999";
 const WHATSAPP_DEFAULT_MSG =
   "Olá! Vim pelo site do QiDomínio e quero saber mais sobre a gestão de condomínio pelo WhatsApp.";
 
+// Monta uma mensagem personalizada quando temos dados do visitante.
+function buildPersonalMsg(lead: { nome?: string; condominio?: string } | null, base: string) {
+  if (!lead?.nome) return base;
+  const cond = lead.condominio ? ` (condomínio ${lead.condominio})` : "";
+  return `Olá! Aqui é ${lead.nome}${cond}. ${base}`;
+}
+
 function waLink(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
+
+// Lê o último lead salvo em localStorage (preenche WA personalizado).
+function readSavedLead(): { nome?: string; condominio?: string; telefone?: string } | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("qd_last_lead");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 
 export const Route = createFileRoute("/")({
   head: () => ({

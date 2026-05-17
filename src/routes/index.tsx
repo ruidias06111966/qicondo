@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/track";
+import { toast } from "sonner";
 import {
   MessageCircle,
   PieChart,
@@ -27,6 +30,8 @@ import {
   X,
   Sparkles,
   PartyPopper,
+  CalendarClock,
+  Loader2,
 } from "lucide-react";
 
 const SITE_URL = "https://qidominio.lovable.app";
@@ -36,9 +41,28 @@ const WHATSAPP_NUMBER = "5511999999999";
 const WHATSAPP_DEFAULT_MSG =
   "Olá! Vim pelo site do QiDomínio e quero saber mais sobre a gestão de condomínio pelo WhatsApp.";
 
+// Monta uma mensagem personalizada quando temos dados do visitante.
+function buildPersonalMsg(lead: { nome?: string; condominio?: string } | null, base: string) {
+  if (!lead?.nome) return base;
+  const cond = lead.condominio ? ` (condomínio ${lead.condominio})` : "";
+  return `Olá! Aqui é ${lead.nome}${cond}. ${base}`;
+}
+
 function waLink(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
+
+// Lê o último lead salvo em localStorage (preenche WA personalizado).
+function readSavedLead(): { nome?: string; condominio?: string; telefone?: string } | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("qd_last_lead");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -221,6 +245,22 @@ const testimonials = [
 ];
 
 function HomePage() {
+  const [savedLead, setSavedLead] = useState<{ nome?: string; condominio?: string; telefone?: string } | null>(null);
+
+  useEffect(() => {
+    setSavedLead(readSavedLead());
+    function onLeadSaved() {
+      setSavedLead(readSavedLead());
+    }
+    window.addEventListener("qd:lead-saved", onLeadSaved);
+    return () => window.removeEventListener("qd:lead-saved", onLeadSaved);
+  }, []);
+
+  const heroWaMsg = useMemo(
+    () => buildPersonalMsg(savedLead, WHATSAPP_DEFAULT_MSG),
+    [savedLead],
+  );
+
   return (
     <SiteLayout>
       {/* HERO */}
@@ -248,17 +288,20 @@ function HomePage() {
             <Link
               to="/auth/cadastro"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] hover:bg-[var(--color-primary-deep)] transition-all hover:scale-[1.02]"
+              onClick={() => track("plan_cta_click", { location: "hero" })}
             >
               Começar grátis por 30 dias
               <ArrowRight size={16} />
             </Link>
             <a
-              href={waLink(WHATSAPP_DEFAULT_MSG)}
+              href={waLink(heroWaMsg)}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => track("wa_click_hero", { personalized: !!savedLead?.nome })}
               className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-6 py-3.5 text-sm font-semibold text-foreground hover:border-success hover:text-success transition-colors"
             >
               <MessageCircle size={16} /> Falar no WhatsApp
+              {savedLead?.nome && <span className="text-[10px] text-muted-foreground">· como {savedLead.nome.split(" ")[0]}</span>}
             </a>
           </div>
 
@@ -447,9 +490,29 @@ function HomePage() {
 function PricingSection() {
   const [activePlan, setActivePlan] = useState<"Starter" | "Profissional">("Profissional");
   const planFaqs = faqsByPlan[activePlan];
+  const ref = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!ref.current || typeof window === "undefined") return;
+    if (sessionStorage.getItem("qd_pricing_viewed")) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            track("pricing_view");
+            sessionStorage.setItem("qd_pricing_viewed", "1");
+            observer.disconnect();
+          }
+        }
+      },
+      { threshold: 0.3 },
+    );
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section id="precos" className="mx-auto max-w-7xl px-4 md:px-8 py-20">
+    <section id="precos" ref={ref} className="mx-auto max-w-7xl px-4 md:px-8 py-20">
       <div className="text-center mb-12">
         <div className="inline-block text-xs font-bold uppercase tracking-wider text-primary mb-3">Preços</div>
         <h2 className="font-display font-extrabold text-3xl md:text-4xl">Planos simples e transparentes</h2>
@@ -495,6 +558,7 @@ function PricingSection() {
 
               <Link
                 to="/auth/cadastro"
+                onClick={() => track("plan_cta_click", { plan: p.name })}
                 className={`block text-center rounded-lg py-3 text-sm font-bold transition-all ${
                   isPro
                     ? "bg-white text-primary hover:scale-[1.02]"
@@ -571,6 +635,324 @@ function PricingSection() {
 
 /* -------------------- LEAD FORM + FINAL CTA -------------------- */
 function LeadFormSection() {
+  const [nome, setNome] = useState("");
+  const [condominio, setCondominio] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [enviado, setEnviado] = useState(false);
+  const [salvando, setSalvando] = useState(false);
+  const [querDemo, setQuerDemo] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
+
+  const waLeadLink = useMemo(() => {
+    const msg = `Olá! Sou ${nome || "[seu nome]"}, do condomínio ${condominio || "[nome do condomínio]"}. Meu WhatsApp: ${telefone || "[seu telefone]"}. Quero conhecer o QiDomínio.`;
+    return waLink(msg);
+  }, [nome, condominio, telefone]);
+
+  const waDemoLink = useMemo(() => {
+    const msg = `Olá! Sou ${nome}, do condomínio ${condominio}. Gostaria de agendar uma demonstração de 15 minutos do QiDomínio. Meu WhatsApp: ${telefone}.`;
+    return waLink(msg);
+  }, [nome, condominio, telefone]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!nome.trim() || !condominio.trim() || !telefone.trim()) return;
+    if (!consent) {
+      toast.error("Você precisa aceitar os termos da LGPD para continuar.");
+      return;
+    }
+    setSalvando(true);
+    track("lead_form_submit", { quer_demo: querDemo });
+
+    // Persiste no Lovable Cloud (RLS permite INSERT anônimo desde que consent_lgpd=true)
+    const { data, error } = await supabase
+      .from("leads")
+      .insert({
+        nome: nome.trim(),
+        condominio: condominio.trim(),
+        telefone: telefone.trim(),
+        origem: "landing_form",
+        consent_lgpd: true,
+        quer_demo: querDemo,
+        user_agent: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 255) : null,
+      })
+      .select("id")
+      .single();
+
+    setSalvando(false);
+
+    if (error) {
+      console.error("[lead]", error);
+      toast.error("Não conseguimos salvar agora. Tente abrir direto no WhatsApp.");
+    } else {
+      setLeadId(data?.id ?? null);
+      track("lead_form_success", { lead_id: data?.id, quer_demo: querDemo });
+    }
+
+    // Persiste localmente para personalizar futuras CTAs
+    try {
+      localStorage.setItem("qd_last_lead", JSON.stringify({ nome, condominio, telefone }));
+      window.dispatchEvent(new CustomEvent("qd:lead-saved"));
+    } catch {
+      /* noop */
+    }
+
+    setEnviado(true);
+    // Abre conversa no WhatsApp (com mensagem de demo se aplicável)
+    window.open(querDemo ? waDemoLink : waLeadLink, "_blank", "noopener,noreferrer");
+  }
+
+  return (
+    <section id="comecar" className="mx-auto max-w-7xl px-4 md:px-8 py-20">
+      <div className="rounded-3xl bg-gradient-brand text-primary-foreground p-8 md:p-14 relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-soft opacity-10" />
+        <div className="relative grid md:grid-cols-2 gap-10 items-center">
+          {/* Pitch */}
+          <div>
+            <Sparkles size={28} className="mb-4 text-warning" />
+            <h2 className="font-display font-extrabold text-3xl md:text-4xl text-white leading-tight">
+              Vamos conversar sobre o seu condomínio?
+            </h2>
+            <p className="mt-4 text-white/85 max-w-md">
+              Preencha 3 campos e abrimos uma conversa no WhatsApp com você em menos de 1 minuto.
+              Sem compromisso, sem cartão.
+            </p>
+            <ul className="mt-6 space-y-2 text-sm text-white/85">
+              <li className="flex items-center gap-2"><CheckCircle2 size={16} /> Atendimento humano em português</li>
+              <li className="flex items-center gap-2"><CheckCircle2 size={16} /> 30 dias grátis · cancele quando quiser</li>
+              <li className="flex items-center gap-2"><Lock size={16} /> Seus dados protegidos pela LGPD</li>
+            </ul>
+          </div>
+
+          {/* Form / Confirmação */}
+          <div className="bg-background rounded-2xl p-6 md:p-7 text-foreground shadow-2xl">
+            {enviado ? (
+              <div className="text-center py-2">
+                <div className="mx-auto h-14 w-14 rounded-full bg-success/15 text-success flex items-center justify-center mb-4">
+                  <PartyPopper size={28} />
+                </div>
+                <h3 className="font-display font-extrabold text-2xl mb-2">Pronto, {nome.split(" ")[0]}!</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Abrimos uma conversa no WhatsApp com a nossa equipe.
+                  Em até <strong className="text-foreground">10 minutos</strong> em horário comercial alguém te responde.
+                  {leadId && <span className="block mt-1 text-[11px] text-muted-foreground/80">Protocolo #{leadId.slice(0, 8)}</span>}
+                </p>
+
+                {/* Próximo passo: agendar demonstração */}
+                <div className="rounded-xl border border-primary/30 bg-primary-soft p-4 text-left mb-4">
+                  <div className="flex items-start gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+                      <CalendarClock size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-sm text-foreground">Quer pular a fila?</div>
+                      <p className="text-xs text-muted-foreground mt-0.5 mb-3">
+                        Agende uma demo guiada de <strong>15 minutos</strong> direto no WhatsApp.
+                      </p>
+                      <a
+                        href={waDemoLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => track("demo_schedule_click", { lead_id: leadId })}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-2 text-xs font-bold hover:bg-[var(--color-primary-deep)] transition-colors"
+                      >
+                        <CalendarClock size={14} /> Agendar demo de 15min
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-xl bg-surface-2 border border-border p-4 text-left text-xs space-y-1.5">
+                  <div className="font-bold uppercase tracking-wider text-muted-foreground text-[10px] mb-1">Próximos passos</div>
+                  <div className="flex gap-2"><span className="text-primary font-bold">1.</span> Confirme seus dados na conversa do WhatsApp</div>
+                  <div className="flex gap-2"><span className="text-primary font-bold">2.</span> Escolha um horário para a demo (opcional)</div>
+                  <div className="flex gap-2"><span className="text-primary font-bold">3.</span> Importamos seus moradores junto com você</div>
+                </div>
+                <div className="mt-5 flex flex-col sm:flex-row gap-2">
+                  <a
+                    href={waLeadLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => track("wa_click_reabrir", { lead_id: leadId })}
+                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-success text-white px-4 py-3 text-sm font-bold hover:opacity-90 transition-opacity"
+                  >
+                    <MessageCircle size={16} /> Reabrir WhatsApp
+                  </a>
+                  <Link
+                    to="/auth/cadastro"
+                    onClick={() => track("plan_cta_click", { location: "lead_success" })}
+                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-3 text-sm font-bold hover:border-primary hover:text-primary transition-colors"
+                  >
+                    Criar conta agora <ArrowRight size={14} />
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="text-center mb-2">
+                  <h3 className="font-display font-extrabold text-2xl">Comece em 1 minuto</h3>
+                  <p className="text-xs text-muted-foreground mt-1">3 campos. Sem cartão. Sem enrolação.</p>
+                </div>
+
+                <div>
+                  <label htmlFor="lead-nome" className="text-xs font-semibold text-foreground mb-1.5 block">Seu nome</label>
+                  <input
+                    id="lead-nome" type="text" required minLength={2} maxLength={100} value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    placeholder="Ex: Carlos Mendes"
+                    className="w-full h-11 rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="lead-cond" className="text-xs font-semibold text-foreground mb-1.5 block">Nome do condomínio</label>
+                  <input
+                    id="lead-cond" type="text" required minLength={2} maxLength={120} value={condominio}
+                    onChange={(e) => setCondominio(e.target.value)}
+                    placeholder="Ex: Ed. Recanto Verde"
+                    className="w-full h-11 rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="lead-tel" className="text-xs font-semibold text-foreground mb-1.5 block">WhatsApp</label>
+                  <input
+                    id="lead-tel" type="tel" required minLength={8} maxLength={20} value={telefone}
+                    onChange={(e) => setTelefone(e.target.value)}
+                    placeholder="(11) 98765-4321"
+                    className="w-full h-11 rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                {/* Opção de demo */}
+                <label className="flex items-start gap-2.5 cursor-pointer rounded-lg border border-border bg-surface-2 p-3 hover:border-primary transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={querDemo}
+                    onChange={(e) => setQuerDemo(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-input accent-[var(--color-primary)]"
+                  />
+                  <span className="text-xs text-foreground leading-relaxed">
+                    <strong>Quero uma demo guiada de 15 minutos</strong> — alguém do time abre o sistema comigo e mostra tudo direto pelo WhatsApp.
+                  </span>
+                </label>
+
+                {/* Consentimento LGPD */}
+                <label className="flex items-start gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    required
+                    checked={consent}
+                    onChange={(e) => setConsent(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-input accent-[var(--color-primary)]"
+                  />
+                  <span className="text-[11px] text-muted-foreground leading-relaxed">
+                    Concordo em receber contato do QiDomínio pelo WhatsApp e que meus dados sejam tratados conforme a{" "}
+                    <Link to="/privacidade" target="_blank" className="text-primary font-semibold underline-offset-2 hover:underline">Política de Privacidade</Link>
+                    {" "}e os{" "}
+                    <Link to="/termos" target="_blank" className="text-primary font-semibold underline-offset-2 hover:underline">Termos de uso</Link>.
+                  </span>
+                </label>
+
+                <button
+                  type="submit"
+                  disabled={salvando || !consent}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3.5 text-sm font-bold text-primary-foreground hover:bg-[var(--color-primary-deep)] transition-colors shadow-[var(--shadow-glow)] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {salvando ? <><Loader2 size={16} className="animate-spin" /> Enviando…</> : <>Falar com o QiDomínio <ArrowRight size={16} /></>}
+                </button>
+                <p className="text-[11px] text-center text-muted-foreground">
+                  Ao enviar, abrimos automaticamente uma conversa no WhatsApp.
+                </p>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------- FLOATING WHATSAPP BUTTON -------------------- */
+function FloatingWhatsApp() {
+  const [open, setOpen] = useState(false);
+  const [savedLead, setSavedLead] = useState<{ nome?: string; condominio?: string } | null>(null);
+  const [message, setMessage] = useState(WHATSAPP_DEFAULT_MSG);
+
+  useEffect(() => {
+    function syncLead() {
+      const l = readSavedLead();
+      setSavedLead(l);
+      setMessage(buildPersonalMsg(l, WHATSAPP_DEFAULT_MSG));
+    }
+    syncLead();
+    window.addEventListener("qd:lead-saved", syncLead);
+    return () => window.removeEventListener("qd:lead-saved", syncLead);
+  }, []);
+
+  return (
+    <>
+      {/* Painel */}
+      {open && (
+        <div className="fixed bottom-24 right-4 md:right-6 z-50 w-[calc(100vw-2rem)] sm:w-80 rounded-2xl border border-border bg-surface shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+          <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full bg-white/15 flex items-center justify-center">
+              <MessageCircle size={18} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-bold text-sm">QiDomínio</div>
+              <div className="text-[11px] text-white/80 flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-success" /> Online · resposta em ~10 min
+              </div>
+            </div>
+            <button onClick={() => setOpen(false)} aria-label="Fechar" className="text-white/80 hover:text-white">
+              <X size={16} />
+            </button>
+          </div>
+          <div className="p-4">
+            <div className="rounded-lg bg-surface-2 border border-border p-3 text-xs text-foreground mb-3">
+              {savedLead?.nome
+                ? <>Olá, {savedLead.nome.split(" ")[0]}! 👋 Continue a conversa de onde paramos.</>
+                : <>Olá! 👋 Sou do time QiDomínio. Conta um pouco do seu condomínio que a gente te ajuda.</>}
+            </div>
+            <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">Sua mensagem</label>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              rows={3}
+              maxLength={500}
+              className="w-full rounded-lg border border-input bg-background p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            />
+            <a
+              href={waLink(message)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => {
+                track("wa_click_floating", { personalized: !!savedLead?.nome });
+                setOpen(false);
+              }}
+              className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-success text-white px-4 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity"
+            >
+              <MessageCircle size={16} /> Abrir WhatsApp
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Botão */}
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-label="Falar no WhatsApp"
+        className="fixed bottom-5 right-4 md:right-6 z-50 inline-flex items-center gap-2 rounded-full bg-success text-white pl-4 pr-5 py-3.5 text-sm font-bold shadow-2xl hover:scale-105 transition-transform"
+        style={{ boxShadow: "0 10px 30px -5px rgba(37, 211, 102, 0.5)" }}
+      >
+        <span className="relative flex h-5 w-5 items-center justify-center">
+          <span className="absolute inline-flex h-full w-full rounded-full bg-white/40 animate-ping" />
+          <MessageCircle size={18} />
+        </span>
+        {savedLead?.nome ? `Continuar como ${savedLead.nome.split(" ")[0]}` : "Falar no WhatsApp"}
+      </button>
+    </>
+  );
+}
   const [nome, setNome] = useState("");
   const [condominio, setCondominio] = useState("");
   const [telefone, setTelefone] = useState("");

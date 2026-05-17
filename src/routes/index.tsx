@@ -245,6 +245,22 @@ const testimonials = [
 ];
 
 function HomePage() {
+  const [savedLead, setSavedLead] = useState<{ nome?: string; condominio?: string; telefone?: string } | null>(null);
+
+  useEffect(() => {
+    setSavedLead(readSavedLead());
+    function onLeadSaved() {
+      setSavedLead(readSavedLead());
+    }
+    window.addEventListener("qd:lead-saved", onLeadSaved);
+    return () => window.removeEventListener("qd:lead-saved", onLeadSaved);
+  }, []);
+
+  const heroWaMsg = useMemo(
+    () => buildPersonalMsg(savedLead, WHATSAPP_DEFAULT_MSG),
+    [savedLead],
+  );
+
   return (
     <SiteLayout>
       {/* HERO */}
@@ -272,17 +288,20 @@ function HomePage() {
             <Link
               to="/auth/cadastro"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] hover:bg-[var(--color-primary-deep)] transition-all hover:scale-[1.02]"
+              onClick={() => track("plan_cta_click", { location: "hero" })}
             >
               Começar grátis por 30 dias
               <ArrowRight size={16} />
             </Link>
             <a
-              href={waLink(WHATSAPP_DEFAULT_MSG)}
+              href={waLink(heroWaMsg)}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => track("wa_click_hero", { personalized: !!savedLead?.nome })}
               className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-6 py-3.5 text-sm font-semibold text-foreground hover:border-success hover:text-success transition-colors"
             >
               <MessageCircle size={16} /> Falar no WhatsApp
+              {savedLead?.nome && <span className="text-[10px] text-muted-foreground">· como {savedLead.nome.split(" ")[0]}</span>}
             </a>
           </div>
 

@@ -480,6 +480,9 @@ function HomePage() {
       {/* LEAD FORM + CTA */}
       <LeadFormSection />
 
+      {/* Espaço extra no fim para o botão flutuante não cobrir conteúdo no mobile */}
+      <div aria-hidden className="h-20 md:h-0" />
+
       {/* Floating WhatsApp button */}
       <FloatingWhatsApp />
     </SiteLayout>

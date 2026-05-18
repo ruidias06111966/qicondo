@@ -284,10 +284,10 @@ function HomePage() {
             <strong className="text-foreground">R$ 29/mês</strong>.
           </p>
 
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-md sm:max-w-none mx-auto">
             <Link
               to="/auth/cadastro"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] hover:bg-[var(--color-primary-deep)] transition-all hover:scale-[1.02]"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] hover:bg-[var(--color-primary-deep)] transition-all hover:scale-[1.02] w-full sm:w-auto"
               onClick={() => track("plan_cta_click", { location: "hero" })}
             >
               Começar grátis por 30 dias
@@ -298,10 +298,10 @@ function HomePage() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => track("wa_click_hero", { personalized: !!savedLead?.nome })}
-              className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-6 py-3.5 text-sm font-semibold text-foreground hover:border-success hover:text-success transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-6 py-3.5 text-sm font-semibold text-foreground hover:border-success hover:text-success transition-colors w-full sm:w-auto"
             >
               <MessageCircle size={16} /> Falar no WhatsApp
-              {savedLead?.nome && <span className="text-[10px] text-muted-foreground">· como {savedLead.nome.split(" ")[0]}</span>}
+              {savedLead?.nome && <span className="hidden sm:inline text-[10px] text-muted-foreground">· como {savedLead.nome.split(" ")[0]}</span>}
             </a>
           </div>
 

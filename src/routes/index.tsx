@@ -377,7 +377,7 @@ function HomePage() {
                     </div>
                   </div>
                 ) : (
-                  <div className={`rounded-2xl border border-border bg-[#075E54] p-2 shadow-[var(--shadow-card)] max-w-sm ${s.side === "left" ? "md:ml-0" : "md:ml-auto"}`}>
+                  <div className={`rounded-2xl border border-border bg-[#075E54] p-2 shadow-[var(--shadow-card)] w-full max-w-full sm:max-w-sm ${s.side === "left" ? "md:ml-0" : "md:ml-auto"}`}>
                     <div className="rounded-xl bg-[#ECE5DD] p-3 text-[12px] flex">
                       {s.badge === "Etapa 2" ? (
                         <div className="self-end ml-auto max-w-[90%] rounded-lg bg-[#DCF8C6] px-3 py-2 shadow-sm">

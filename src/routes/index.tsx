@@ -897,19 +897,29 @@ function FloatingWhatsApp() {
     <>
       {/* Painel */}
       {open && (
-        <div className="fixed bottom-24 right-4 md:right-6 z-50 w-[calc(100vw-2rem)] sm:w-80 rounded-2xl border border-border bg-surface shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+        <div
+          className="fixed right-3 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-80 max-w-sm rounded-2xl border border-border bg-surface shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4"
+          style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 5.5rem)" }}
+          role="dialog"
+          aria-label="Conversar com QiDomínio"
+        >
           <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full bg-white/15 flex items-center justify-center">
+            <div className="h-9 w-9 rounded-full bg-white/15 flex items-center justify-center shrink-0">
               <MessageCircle size={18} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-bold text-sm">QiDomínio</div>
+              <div className="font-bold text-sm truncate">QiDomínio</div>
               <div className="text-[11px] text-white/80 flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-success" /> Online · resposta em ~10 min
+                <span className="h-1.5 w-1.5 rounded-full bg-success shrink-0" />
+                <span className="truncate">Online · resposta em ~10 min</span>
               </div>
             </div>
-            <button onClick={() => setOpen(false)} aria-label="Fechar" className="text-white/80 hover:text-white">
-              <X size={16} />
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Fechar"
+              className="text-white/80 hover:text-white -mr-1 h-9 w-9 inline-flex items-center justify-center shrink-0"
+            >
+              <X size={18} />
             </button>
           </div>
           <div className="p-4">
@@ -918,8 +928,9 @@ function FloatingWhatsApp() {
                 ? <>Olá, {savedLead.nome.split(" ")[0]}! 👋 Continue a conversa de onde paramos.</>
                 : <>Olá! 👋 Sou do time QiDomínio. Conta um pouco do seu condomínio que a gente te ajuda.</>}
             </div>
-            <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">Sua mensagem</label>
+            <label htmlFor="fab-wa-msg" className="text-[11px] font-semibold text-muted-foreground mb-1 block">Sua mensagem</label>
             <textarea
+              id="fab-wa-msg"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
@@ -934,26 +945,33 @@ function FloatingWhatsApp() {
                 track("wa_click_floating", { personalized: !!savedLead?.nome });
                 setOpen(false);
               }}
-              className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-success text-white px-4 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity"
+              className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-success text-white px-4 py-3 text-sm font-bold hover:opacity-90 transition-opacity min-h-[44px]"
             >
-              <MessageCircle size={16} /> Abrir WhatsApp
+              <MessageCircle size={18} /> Abrir WhatsApp
             </a>
           </div>
         </div>
       )}
 
-      {/* Botão */}
+      {/* Botão flutuante — FAB redondo no mobile, pill no desktop */}
       <button
         onClick={() => setOpen((v) => !v)}
-        aria-label="Falar no WhatsApp"
-        className="fixed bottom-5 right-4 md:right-6 z-50 inline-flex items-center gap-2 rounded-full bg-success text-white pl-4 pr-5 py-3.5 text-sm font-bold shadow-2xl hover:scale-105 transition-transform"
-        style={{ boxShadow: "0 10px 30px -5px rgba(37, 211, 102, 0.5)" }}
+        aria-label={savedLead?.nome ? `Falar no WhatsApp como ${savedLead.nome.split(" ")[0]}` : "Falar no WhatsApp"}
+        aria-expanded={open}
+        className="fixed right-4 sm:right-6 z-50 inline-flex items-center justify-center sm:justify-start gap-2 rounded-full bg-success text-white h-14 w-14 sm:h-auto sm:w-auto sm:pl-4 sm:pr-5 sm:py-3.5 text-sm font-bold shadow-2xl hover:scale-105 active:scale-95 transition-transform max-w-[calc(100vw-2rem)]"
+        style={{
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 1.25rem)",
+          boxShadow: "0 10px 30px -5px rgba(37, 211, 102, 0.5)",
+        }}
       >
-        <span className="relative flex h-5 w-5 items-center justify-center">
+        <span className="relative flex h-6 w-6 sm:h-5 sm:w-5 items-center justify-center shrink-0">
           <span className="absolute inline-flex h-full w-full rounded-full bg-white/40 animate-ping" />
-          <MessageCircle size={18} />
+          <MessageCircle size={22} className="sm:hidden" />
+          <MessageCircle size={18} className="hidden sm:block" />
         </span>
-        {savedLead?.nome ? `Continuar como ${savedLead.nome.split(" ")[0]}` : "Falar no WhatsApp"}
+        <span className="hidden sm:inline truncate max-w-[200px]">
+          {savedLead?.nome ? `Continuar como ${savedLead.nome.split(" ")[0]}` : "Falar no WhatsApp"}
+        </span>
       </button>
     </>
   );

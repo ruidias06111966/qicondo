@@ -578,27 +578,29 @@ function PricingSection() {
       {/* Comparison table */}
       <div className="mt-14 max-w-4xl mx-auto">
         <h3 className="text-center font-display font-extrabold text-2xl mb-6">Compare recurso a recurso</h3>
-        <div className="rounded-2xl border border-border overflow-hidden bg-surface">
-          <div className="grid grid-cols-3 bg-surface-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            <div className="px-4 py-3">Recurso</div>
-            <div className="px-4 py-3 text-center">Starter</div>
-            <div className="px-4 py-3 text-center text-primary">Profissional</div>
-          </div>
-          {compareRows.map((r, i) => (
-            <div key={r.label} className={`grid grid-cols-3 text-sm items-center ${i % 2 === 1 ? "bg-surface-2/40" : ""}`}>
-              <div className="px-4 py-3 text-foreground">{r.label}</div>
-              <div className="px-4 py-3 text-center text-muted-foreground">
-                {typeof r.starter === "boolean"
-                  ? r.starter ? <CheckCircle2 size={16} className="inline text-success" /> : <X size={16} className="inline text-muted-foreground/40" />
-                  : r.starter}
-              </div>
-              <div className="px-4 py-3 text-center font-semibold text-foreground">
-                {typeof r.pro === "boolean"
-                  ? r.pro ? <CheckCircle2 size={16} className="inline text-success" /> : <X size={16} className="inline text-muted-foreground/40" />
-                  : r.pro}
-              </div>
+        <div className="rounded-2xl border border-border overflow-x-auto bg-surface">
+          <div className="min-w-[480px]">
+            <div className="grid grid-cols-3 bg-surface-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <div className="px-3 sm:px-4 py-3">Recurso</div>
+              <div className="px-3 sm:px-4 py-3 text-center">Starter</div>
+              <div className="px-3 sm:px-4 py-3 text-center text-primary">Profissional</div>
             </div>
-          ))}
+            {compareRows.map((r, i) => (
+              <div key={r.label} className={`grid grid-cols-3 text-xs sm:text-sm items-center ${i % 2 === 1 ? "bg-surface-2/40" : ""}`}>
+                <div className="px-3 sm:px-4 py-3 text-foreground">{r.label}</div>
+                <div className="px-3 sm:px-4 py-3 text-center text-muted-foreground">
+                  {typeof r.starter === "boolean"
+                    ? r.starter ? <CheckCircle2 size={16} className="inline text-success" /> : <X size={16} className="inline text-muted-foreground/40" />
+                    : r.starter}
+                </div>
+                <div className="px-3 sm:px-4 py-3 text-center font-semibold text-foreground">
+                  {typeof r.pro === "boolean"
+                    ? r.pro ? <CheckCircle2 size={16} className="inline text-success" /> : <X size={16} className="inline text-muted-foreground/40" />
+                    : r.pro}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

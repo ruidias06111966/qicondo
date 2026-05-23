@@ -116,8 +116,9 @@ function DashboardPage() {
             <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6">
               <p className="text-sm font-semibold text-primary uppercase mb-2">Dica</p>
               <p className="text-sm">
-                Configure o Mercado Pago em <strong>Pagamentos</strong> para gerar PIX automático
-                e o morador pagar direto pelo WhatsApp.
+                Cadastre a <strong>conta bancária do condomínio</strong> em{" "}
+                <strong>Pagamentos</strong> para que os moradores recebam os dados
+                de boleto/PIX corretos no WhatsApp.
               </p>
             </div>
           </div>

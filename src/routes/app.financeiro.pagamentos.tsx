@@ -12,7 +12,7 @@ import { brl, dateBR } from "@/lib/format";
 import { Field, EmptyState, safeCall } from "@/components/financeiro/ui";
 import { emitChanged } from "@/lib/safe-call";
 import { toast } from "sonner";
-import { CreditCard, Loader2, Save, CheckCircle2, MessageCircle, Send, Eye } from "lucide-react";
+import { CreditCard, Loader2, Save, MessageCircle, Send, Eye } from "lucide-react";
 
 export const Route = createFileRoute("/app/financeiro/pagamentos")({
   head: () => ({ meta: [{ title: "Pagamentos — Financeiro" }] }),
@@ -27,7 +27,7 @@ function PagamentosPage() {
 
   const tabs: { id: typeof tab; label: string }[] = [
     { id: "recebidos", label: "Recebidos" },
-    { id: "config", label: "Configuração PIX/Mercado Pago" },
+    { id: "config", label: "Conta bancária do condomínio" },
     { id: "automacao", label: "Automação WhatsApp" },
   ];
 
@@ -141,9 +141,14 @@ function ConfigPagamento({ condominioId }: { condominioId: string }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [cfg, setCfg] = useState<any>(null);
-  const [token, setToken] = useState("");
-  const [pubKey, setPubKey] = useState("");
   const [pixChave, setPixChave] = useState("");
+  const [bancoNome, setBancoNome] = useState("");
+  const [bancoAgencia, setBancoAgencia] = useState("");
+  const [bancoConta, setBancoConta] = useState("");
+  const [bancoTipoConta, setBancoTipoConta] = useState("corrente");
+  const [bancoTitular, setBancoTitular] = useState("");
+  const [bancoCnpj, setBancoCnpj] = useState("");
+  const [instrucoes, setInstrucoes] = useState("");
   const [multa, setMulta] = useState("2");
   const [juros, setJuros] = useState("0.033");
   const [ativo, setAtivo] = useState(true);
@@ -156,6 +161,12 @@ function ConfigPagamento({ condominioId }: { condominioId: string }) {
           setMulta(String(r.multa_percentual ?? 2));
           setJuros(String(r.juros_dia_percentual ?? 0.033));
           setAtivo(r.ativo ?? true);
+          setBancoNome(r.banco_nome ?? "");
+          setBancoAgencia(r.banco_agencia ?? "");
+          setBancoTipoConta(r.banco_tipo_conta ?? "corrente");
+          setBancoTitular(r.banco_titular ?? "");
+          setBancoCnpj(r.banco_cnpj ?? "");
+          setInstrucoes(r.instrucoes_boleto ?? "");
         }
       })
       .finally(() => setLoading(false));
@@ -167,10 +178,14 @@ function ConfigPagamento({ condominioId }: { condominioId: string }) {
       salvarConfigPagamento({
         data: {
           condominio_id: condominioId,
-          mp_access_token: token || null,
-          mp_public_key: pubKey || null,
-          mp_webhook_secret: null,
           pix_chave: pixChave || null,
+          banco_nome: bancoNome || null,
+          banco_agencia: bancoAgencia || null,
+          banco_conta: bancoConta || null,
+          banco_tipo_conta: bancoTipoConta || null,
+          banco_titular: bancoTitular || null,
+          banco_cnpj: bancoCnpj || null,
+          instrucoes_boleto: instrucoes || null,
           multa_percentual: Number(multa),
           juros_dia_percentual: Number(juros),
           ativo,
@@ -180,9 +195,8 @@ function ConfigPagamento({ condominioId }: { condominioId: string }) {
     setSaving(false);
     if (r) {
       toast.success("Configuração salva");
-      setToken("");
-      setPubKey("");
       setPixChave("");
+      setBancoConta("");
     }
   };
 
@@ -196,76 +210,117 @@ function ConfigPagamento({ condominioId }: { condominioId: string }) {
   return (
     <div className="bg-background border border-border rounded-2xl p-6 max-w-2xl space-y-5">
       <div>
-        <p className="font-semibold mb-1">Mercado Pago (PIX automático)</p>
+        <p className="font-semibold mb-1">Conta bancária do condomínio</p>
         <p className="text-sm text-muted-foreground">
-          Configure suas credenciais para gerar QR Code PIX direto no app.
+          Os boletos e PIX são recebidos diretamente na conta bancária do condomínio.
+          O QiCond apenas envia esses dados aos moradores pelo WhatsApp — não somos
+          intermediários financeiros e o dinheiro nunca passa pela plataforma.
         </p>
       </div>
 
-      {cfg?.mp_token_configured && (
-        <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 px-3 py-2 rounded-lg">
-          <CheckCircle2 size={16} /> Token Mercado Pago já configurado.
-        </div>
-      )}
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Banco">
+          <input
+            value={bancoNome}
+            onChange={(e) => setBancoNome(e.target.value)}
+            placeholder="Ex.: Banco do Brasil"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+          />
+        </Field>
+        <Field label="Tipo de conta">
+          <select
+            value={bancoTipoConta}
+            onChange={(e) => setBancoTipoConta(e.target.value)}
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+          >
+            <option value="corrente">Conta corrente</option>
+            <option value="poupanca">Poupança</option>
+            <option value="pagamentos">Conta pagamentos</option>
+          </select>
+        </Field>
+        <Field label="Agência">
+          <input
+            value={bancoAgencia}
+            onChange={(e) => setBancoAgencia(e.target.value)}
+            placeholder="0000"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono"
+          />
+        </Field>
+        <Field label="Conta (deixe em branco para manter)">
+          <input
+            value={bancoConta}
+            onChange={(e) => setBancoConta(e.target.value)}
+            placeholder={cfg?.banco_conta_mascarada ?? "00000-0"}
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono"
+          />
+        </Field>
+        <Field label="Titular">
+          <input
+            value={bancoTitular}
+            onChange={(e) => setBancoTitular(e.target.value)}
+            placeholder="Nome do condomínio"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+          />
+        </Field>
+        <Field label="CNPJ do condomínio">
+          <input
+            value={bancoCnpj}
+            onChange={(e) => setBancoCnpj(e.target.value)}
+            placeholder="00.000.000/0000-00"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono"
+          />
+        </Field>
+      </div>
 
-      <Field label="Access Token Mercado Pago (deixe em branco para manter)">
+      <Field label="Chave PIX do condomínio">
         <input
-          type="password"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          placeholder="APP_USR-..."
-          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono"
+          value={pixChave}
+          onChange={(e) => setPixChave(e.target.value)}
+          placeholder={cfg?.pix_chave_mascarada ?? "CPF/CNPJ, e-mail, telefone ou aleatória"}
+          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
         />
       </Field>
-      <Field label="Public Key">
-        <input
-          value={pubKey}
-          onChange={(e) => setPubKey(e.target.value)}
-          placeholder={cfg?.mp_public_key ?? ""}
-          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono"
+
+      <Field label="Instruções adicionais para o boleto (opcional)">
+        <textarea
+          value={instrucoes}
+          onChange={(e) => setInstrucoes(e.target.value)}
+          rows={3}
+          placeholder="Ex.: Não receber após o vencimento. Em caso de dúvidas, falar com o síndico."
+          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
         />
       </Field>
 
       <div className="border-t border-border pt-5">
-        <p className="font-semibold mb-3">Cobrança</p>
-        <div className="space-y-3">
-          <Field label="Chave PIX manual (caso não use Mercado Pago)">
+        <p className="font-semibold mb-3">Multa e juros</p>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Multa por atraso (%)">
             <input
-              value={pixChave}
-              onChange={(e) => setPixChave(e.target.value)}
-              placeholder={cfg?.pix_chave_mascarada ?? "CPF, e-mail, telefone ou aleatória"}
+              type="number"
+              step="0.01"
+              value={multa}
+              onChange={(e) => setMulta(e.target.value)}
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
             />
           </Field>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Multa por atraso (%)">
-              <input
-                type="number"
-                step="0.01"
-                value={multa}
-                onChange={(e) => setMulta(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
-              />
-            </Field>
-            <Field label="Juros ao dia (%)">
-              <input
-                type="number"
-                step="0.001"
-                value={juros}
-                onChange={(e) => setJuros(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
-              />
-            </Field>
-          </div>
-          <label className="flex items-center gap-2 text-sm">
+          <Field label="Juros ao dia (%)">
             <input
-              type="checkbox"
-              checked={ativo}
-              onChange={(e) => setAtivo(e.target.checked)}
+              type="number"
+              step="0.001"
+              value={juros}
+              onChange={(e) => setJuros(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
             />
-            Cobranças ativas
-          </label>
+          </Field>
         </div>
+        <label className="flex items-center gap-2 text-sm mt-3">
+          <input
+            type="checkbox"
+            checked={ativo}
+            onChange={(e) => setAtivo(e.target.checked)}
+          />
+          Cobranças ativas
+        </label>
       </div>
 
       <div className="flex justify-end pt-2">
@@ -324,7 +379,7 @@ function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
   const faltVencida = placeholdersFaltando(tplVencida);
 
   const submit = async () => {
-    if (!cfg) return toast.error("Configure primeiro a aba PIX/Mercado Pago");
+    if (!cfg) return toast.error("Configure primeiro a aba Conta bancária do condomínio");
     if (tplLembrete.trim().length < 10) return toast.error("Modelo de lembrete muito curto");
     if (tplVencida.trim().length < 10) return toast.error("Modelo de cobrança vencida muito curto");
     if (faltLembrete.length > 0)
@@ -336,9 +391,6 @@ function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
       salvarConfigPagamento({
         data: {
           condominio_id: condominioId,
-          mp_access_token: null,
-          mp_public_key: null,
-          mp_webhook_secret: null,
           pix_chave: null,
           multa_percentual: cfg.multa_percentual,
           juros_dia_percentual: cfg.juros_dia_percentual,

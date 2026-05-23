@@ -66,7 +66,7 @@ const faqs = [
   { q: "Tem fidelidade ou multa por cancelamento?", a: "Não. Você pode cancelar a qualquer momento direto pelo painel. Não cobramos multa nem taxa de saída." },
   { q: "Como funciona o teste grátis?", a: "Você usa o plano completo por 30 dias sem informar cartão. Depois desse período, escolhe o plano que faz mais sentido." },
   { q: "Os moradores precisam instalar algum app?", a: "Não. Toda a comunicação acontece no WhatsApp que eles já usam. Apenas o síndico acessa o painel web." },
-  { q: "Quem emite os boletos? E o PIX?", a: "Geramos PIX direto integrado ao banco do condomínio. Boleto registrado está disponível no plano Profissional via gateway parceiro (Asaas/Iugu/Cora)." },
+  { q: "Quem emite os boletos? E o PIX?", a: "Cada condomínio recebe boletos e PIX direto na sua própria conta bancária. O QiCond gera o instrutivo e envia ao morador pelo WhatsApp; não somos intermediários financeiros, então o dinheiro nunca passa pela plataforma." },
   { q: "Como faço a migração de outro sistema?", a: "Fornecemos planilha modelo e nossa equipe ajuda com a importação de moradores, unidades e histórico. Sem custo adicional." },
   { q: "É compatível com a LGPD?", a: "Sim. Temos política de privacidade clara, opt-in de moradores registrado, controle de acesso por perfil, logs de auditoria e exportação dos dados a qualquer momento." },
   { q: "Posso usar no celular?", a: "Sim. O painel é totalmente responsivo. E como toda a comunicação é via WhatsApp, na prática o síndico resolve tudo do celular." },

@@ -272,16 +272,21 @@ export const resumoFinanceiro = createServerFn({ method: "POST" })
     return { totalCobrado, totalRecebidoMes, totalDespesas, totalInadimplencia, qtdInadimplentes, saldoMes: totalRecebidoMes - totalDespesas };
   });
 
-// ===== Config Pagamento (Mercado Pago) =====
+// ===== Config Pagamento (conta bancária do condomínio) =====
 const ConfigInput = z.object({
   condominio_id: z.string().uuid(),
-  mp_access_token: z.string().optional().nullable(),
-  mp_public_key: z.string().optional().nullable(),
-  mp_webhook_secret: z.string().optional().nullable(),
   pix_chave: z.string().max(200).optional().nullable(),
   multa_percentual: z.number().min(0).max(50),
   juros_dia_percentual: z.number().min(0).max(5),
   ativo: z.boolean(),
+  // Conta bancária do condomínio (opcionais)
+  banco_nome: z.string().max(120).optional().nullable(),
+  banco_agencia: z.string().max(20).optional().nullable(),
+  banco_conta: z.string().max(40).optional().nullable(),
+  banco_tipo_conta: z.string().max(40).optional().nullable(),
+  banco_titular: z.string().max(200).optional().nullable(),
+  banco_cnpj: z.string().max(20).optional().nullable(),
+  instrucoes_boleto: z.string().max(1000).optional().nullable(),
   // Automação WhatsApp (opcionais — só atualiza se enviados)
   wa_automacao_ativa: z.boolean().optional(),
   wa_dias_pre_vencimento: z.array(z.number().int().min(0).max(60)).max(10).optional(),
@@ -307,9 +312,13 @@ export const salvarConfigPagamento = createServerFn({ method: "POST" })
       juros_dia_percentual: data.juros_dia_percentual,
       ativo: data.ativo,
     };
-    if (data.mp_access_token) payload.mp_access_token = data.mp_access_token;
-    if (data.mp_public_key) payload.mp_public_key = data.mp_public_key;
-    if (data.mp_webhook_secret) payload.mp_webhook_secret = data.mp_webhook_secret;
+    if (data.banco_nome !== undefined) payload.banco_nome = data.banco_nome;
+    if (data.banco_agencia !== undefined) payload.banco_agencia = data.banco_agencia;
+    if (data.banco_conta !== undefined) payload.banco_conta = data.banco_conta;
+    if (data.banco_tipo_conta !== undefined) payload.banco_tipo_conta = data.banco_tipo_conta;
+    if (data.banco_titular !== undefined) payload.banco_titular = data.banco_titular;
+    if (data.banco_cnpj !== undefined) payload.banco_cnpj = data.banco_cnpj;
+    if (data.instrucoes_boleto !== undefined) payload.instrucoes_boleto = data.instrucoes_boleto;
     if (data.wa_automacao_ativa !== undefined) payload.wa_automacao_ativa = data.wa_automacao_ativa;
     if (data.wa_dias_pre_vencimento) payload.wa_dias_pre_vencimento = data.wa_dias_pre_vencimento;
     if (data.wa_dias_pos_vencimento) payload.wa_dias_pos_vencimento = data.wa_dias_pos_vencimento;
@@ -336,22 +345,27 @@ export const obterConfigPagamento = createServerFn({ method: "POST" })
     const { data: row } = await supabaseAdmin
       .from("config_pagamento")
       .select(
-        "condominio_id, mp_public_key, pix_chave, multa_percentual, juros_dia_percentual, dias_envio_lembrete, ativo, mp_access_token, mp_webhook_secret, wa_automacao_ativa, wa_dias_pre_vencimento, wa_dias_pos_vencimento, wa_template_lembrete, wa_template_vencida",
+        "condominio_id, pix_chave, multa_percentual, juros_dia_percentual, dias_envio_lembrete, ativo, banco_nome, banco_agencia, banco_conta, banco_tipo_conta, banco_titular, banco_cnpj, instrucoes_boleto, wa_automacao_ativa, wa_dias_pre_vencimento, wa_dias_pos_vencimento, wa_template_lembrete, wa_template_vencida",
       )
       .eq("condominio_id", data.condominio_id)
       .maybeSingle();
     if (!row) return null;
     const pix = row.pix_chave as string | null;
+    const conta = row.banco_conta as string | null;
     return {
       condominio_id: row.condominio_id,
-      mp_public_key: row.mp_public_key,
       pix_chave_mascarada: pix && pix.length >= 4 ? "****" + pix.slice(-4) : null,
       multa_percentual: row.multa_percentual,
       juros_dia_percentual: row.juros_dia_percentual,
       dias_envio_lembrete: row.dias_envio_lembrete,
       ativo: row.ativo,
-      mp_token_configured: !!row.mp_access_token,
-      mp_webhook_configured: !!row.mp_webhook_secret,
+      banco_nome: row.banco_nome,
+      banco_agencia: row.banco_agencia,
+      banco_conta_mascarada: conta && conta.length >= 2 ? "****" + conta.slice(-2) : null,
+      banco_tipo_conta: row.banco_tipo_conta,
+      banco_titular: row.banco_titular,
+      banco_cnpj: row.banco_cnpj,
+      instrucoes_boleto: row.instrucoes_boleto,
       wa_automacao_ativa: row.wa_automacao_ativa ?? false,
       wa_dias_pre_vencimento: row.wa_dias_pre_vencimento ?? [3, 1],
       wa_dias_pos_vencimento: row.wa_dias_pos_vencimento ?? [1, 7, 15],

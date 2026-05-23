@@ -9,7 +9,7 @@ import {
   registrarPagamentoManual,
   enviarLembreteCobranca,
 } from "@/server/financeiro.functions";
-import { criarPixCobranca } from "@/server/mercadopago.functions";
+
 import { brl, dateBR, competenciaBR } from "@/lib/format";
 import {
   Modal, Field, EmptyState, StatusBadge, safeCall,
@@ -17,7 +17,7 @@ import {
 import { emitChanged } from "@/lib/safe-call";
 import { toast } from "sonner";
 import {
-  FileText, Plus, Loader2, X, CheckCircle2, QrCode, Copy, MessageCircle,
+  FileText, Plus, Loader2, X, CheckCircle2, MessageCircle,
 } from "lucide-react";
 
 export const Route = createFileRoute("/app/financeiro/cobrancas")({
@@ -26,13 +26,13 @@ export const Route = createFileRoute("/app/financeiro/cobrancas")({
 });
 
 function CobrancasPage() {
-  const { condominioId, podeGerirFinanceiro: podeGerir, isMorador } = useCondominioAtivo();
+  const { condominioId, podeGerirFinanceiro: podeGerir } = useCondominioAtivo();
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("todos");
   const [showLote, setShowLote] = useState(false);
   const [showPagar, setShowPagar] = useState<any>(null);
-  const [showPix, setShowPix] = useState<any>(null);
+  
 
   const reload = () => {
     if (!condominioId) return;
@@ -143,16 +143,6 @@ function CobrancasPage() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1">
-                        {(isMorador || podeGerir) &&
-                          (r.status === "pendente" || r.status === "vencida" || r.status === "parcial") && (
-                            <button
-                              onClick={() => setShowPix(r)}
-                              className="p-2 rounded hover:bg-muted text-primary"
-                              title="Gerar PIX"
-                            >
-                              <QrCode size={16} />
-                            </button>
-                          )}
                         {podeGerir && r.status !== "paga" && r.status !== "cancelada" && (
                           <>
                             <button
@@ -216,9 +206,6 @@ function CobrancasPage() {
             reload();
           }}
         />
-      )}
-      {showPix && (
-        <ModalPix cobranca={showPix} onClose={() => setShowPix(null)} onPaid={reload} />
       )}
     </div>
   );
@@ -469,94 +456,3 @@ function ModalRegistrarPagamento({
   );
 }
 
-function ModalPix({
-  cobranca,
-  onClose,
-  onPaid,
-}: {
-  cobranca: any;
-  onClose: () => void;
-  onPaid: () => void;
-}) {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [pix, setPix] = useState<any>(null);
-
-  useEffect(() => {
-    criarPixCobranca({ data: { cobranca_id: cobranca.id } })
-      .then((r) => setPix(r))
-      .catch((e) => setError(e?.message || "Erro ao gerar PIX"))
-      .finally(() => setLoading(false));
-  }, [cobranca.id]);
-
-  const copiar = () => {
-    if (!pix?.qr_code) return;
-    navigator.clipboard.writeText(pix.qr_code);
-    toast.success("Código PIX copiado");
-  };
-
-  return (
-    <Modal title="Pagamento via PIX" onClose={onClose}>
-      {loading ? (
-        <div className="flex justify-center py-10">
-          <Loader2 className="animate-spin text-muted-foreground" />
-        </div>
-      ) : error ? (
-        <div className="space-y-3">
-          <p className="text-sm text-rose-600">{error}</p>
-          <p className="text-xs text-muted-foreground">
-            Configure o Mercado Pago em <strong>Pagamentos</strong> para habilitar PIX automático.
-          </p>
-        </div>
-      ) : pix ? (
-        <div className="space-y-4 text-center">
-          {pix.qr_code_base64 && (
-            <img
-              src={`data:image/png;base64,${pix.qr_code_base64}`}
-              alt="QR Code PIX"
-              className="mx-auto w-56 h-56 border border-border rounded-lg"
-            />
-          )}
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Copia e cola</p>
-            <div className="flex gap-2">
-              <input
-                readOnly
-                value={pix.qr_code}
-                className="flex-1 px-2 py-2 text-xs font-mono border border-border rounded-lg bg-muted/30 truncate"
-              />
-              <button
-                onClick={copiar}
-                className="p-2 rounded-lg border border-border hover:bg-muted"
-              >
-                <Copy size={16} />
-              </button>
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            A cobrança será atualizada automaticamente ao receber o pagamento.
-          </p>
-          {pix.ticket_url && (
-            <a
-              href={pix.ticket_url}
-              target="_blank"
-              rel="noreferrer"
-              className="text-xs text-primary hover:underline"
-            >
-              Abrir comprovante MP
-            </a>
-          )}
-          <button
-            onClick={() => {
-              onPaid();
-              onClose();
-            }}
-            className="w-full px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold"
-          >
-            Fechar
-          </button>
-        </div>
-      ) : null}
-    </Modal>
-  );
-}

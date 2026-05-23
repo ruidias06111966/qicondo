@@ -34,12 +34,12 @@ import {
   Loader2,
 } from "lucide-react";
 
-const SITE_URL = "https://qidominio.lovable.app";
-// Número oficial do QiDomínio para o botão flutuante e captura de leads.
+const SITE_URL = "https://qicond.lovable.app";
+// Número oficial do QiCond para o botão flutuante e captura de leads.
 // (Trocar para o número real assim que disponível.)
 const WHATSAPP_NUMBER = "5511999999999";
 const WHATSAPP_DEFAULT_MSG =
-  "Olá! Vim pelo site do QiDomínio e quero saber mais sobre a gestão de condomínio pelo WhatsApp.";
+  "Olá! Vim pelo site do QiCond e quero saber mais sobre a gestão de condomínio pelo WhatsApp.";
 
 // Monta uma mensagem personalizada quando temos dados do visitante.
 function buildPersonalMsg(lead: { nome?: string; condominio?: string } | null, base: string) {
@@ -67,13 +67,13 @@ function readSavedLead(): { nome?: string; condominio?: string; telefone?: strin
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "QiDomínio — Gestão de condomínio pelo WhatsApp" },
+      { title: "QiCond — Gestão de condomínio pelo WhatsApp" },
       {
         name: "description",
         content:
           "Cobranças, reservas, encomendas, ocorrências e prestação de contas — tudo pelo WhatsApp que seus moradores já usam. Para pequenos condomínios, a partir de R$ 29/mês.",
       },
-      { property: "og:title", content: "QiDomínio — Gestão de condomínio pelo WhatsApp" },
+      { property: "og:title", content: "QiCond — Gestão de condomínio pelo WhatsApp" },
       {
         property: "og:description",
         content:
@@ -89,7 +89,7 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",
-          name: "QiDomínio",
+          name: "QiCond",
           applicationCategory: "BusinessApplication",
           operatingSystem: "Web, iOS, Android",
           description:
@@ -121,7 +121,7 @@ const features = [
 
 const audiences = [
   { icon: Building2, title: "Síndicos moradores", desc: "Você não é gestor profissional, mas precisa cobrar, prestar contas e organizar o condomínio sem virar refém de planilhas." },
-  { icon: Users, title: "Pequenos condomínios", desc: "De 6 a 50 unidades, em autogestão. O QiDomínio foi desenhado para essa realidade — não é um sistema corporativo caro e complicado." },
+  { icon: Users, title: "Pequenos condomínios", desc: "De 6 a 50 unidades, em autogestão. O QiCond foi desenhado para essa realidade — não é um sistema corporativo caro e complicado." },
   { icon: HeartHandshake, title: "Administradoras enxutas", desc: "Quer atender mais condomínios sem aumentar a equipe? Centralize a comunicação e automatize o financeiro de cada cliente." },
 ];
 
@@ -138,8 +138,8 @@ const whatsappFlow = [
     icon: Send,
     badge: "Etapa 1",
     title: "Mensagem enviada",
-    desc: "O QiDomínio dispara automaticamente o boleto, lembrete ou aviso no WhatsApp do morador — sempre pelo número oficial verificado.",
-    example: "Olá, Maria! Sua taxa de maio (R$ 280) vence em 3 dias. Pague pelo PIX qidominio@cond.com",
+    desc: "O QiCond dispara automaticamente o boleto, lembrete ou aviso no WhatsApp do morador — sempre pelo número oficial verificado.",
+    example: "Olá, Maria! Sua taxa de maio (R$ 280) vence em 3 dias. Pague pelo PIX qicond@cond.com",
     side: "left" as const,
   },
   {
@@ -225,7 +225,7 @@ const faqsByPlan: Record<"Starter" | "Profissional", { q: string; a: string }[]>
   Starter: [
     { q: "O Starter cobre todas as cobranças automáticas?", a: "Sim. Lembretes, cobranças e confirmação de pagamento por PIX já vêm inclusos — sem limite de mensagens." },
     { q: "Posso usar com mais de 30 unidades?", a: "Tecnicamente sim, mas o plano é dimensionado para até 30. Acima disso recomendamos o Profissional, que tem melhor performance e mais recursos." },
-    { q: "Preciso ter número WhatsApp próprio?", a: "Não. No Starter, seu condomínio compartilha o número oficial do QiDomínio com identidade personalizada nas mensagens." },
+    { q: "Preciso ter número WhatsApp próprio?", a: "Não. No Starter, seu condomínio compartilha o número oficial do QiCond com identidade personalizada nas mensagens." },
   ],
   Profissional: [
     { q: "Como funciona o número dedicado?", a: "Você recebe um número WhatsApp Business API exclusivo do condomínio, com nome verificado pela Meta. Ideal para administradoras." },
@@ -278,7 +278,7 @@ function HomePage() {
           </h1>
 
           <p className="mt-6 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-            QiDomínio cuida das cobranças, reservas, encomendas, ocorrências e
+            QiCond cuida das cobranças, reservas, encomendas, ocorrências e
             prestação de contas. Você acompanha tudo num painel simples — e o
             morador resolve o dia a dia direto na conversa. A partir de{" "}
             <strong className="text-foreground">R$ 29/mês</strong>.
@@ -332,7 +332,7 @@ function HomePage() {
           <div className="inline-block text-xs font-bold uppercase tracking-wider text-primary mb-3">Como funciona o WhatsApp</div>
           <h2 className="font-display font-extrabold text-3xl md:text-4xl">A conversa vira gestão em 4 passos</h2>
           <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-            Exemplos reais do QiDomínio — sem app, sem treino, dentro do WhatsApp Business API oficial da Meta.
+            Exemplos reais do QiCond — sem app, sem treino, dentro do WhatsApp Business API oficial da Meta.
           </p>
         </div>
 
@@ -385,7 +385,7 @@ function HomePage() {
                         </div>
                       ) : (
                         <div className="max-w-[90%] rounded-lg bg-white px-3 py-2 shadow-sm">
-                          <div className="text-[10px] font-bold text-primary mb-0.5">QiDomínio</div>
+                          <div className="text-[10px] font-bold text-primary mb-0.5">QiCond</div>
                           {s.example}
                         </div>
                       )}
@@ -451,7 +451,7 @@ function HomePage() {
             <div className="inline-block text-xs font-bold uppercase tracking-wider text-primary mb-3">Casos reais</div>
             <h2 className="font-display font-extrabold text-3xl md:text-4xl">Síndicos que dormem melhor</h2>
             <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-              Mais de 200 condomínios brasileiros — números reais de quem usa o QiDomínio no dia a dia.
+              Mais de 200 condomínios brasileiros — números reais de quem usa o QiCond no dia a dia.
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -650,12 +650,12 @@ function LeadFormSection() {
   const [leadId, setLeadId] = useState<string | null>(null);
 
   const waLeadLink = useMemo(() => {
-    const msg = `Olá! Sou ${nome || "[seu nome]"}, do condomínio ${condominio || "[nome do condomínio]"}. Meu WhatsApp: ${telefone || "[seu telefone]"}. Quero conhecer o QiDomínio.`;
+    const msg = `Olá! Sou ${nome || "[seu nome]"}, do condomínio ${condominio || "[nome do condomínio]"}. Meu WhatsApp: ${telefone || "[seu telefone]"}. Quero conhecer o QiCond.`;
     return waLink(msg);
   }, [nome, condominio, telefone]);
 
   const waDemoLink = useMemo(() => {
-    const msg = `Olá! Sou ${nome}, do condomínio ${condominio}. Gostaria de agendar uma demonstração de 15 minutos do QiDomínio. Meu WhatsApp: ${telefone}.`;
+    const msg = `Olá! Sou ${nome}, do condomínio ${condominio}. Gostaria de agendar uma demonstração de 15 minutos do QiCond. Meu WhatsApp: ${telefone}.`;
     return waLink(msg);
   }, [nome, condominio, telefone]);
 
@@ -850,7 +850,7 @@ function LeadFormSection() {
                     className="mt-0.5 h-4 w-4 rounded border-input accent-[var(--color-primary)]"
                   />
                   <span className="text-[11px] text-muted-foreground leading-relaxed">
-                    Concordo em receber contato do QiDomínio pelo WhatsApp e que meus dados sejam tratados conforme a{" "}
+                    Concordo em receber contato do QiCond pelo WhatsApp e que meus dados sejam tratados conforme a{" "}
                     <Link to="/privacidade" target="_blank" className="text-primary font-semibold underline-offset-2 hover:underline">Política de Privacidade</Link>
                     {" "}e os{" "}
                     <Link to="/termos" target="_blank" className="text-primary font-semibold underline-offset-2 hover:underline">Termos de uso</Link>.
@@ -862,7 +862,7 @@ function LeadFormSection() {
                   disabled={salvando || !consent}
                   className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3.5 text-sm font-bold text-primary-foreground hover:bg-[var(--color-primary-deep)] transition-colors shadow-[var(--shadow-glow)] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {salvando ? <><Loader2 size={16} className="animate-spin" /> Enviando…</> : <>Falar com o QiDomínio <ArrowRight size={16} /></>}
+                  {salvando ? <><Loader2 size={16} className="animate-spin" /> Enviando…</> : <>Falar com o QiCond <ArrowRight size={16} /></>}
                 </button>
                 <p className="text-[11px] text-center text-muted-foreground">
                   Ao enviar, abrimos automaticamente uma conversa no WhatsApp.
@@ -901,14 +901,14 @@ function FloatingWhatsApp() {
           className="fixed right-3 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-80 max-w-sm rounded-2xl border border-border bg-surface shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4"
           style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 5.5rem)" }}
           role="dialog"
-          aria-label="Conversar com QiDomínio"
+          aria-label="Conversar com QiCond"
         >
           <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3">
             <div className="h-9 w-9 rounded-full bg-white/15 flex items-center justify-center shrink-0">
               <MessageCircle size={18} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-bold text-sm truncate">QiDomínio</div>
+              <div className="font-bold text-sm truncate">QiCond</div>
               <div className="text-[11px] text-white/80 flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-success shrink-0" />
                 <span className="truncate">Online · resposta em ~10 min</span>
@@ -926,7 +926,7 @@ function FloatingWhatsApp() {
             <div className="rounded-lg bg-surface-2 border border-border p-3 text-xs text-foreground mb-3">
               {savedLead?.nome
                 ? <>Olá, {savedLead.nome.split(" ")[0]}! 👋 Continue a conversa de onde paramos.</>
-                : <>Olá! 👋 Sou do time QiDomínio. Conta um pouco do seu condomínio que a gente te ajuda.</>}
+                : <>Olá! 👋 Sou do time QiCond. Conta um pouco do seu condomínio que a gente te ajuda.</>}
             </div>
             <label htmlFor="fab-wa-msg" className="text-[11px] font-semibold text-muted-foreground mb-1 block">Sua mensagem</label>
             <textarea

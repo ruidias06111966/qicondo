@@ -125,7 +125,7 @@ function LeadsPage() {
           {visiveis.map((lead) => {
             const wa = linkWhatsApp(
               lead.telefone,
-              `Olá ${lead.nome.split(" ")[0]}! Aqui é o QiDomínio. Vi seu interesse pelo nosso sistema para o ${lead.condominio}. Posso te ajudar?`,
+              `Olá ${lead.nome.split(" ")[0]}! Aqui é o QiCond. Vi seu interesse pelo nosso sistema para o ${lead.condominio}. Posso te ajudar?`,
             );
             return (
               <div key={lead.id} className="rounded-xl border border-border bg-surface p-4 md:p-5">

@@ -379,7 +379,7 @@ function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
   const faltVencida = placeholdersFaltando(tplVencida);
 
   const submit = async () => {
-    if (!cfg) return toast.error("Configure primeiro a aba PIX/Mercado Pago");
+    if (!cfg) return toast.error("Configure primeiro a aba Conta bancária do condomínio");
     if (tplLembrete.trim().length < 10) return toast.error("Modelo de lembrete muito curto");
     if (tplVencida.trim().length < 10) return toast.error("Modelo de cobrança vencida muito curto");
     if (faltLembrete.length > 0)
@@ -391,9 +391,6 @@ function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
       salvarConfigPagamento({
         data: {
           condominio_id: condominioId,
-          mp_access_token: null,
-          mp_public_key: null,
-          mp_webhook_secret: null,
           pix_chave: null,
           multa_percentual: cfg.multa_percentual,
           juros_dia_percentual: cfg.juros_dia_percentual,

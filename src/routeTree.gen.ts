@@ -50,7 +50,6 @@ import { Route as AppFinanceiroCobrancasRouteImport } from './routes/app.finance
 import { Route as AppFinanceiroCategoriasRouteImport } from './routes/app.financeiro.categorias'
 import { Route as ApiPublicWaWebhookRouteImport } from './routes/api.public.wa-webhook'
 import { Route as ApiPublicWaDrainRouteImport } from './routes/api/public/wa-drain'
-import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
 import { Route as ApiPublicHooksLembretesCobrancaRouteImport } from './routes/api/public/hooks/lembretes-cobranca'
 
 const TermosRoute = TermosRouteImport.update({
@@ -260,11 +259,6 @@ const ApiPublicWaDrainRoute = ApiPublicWaDrainRouteImport.update({
   path: '/api/public/wa-drain',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicMpWebhookRoute = ApiPublicMpWebhookRouteImport.update({
-  id: '/api/public/mp-webhook',
-  path: '/api/public/mp-webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicHooksLembretesCobrancaRoute =
   ApiPublicHooksLembretesCobrancaRouteImport.update({
     id: '/api/public/hooks/lembretes-cobranca',
@@ -304,7 +298,6 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
   '/app/': typeof AppIndexRoute
-  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
   '/app/financeiro/categorias': typeof AppFinanceiroCategoriasRoute
@@ -347,7 +340,6 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
   '/app': typeof AppIndexRoute
-  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
   '/app/financeiro/categorias': typeof AppFinanceiroCategoriasRoute
@@ -393,7 +385,6 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
   '/app/': typeof AppIndexRoute
-  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
   '/app/financeiro/categorias': typeof AppFinanceiroCategoriasRoute
@@ -440,7 +431,6 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/redefinir-senha'
     | '/app/'
-    | '/api/public/mp-webhook'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
     | '/app/financeiro/categorias'
@@ -483,7 +473,6 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/redefinir-senha'
     | '/app'
-    | '/api/public/mp-webhook'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
     | '/app/financeiro/categorias'
@@ -528,7 +517,6 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/redefinir-senha'
     | '/app/'
-    | '/api/public/mp-webhook'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
     | '/app/financeiro/categorias'
@@ -561,7 +549,6 @@ export interface RootRouteChildren {
   AuthEsqueciSenhaRoute: typeof AuthEsqueciSenhaRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRedefinirSenhaRoute: typeof AuthRedefinirSenhaRoute
-  ApiPublicMpWebhookRoute: typeof ApiPublicMpWebhookRoute
   ApiPublicWaDrainRoute: typeof ApiPublicWaDrainRoute
   ApiPublicWaWebhookRoute: typeof ApiPublicWaWebhookRoute
   AuthConviteTokenRoute: typeof AuthConviteTokenRoute
@@ -857,13 +844,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWaDrainRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/mp-webhook': {
-      id: '/api/public/mp-webhook'
-      path: '/api/public/mp-webhook'
-      fullPath: '/api/public/mp-webhook'
-      preLoaderRoute: typeof ApiPublicMpWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/hooks/lembretes-cobranca': {
       id: '/api/public/hooks/lembretes-cobranca'
       path: '/api/public/hooks/lembretes-cobranca'
@@ -951,7 +931,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthEsqueciSenhaRoute: AuthEsqueciSenhaRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRedefinirSenhaRoute: AuthRedefinirSenhaRoute,
-  ApiPublicMpWebhookRoute: ApiPublicMpWebhookRoute,
   ApiPublicWaDrainRoute: ApiPublicWaDrainRoute,
   ApiPublicWaWebhookRoute: ApiPublicWaWebhookRoute,
   AuthConviteTokenRoute: AuthConviteTokenRoute,
@@ -960,3 +939,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

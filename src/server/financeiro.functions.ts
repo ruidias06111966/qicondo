@@ -345,22 +345,27 @@ export const obterConfigPagamento = createServerFn({ method: "POST" })
     const { data: row } = await supabaseAdmin
       .from("config_pagamento")
       .select(
-        "condominio_id, mp_public_key, pix_chave, multa_percentual, juros_dia_percentual, dias_envio_lembrete, ativo, mp_access_token, mp_webhook_secret, wa_automacao_ativa, wa_dias_pre_vencimento, wa_dias_pos_vencimento, wa_template_lembrete, wa_template_vencida",
+        "condominio_id, pix_chave, multa_percentual, juros_dia_percentual, dias_envio_lembrete, ativo, banco_nome, banco_agencia, banco_conta, banco_tipo_conta, banco_titular, banco_cnpj, instrucoes_boleto, wa_automacao_ativa, wa_dias_pre_vencimento, wa_dias_pos_vencimento, wa_template_lembrete, wa_template_vencida",
       )
       .eq("condominio_id", data.condominio_id)
       .maybeSingle();
     if (!row) return null;
     const pix = row.pix_chave as string | null;
+    const conta = row.banco_conta as string | null;
     return {
       condominio_id: row.condominio_id,
-      mp_public_key: row.mp_public_key,
       pix_chave_mascarada: pix && pix.length >= 4 ? "****" + pix.slice(-4) : null,
       multa_percentual: row.multa_percentual,
       juros_dia_percentual: row.juros_dia_percentual,
       dias_envio_lembrete: row.dias_envio_lembrete,
       ativo: row.ativo,
-      mp_token_configured: !!row.mp_access_token,
-      mp_webhook_configured: !!row.mp_webhook_secret,
+      banco_nome: row.banco_nome,
+      banco_agencia: row.banco_agencia,
+      banco_conta_mascarada: conta && conta.length >= 2 ? "****" + conta.slice(-2) : null,
+      banco_tipo_conta: row.banco_tipo_conta,
+      banco_titular: row.banco_titular,
+      banco_cnpj: row.banco_cnpj,
+      instrucoes_boleto: row.instrucoes_boleto,
       wa_automacao_ativa: row.wa_automacao_ativa ?? false,
       wa_dias_pre_vencimento: row.wa_dias_pre_vencimento ?? [3, 1],
       wa_dias_pos_vencimento: row.wa_dias_pos_vencimento ?? [1, 7, 15],

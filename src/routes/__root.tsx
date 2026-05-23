@@ -32,22 +32,22 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "QiDomínio — Gestão de condomínio pelo WhatsApp" },
+      { title: "QiCond — Gestão de condomínio pelo WhatsApp" },
       {
         name: "description",
         content:
-          "QiDomínio é o sistema de gestão para pequenos condomínios feito para o WhatsApp. Cobranças, reservas, encomendas e prestação de contas em um só lugar. A partir de R$ 29/mês.",
+          "QiCond é o sistema de gestão para pequenos condomínios feito para o WhatsApp. Cobranças, reservas, encomendas e prestação de contas em um só lugar. A partir de R$ 29/mês.",
       },
-      { name: "author", content: "QiDomínio" },
+      { name: "author", content: "QiCond" },
       { name: "theme-color", content: "#0B7A55" },
-      { property: "og:title", content: "QiDomínio — Gestão de condomínio pelo WhatsApp" },
+      { property: "og:title", content: "QiCond — Gestão de condomínio pelo WhatsApp" },
       {
         property: "og:description",
         content:
           "Cobranças automáticas, reservas e prestação de contas no WhatsApp. Para condomínios de até 50 unidades a partir de R$ 29/mês.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "QiDomínio" },
+      { property: "og:site_name", content: "QiCond" },
       { property: "og:locale", content: "pt_BR" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

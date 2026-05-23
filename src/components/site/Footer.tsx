@@ -49,7 +49,7 @@ export function Footer() {
 
       <div className="border-t border-border">
         <div className="mx-auto max-w-7xl px-4 md:px-8 py-5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <div>© {year} QiDomínio · Gestão de condomínio pelo WhatsApp</div>
+          <div>© {year} QiCond · Gestão de condomínio pelo WhatsApp</div>
           <div className="flex items-center gap-4">
             <span>CNPJ em constituição</span>
             <span className="hidden md:inline">·</span>

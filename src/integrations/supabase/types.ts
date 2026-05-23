@@ -592,14 +592,17 @@ export type Database = {
       config_pagamento: {
         Row: {
           ativo: boolean
+          banco_agencia: string | null
+          banco_cnpj: string | null
+          banco_conta: string | null
+          banco_nome: string | null
+          banco_tipo_conta: string | null
+          banco_titular: string | null
           condominio_id: string
           created_at: string
           dias_envio_lembrete: number
+          instrucoes_boleto: string | null
           juros_dia_percentual: number
-          mp_access_token: string | null
-          mp_public_key: string | null
-          mp_user_id: string | null
-          mp_webhook_secret: string | null
           multa_percentual: number
           pix_chave: string | null
           updated_at: string
@@ -611,14 +614,17 @@ export type Database = {
         }
         Insert: {
           ativo?: boolean
+          banco_agencia?: string | null
+          banco_cnpj?: string | null
+          banco_conta?: string | null
+          banco_nome?: string | null
+          banco_tipo_conta?: string | null
+          banco_titular?: string | null
           condominio_id: string
           created_at?: string
           dias_envio_lembrete?: number
+          instrucoes_boleto?: string | null
           juros_dia_percentual?: number
-          mp_access_token?: string | null
-          mp_public_key?: string | null
-          mp_user_id?: string | null
-          mp_webhook_secret?: string | null
           multa_percentual?: number
           pix_chave?: string | null
           updated_at?: string
@@ -630,14 +636,17 @@ export type Database = {
         }
         Update: {
           ativo?: boolean
+          banco_agencia?: string | null
+          banco_cnpj?: string | null
+          banco_conta?: string | null
+          banco_nome?: string | null
+          banco_tipo_conta?: string | null
+          banco_titular?: string | null
           condominio_id?: string
           created_at?: string
           dias_envio_lembrete?: number
+          instrucoes_boleto?: string | null
           juros_dia_percentual?: number
-          mp_access_token?: string | null
-          mp_public_key?: string | null
-          mp_user_id?: string | null
-          mp_webhook_secret?: string | null
           multa_percentual?: number
           pix_chave?: string | null
           updated_at?: string
@@ -1812,33 +1821,48 @@ export type Database = {
       config_pagamento_safe: {
         Row: {
           ativo: boolean | null
+          banco_agencia: string | null
+          banco_cnpj: string | null
+          banco_conta_mascarada: string | null
+          banco_nome: string | null
+          banco_tipo_conta: string | null
+          banco_titular: string | null
           condominio_id: string | null
           dias_envio_lembrete: number | null
+          instrucoes_boleto: string | null
           juros_dia_percentual: number | null
-          mp_public_key: string | null
-          mp_token_configured: boolean | null
           multa_percentual: number | null
           pix_chave_mascarada: string | null
           updated_at: string | null
         }
         Insert: {
           ativo?: boolean | null
+          banco_agencia?: string | null
+          banco_cnpj?: string | null
+          banco_conta_mascarada?: never
+          banco_nome?: string | null
+          banco_tipo_conta?: string | null
+          banco_titular?: string | null
           condominio_id?: string | null
           dias_envio_lembrete?: number | null
+          instrucoes_boleto?: string | null
           juros_dia_percentual?: number | null
-          mp_public_key?: string | null
-          mp_token_configured?: never
           multa_percentual?: number | null
           pix_chave_mascarada?: never
           updated_at?: string | null
         }
         Update: {
           ativo?: boolean | null
+          banco_agencia?: string | null
+          banco_cnpj?: string | null
+          banco_conta_mascarada?: never
+          banco_nome?: string | null
+          banco_tipo_conta?: string | null
+          banco_titular?: string | null
           condominio_id?: string | null
           dias_envio_lembrete?: number | null
+          instrucoes_boleto?: string | null
           juros_dia_percentual?: number | null
-          mp_public_key?: string | null
-          mp_token_configured?: never
           multa_percentual?: number | null
           pix_chave_mascarada?: never
           updated_at?: string | null

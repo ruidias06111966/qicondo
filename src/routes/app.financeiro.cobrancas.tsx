@@ -9,7 +9,7 @@ import {
   registrarPagamentoManual,
   enviarLembreteCobranca,
 } from "@/server/financeiro.functions";
-import { criarPixCobranca } from "@/server/mercadopago.functions";
+
 import { brl, dateBR, competenciaBR } from "@/lib/format";
 import {
   Modal, Field, EmptyState, StatusBadge, safeCall,
@@ -17,7 +17,7 @@ import {
 import { emitChanged } from "@/lib/safe-call";
 import { toast } from "sonner";
 import {
-  FileText, Plus, Loader2, X, CheckCircle2, QrCode, Copy, MessageCircle,
+  FileText, Plus, Loader2, X, CheckCircle2, MessageCircle,
 } from "lucide-react";
 
 export const Route = createFileRoute("/app/financeiro/cobrancas")({

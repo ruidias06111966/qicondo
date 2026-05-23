@@ -42,13 +42,15 @@ export const Route = createFileRoute("/api/public/wa-webhook")({
               const cfg = await getConfigByPhoneNumberId(phoneNumberId);
               if (!cfg || !cfg.ativo) continue;
 
-              // Verifica assinatura quando há app_secret
-              if (cfg.app_secret) {
-                const sig = request.headers.get("x-hub-signature-256");
-                if (!verifySignature(cfg.app_secret, raw, sig)) {
-                  console.warn("[wa-webhook] assinatura inválida", cfg.condominio_id);
-                  continue;
-                }
+              // Fail-secure: exige app_secret e assinatura válida
+              if (!cfg.app_secret) {
+                console.warn("[wa-webhook] app_secret não configurado — payload ignorado", cfg.condominio_id);
+                continue;
+              }
+              const sig = request.headers.get("x-hub-signature-256");
+              if (!verifySignature(cfg.app_secret, raw, sig)) {
+                console.warn("[wa-webhook] assinatura inválida", cfg.condominio_id);
+                continue;
               }
 
               // Atualizações de status (sent/delivered/read/failed)

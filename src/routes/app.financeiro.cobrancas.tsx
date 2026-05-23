@@ -32,7 +32,7 @@ function CobrancasPage() {
   const [filter, setFilter] = useState<string>("todos");
   const [showLote, setShowLote] = useState(false);
   const [showPagar, setShowPagar] = useState<any>(null);
-  const [showPix, setShowPix] = useState<any>(null);
+  
 
   const reload = () => {
     if (!condominioId) return;
@@ -143,16 +143,6 @@ function CobrancasPage() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1">
-                        {(isMorador || podeGerir) &&
-                          (r.status === "pendente" || r.status === "vencida" || r.status === "parcial") && (
-                            <button
-                              onClick={() => setShowPix(r)}
-                              className="p-2 rounded hover:bg-muted text-primary"
-                              title="Gerar PIX"
-                            >
-                              <QrCode size={16} />
-                            </button>
-                          )}
                         {podeGerir && r.status !== "paga" && r.status !== "cancelada" && (
                           <>
                             <button
@@ -216,9 +206,6 @@ function CobrancasPage() {
             reload();
           }}
         />
-      )}
-      {showPix && (
-        <ModalPix cobranca={showPix} onClose={() => setShowPix(null)} onPaid={reload} />
       )}
     </div>
   );

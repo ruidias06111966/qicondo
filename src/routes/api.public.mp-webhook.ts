@@ -147,8 +147,8 @@ export const Route = createFileRoute("/api/public/mp-webhook")({
 
           return new Response(JSON.stringify({ ok: true }), { status: 200 });
         } catch (e: any) {
-          console.error("MP Webhook error:", e?.message);
-          return new Response(JSON.stringify({ error: e?.message }), { status: 200 });
+          console.error("MP Webhook error:", e);
+          return new Response(JSON.stringify({ error: "internal_error" }), { status: 200 });
         }
       },
       GET: async () => new Response("ok", { status: 200 }),

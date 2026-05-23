@@ -79,7 +79,8 @@ export const criarPixCobranca = createServerFn({ method: "POST" })
 
     if (!resp.ok) {
       const txt = await resp.text();
-      throw new Error(`Erro Mercado Pago [${resp.status}]: ${txt.slice(0, 300)}`);
+      console.error("[criarPixCobranca] MP error", resp.status, txt);
+      throw new Error("Não foi possível gerar o PIX. Tente novamente ou contate o síndico.");
     }
     const payment = await resp.json();
     const pix = payment.point_of_interaction?.transaction_data;

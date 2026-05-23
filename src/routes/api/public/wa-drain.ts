@@ -5,7 +5,14 @@ import { drenarFila } from "@/server/documentos.server";
 export const Route = createFileRoute("/api/public/wa-drain")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "")
+          ?? request.headers.get("x-cron-secret");
+        const expected = process.env.CRON_SECRET;
+        if (!expected || !token || token !== expected) {
+          return new Response("Unauthorized", { status: 401 });
+        }
+
         const { data: conds } = await supabaseAdmin
           .from("wa_config")
           .select("condominio_id")

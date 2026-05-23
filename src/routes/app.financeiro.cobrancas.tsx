@@ -26,7 +26,7 @@ export const Route = createFileRoute("/app/financeiro/cobrancas")({
 });
 
 function CobrancasPage() {
-  const { condominioId, podeGerirFinanceiro: podeGerir, isMorador } = useCondominioAtivo();
+  const { condominioId, podeGerirFinanceiro: podeGerir } = useCondominioAtivo();
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("todos");

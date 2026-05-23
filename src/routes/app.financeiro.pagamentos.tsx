@@ -12,7 +12,7 @@ import { brl, dateBR } from "@/lib/format";
 import { Field, EmptyState, safeCall } from "@/components/financeiro/ui";
 import { emitChanged } from "@/lib/safe-call";
 import { toast } from "sonner";
-import { CreditCard, Loader2, Save, CheckCircle2, MessageCircle, Send, Eye } from "lucide-react";
+import { CreditCard, Loader2, Save, MessageCircle, Send, Eye } from "lucide-react";
 
 export const Route = createFileRoute("/app/financeiro/pagamentos")({
   head: () => ({ meta: [{ title: "Pagamentos — Financeiro" }] }),

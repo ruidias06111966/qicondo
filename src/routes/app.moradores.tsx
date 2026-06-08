@@ -11,9 +11,22 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/app/moradores")({
-  head: () => ({ meta: [{ title: "Moradores — WHATSCOND" }] }),
+  head: () => ({ meta: [{ title: "Utilizadores — QiCond" }] }),
   component: MoradoresPage,
 });
+
+const ROLE_LABELS: Record<string, string> = {
+  admin: "Administrador",
+  sindico: "Síndico (legado)",
+  financeiro: "Financeiro",
+  contador: "Contador",
+  gestor: "Gestor",
+  vendedor: "Vendedor",
+  comercial: "Comercial",
+  consulta: "Consulta",
+  porteiro: "Porteiro",
+  morador: "Morador",
+};
 
 type Membro = { user_id: string; role: string; nome: string | null; telefone: string | null; email: string | null };
 
@@ -24,11 +37,13 @@ function MoradoresPage() {
   const [convites, setConvites] = useState<any[]>([]);
 
   // form convite
+  // form convite
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [nome, setNome] = useState("");
   const [role, setRole] = useState("morador");
   const [enviando, setEnviando] = useState(false);
+  const [filtroEquipe, setFiltroEquipe] = useState(true);
 
   const carregar = async () => {
     if (!condominioId) return;

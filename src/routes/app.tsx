@@ -12,7 +12,9 @@ export const Route = createFileRoute("/app")({
   component: AppLayout,
 });
 
-type Role = "sindico" | "morador" | "contador" | "porteiro";
+type Role =
+  | "sindico" | "admin" | "morador" | "contador" | "porteiro"
+  | "financeiro" | "gestor" | "vendedor" | "comercial" | "consulta";
 type NavItem = {
   to: string;
   label: string;
@@ -20,16 +22,18 @@ type NavItem = {
   exact?: boolean;
   roles?: Role[]; // se omitido, todos veem
 };
+const ADMIN: Role[] = ["sindico", "admin"];
+const FINANCEIRO: Role[] = ["sindico", "admin", "contador", "financeiro"];
 const NAV: NavItem[] = [
   { to: "/app", label: "Visão geral", icon: LayoutDashboard, exact: true },
-  { to: "/app/financeiro", label: "Financeiro", icon: Wallet },
+  { to: "/app/financeiro", label: "Financeiro", icon: Wallet, roles: FINANCEIRO },
   { to: "/app/reservas", label: "Reservas", icon: Calendar },
-  { to: "/app/encomendas", label: "Encomendas", icon: Package, roles: ["sindico", "porteiro"] },
+  { to: "/app/encomendas", label: "Encomendas", icon: Package, roles: ["sindico", "admin", "porteiro"] },
   { to: "/app/ocorrencias", label: "Ocorrências", icon: Wrench },
-  { to: "/app/moradores", label: "Moradores", icon: Users, roles: ["sindico"] },
-  { to: "/app/condominio", label: "Condomínio", icon: Building2, roles: ["sindico"] },
-  { to: "/app/whatsapp", label: "WhatsApp", icon: MessageCircle, roles: ["sindico"] },
-  { to: "/app/leads", label: "Leads do site", icon: Inbox, roles: ["sindico"] },
+  { to: "/app/moradores", label: "Utilizadores", icon: Users, roles: ADMIN },
+  { to: "/app/condominio", label: "Empresa", icon: Building2, roles: ADMIN },
+  { to: "/app/whatsapp", label: "WhatsApp", icon: MessageCircle, roles: ADMIN },
+  { to: "/app/leads", label: "Leads do site", icon: Inbox, roles: ADMIN },
   { to: "/app/configuracoes", label: "Configurações", icon: Settings },
 ];
 

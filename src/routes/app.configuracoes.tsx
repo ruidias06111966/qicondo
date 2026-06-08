@@ -3,7 +3,7 @@ import { Building2, MessageCircle, Users, FileText, Wallet, Settings, Bell } fro
 import { useCondominioAtivo } from "@/auth/useCondominio";
 
 export const Route = createFileRoute("/app/configuracoes")({
-  head: () => ({ meta: [{ title: "Configurações — WHATSCOND" }] }),
+  head: () => ({ meta: [{ title: "Configurações — QiCond" }] }),
   component: ConfigPage,
 });
 

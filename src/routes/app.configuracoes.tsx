@@ -3,19 +3,24 @@ import { Building2, MessageCircle, Users, FileText, Wallet, Settings, Bell } fro
 import { useCondominioAtivo } from "@/auth/useCondominio";
 
 export const Route = createFileRoute("/app/configuracoes")({
-  head: () => ({ meta: [{ title: "Configurações — WHATSCOND" }] }),
+  head: () => ({ meta: [{ title: "Configurações — QiCond" }] }),
   component: ConfigPage,
 });
 
-type Role = "sindico" | "morador" | "contador" | "porteiro";
+type Role =
+  | "sindico" | "admin" | "morador" | "contador" | "porteiro"
+  | "financeiro" | "gestor" | "vendedor" | "comercial" | "consulta";
 type Item = { to: string; icon: typeof Building2; title: string; desc: string; roles?: Role[] };
 
+const ADMIN: Role[] = ["sindico", "admin"];
+const FINANCEIRO: Role[] = ["sindico", "admin", "contador", "financeiro"];
+
 const ITEMS: Item[] = [
-  { to: "/app/condominio", icon: Building2, title: "Dados do condomínio", desc: "CNPJ, endereço, código público.", roles: ["sindico"] },
-  { to: "/app/moradores", icon: Users, title: "Moradores e equipe", desc: "Convide síndicos, contadores e moradores.", roles: ["sindico"] },
+  { to: "/app/condominio", icon: Building2, title: "Dados da empresa", desc: "Nome, CNPJ, endereço e código público.", roles: ADMIN },
+  { to: "/app/moradores", icon: Users, title: "Utilizadores e moradores", desc: "Convide a equipa (Administrador, Financeiro, Gestor, Vendedor, Comercial, Contador, Consulta) e os moradores.", roles: ADMIN },
   { to: "/app/documentos", icon: FileText, title: "Documentos oficiais", desc: "Atas, convenções, regimentos." },
-  { to: "/app/whatsapp", icon: MessageCircle, title: "WhatsApp Bot", desc: "Integração Meta Cloud API.", roles: ["sindico"] },
-  { to: "/app/financeiro", icon: Wallet, title: "Financeiro", desc: "Cobranças, pagamentos, CNAB." },
+  { to: "/app/whatsapp", icon: MessageCircle, title: "WhatsApp Bot", desc: "Integração Meta Cloud API.", roles: ADMIN },
+  { to: "/app/financeiro", icon: Wallet, title: "Financeiro", desc: "Cobranças, pagamentos, CNAB.", roles: FINANCEIRO },
   { to: "/app/preferencias-notificacao", icon: Bell, title: "Preferências de notificação", desc: "Escolha o que recebe pelo WhatsApp." },
 ];
 

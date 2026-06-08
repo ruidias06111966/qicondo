@@ -19,7 +19,17 @@ type Profile = {
 
 type RoleRow = {
   condominio_id: string;
-  role: "sindico" | "morador" | "contador" | "porteiro";
+  role:
+    | "sindico"
+    | "admin"
+    | "morador"
+    | "contador"
+    | "porteiro"
+    | "financeiro"
+    | "gestor"
+    | "vendedor"
+    | "comercial"
+    | "consulta";
 };
 
 type AuthState = {

@@ -9,7 +9,7 @@ import { Logo } from "@/components/site/Logo";
 import { Building2, Users, Sparkles, ArrowRight, Loader2, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/onboarding")({
-  head: () => ({ meta: [{ title: "Bem-vindo — WHATSCOND" }] }),
+  head: () => ({ meta: [{ title: "Bem-vindo — QiCond" }] }),
   component: OnboardingPage,
 });
 
@@ -66,7 +66,7 @@ function OnboardingPage() {
     if (error || !novoId) { toast.error(error?.message ?? "Falha"); return; }
     setCondId(novoId as string);
     await refresh();
-    toast.success("Condomínio criado!");
+    toast.success("Empresa cadastrada!");
     setStep("criar-unidades");
   }
 
@@ -101,8 +101,8 @@ function OnboardingPage() {
       toast.error(msg);
       return;
     }
-    const nome = (data as Array<{ nome: string }> | null)?.[0]?.nome ?? "condomínio";
-    toast.success(`Você entrou em ${nome}!`);
+    const nome = (data as Array<{ nome: string }> | null)?.[0]?.nome ?? "empresa";
+    toast.success(`Bem-vindo a ${nome}!`);
     await refresh();
     navigate({ to: "/app" });
   }
@@ -120,21 +120,21 @@ function OnboardingPage() {
         {step === "intro" && (
           <div>
             <p className="text-sm text-muted-foreground">Olá, {(profile?.nome_completo || user.email || "").split(" ")[0]}</p>
-            <h1 className="font-display text-4xl font-extrabold mt-2">Como você vai usar o WHATSCOND?</h1>
-            <p className="mt-3 text-muted-foreground">Escolha como quer começar. Você pode sempre adicionar mais condomínios depois.</p>
+            <h1 className="font-display text-4xl font-extrabold mt-2">Como vai usar o QiCond?</h1>
+            <p className="mt-3 text-muted-foreground">Escolha o ponto de partida. Pode sempre adicionar mais empresas ou aceitar novos convites depois.</p>
 
             <div className="mt-8 grid sm:grid-cols-2 gap-4">
               <button onClick={() => setStep("criar")} className="text-left p-6 rounded-2xl border-2 border-border hover:border-primary bg-background transition-colors group">
                 <div className="h-11 w-11 rounded-xl bg-primary text-primary-foreground flex items-center justify-center"><Building2 size={20} /></div>
-                <h3 className="mt-4 font-display font-bold text-lg">Sou síndico</h3>
-                <p className="mt-1 text-sm text-muted-foreground">Cadastrar meu condomínio e começar do zero.</p>
+                <h3 className="mt-4 font-display font-bold text-lg">Cadastrar a minha empresa</h3>
+                <p className="mt-1 text-sm text-muted-foreground">Crio a empresa e fico como Administrador. Depois convido a equipa.</p>
                 <span className="mt-3 inline-flex items-center text-sm text-primary font-semibold group-hover:gap-2 gap-1 transition-all">Começar <ArrowRight size={14} /></span>
               </button>
 
               <button onClick={() => setStep("entrar")} className="text-left p-6 rounded-2xl border-2 border-border hover:border-primary bg-background transition-colors group">
                 <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center"><Users size={20} /></div>
-                <h3 className="mt-4 font-display font-bold text-lg">Sou morador</h3>
-                <p className="mt-1 text-sm text-muted-foreground">Entrar no condomínio com o código que recebi do síndico.</p>
+                <h3 className="mt-4 font-display font-bold text-lg">Entrar com código</h3>
+                <p className="mt-1 text-sm text-muted-foreground">Já tenho o código público partilhado pelo Administrador da empresa.</p>
                 <span className="mt-3 inline-flex items-center text-sm text-primary font-semibold group-hover:gap-2 gap-1 transition-all">Entrar <ArrowRight size={14} /></span>
               </button>
             </div>
@@ -142,16 +142,19 @@ function OnboardingPage() {
         )}
 
         {step === "criar" && (
-          <Card title="Dados do condomínio" subtitle="Você poderá editar tudo depois.">
+          <Card title="Dados da empresa" subtitle="Pode editar tudo depois em Empresa.">
             <div className="grid sm:grid-cols-2 gap-3">
-              <Input label="Nome*" value={cond.nome} onChange={(v) => setCond({ ...cond, nome: v })} />
+              <Input label="Nome da empresa*" value={cond.nome} onChange={(v) => setCond({ ...cond, nome: v })} className="sm:col-span-2" />
               <Input label="CNPJ" value={cond.cnpj} onChange={(v) => setCond({ ...cond, cnpj: v })} />
+              <Input label="WhatsApp da empresa" value={cond.whatsapp_numero} onChange={(v) => setCond({ ...cond, whatsapp_numero: v })} />
               <Input label="Endereço" value={cond.endereco} onChange={(v) => setCond({ ...cond, endereco: v })} className="sm:col-span-2" />
               <Input label="Cidade" value={cond.cidade} onChange={(v) => setCond({ ...cond, cidade: v })} />
               <Input label="UF" maxLength={2} value={cond.estado} onChange={(v) => setCond({ ...cond, estado: v.toUpperCase() })} />
               <Input label="CEP" value={cond.cep} onChange={(v) => setCond({ ...cond, cep: v })} />
-              <Input label="WhatsApp do condomínio" value={cond.whatsapp_numero} onChange={(v) => setCond({ ...cond, whatsapp_numero: v })} />
             </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Ficará automaticamente registado como <b>Administrador</b> desta empresa. Depois convida a equipa em <b>Utilizadores</b>.
+            </p>
             <Actions>
               <button onClick={() => setStep("intro")} className="btn-ghost">Voltar</button>
               <button onClick={criarCondominio} disabled={busy} className="btn-primary">
@@ -178,10 +181,10 @@ function OnboardingPage() {
         )}
 
         {step === "entrar" && (
-          <Card title="Entrar como morador" subtitle="Use o código público que o síndico forneceu (ex: COND-A1B2C3).">
-            <Input label="Código do condomínio" value={codigo} onChange={(v) => setCodigo(v.toUpperCase())} placeholder="COND-XXXXXX" />
+          <Card title="Entrar com código" subtitle="Use o código público partilhado pelo Administrador (ex: COND-A1B2C3).">
+            <Input label="Código da empresa" value={codigo} onChange={(v) => setCodigo(v.toUpperCase())} placeholder="COND-XXXXXX" />
             <p className="mt-3 text-xs text-muted-foreground">
-              Não tem código? Peça ao síndico para enviar um <b>link de convite</b> pelo WhatsApp.
+              Não tem código? Peça ao Administrador para enviar um <b>link de convite</b> com o seu perfil já definido.
             </p>
             <Actions>
               <button onClick={() => setStep("intro")} className="btn-ghost">Voltar</button>
@@ -193,15 +196,15 @@ function OnboardingPage() {
         )}
 
         {step === "pronto" && (
-          <Card title="Tudo pronto!" subtitle="Seu condomínio já está no WHATSCOND.">
+          <Card title="Tudo pronto!" subtitle="A sua empresa já está no QiCond.">
             <div className="flex items-start gap-3 p-4 bg-primary/5 rounded-lg">
               <Sparkles className="text-primary shrink-0" />
               <div className="text-sm">
                 <p className="font-semibold">Próximos passos sugeridos</p>
                 <ul className="mt-2 list-disc pl-5 text-muted-foreground space-y-1">
-                  <li>Convide os moradores</li>
-                  <li>Configure as áreas comuns para reservas</li>
-                  <li>Conecte o WhatsApp oficial (Fase 5)</li>
+                  <li>Convidar a equipa em <b>Utilizadores</b></li>
+                  <li>Configurar dados bancários em <b>Financeiro → Pagamentos</b></li>
+                  <li>Ligar o WhatsApp oficial</li>
                 </ul>
               </div>
             </div>

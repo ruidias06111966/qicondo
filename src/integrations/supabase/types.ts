@@ -2039,6 +2039,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: {
+        Args: { _condominio_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_contador: {
         Args: { _condominio_id: string; _user_id: string }
         Returns: boolean
@@ -2066,6 +2070,10 @@ export type Database = {
       marcar_encomenda_retirada: {
         Args: { _encomenda_id: string; _retirado_por_nome: string }
         Returns: undefined
+      }
+      pode_gerir_financeiro: {
+        Args: { _condominio_id: string; _user_id: string }
+        Returns: boolean
       }
       recusar_reserva: {
         Args: { _motivo: string; _reserva_id: string }
@@ -2134,7 +2142,17 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "sindico" | "morador" | "contador" | "porteiro"
+      app_role:
+        | "sindico"
+        | "morador"
+        | "contador"
+        | "porteiro"
+        | "admin"
+        | "financeiro"
+        | "gestor"
+        | "vendedor"
+        | "comercial"
+        | "consulta"
       cnab_banco:
         | "sicoob"
         | "itau"
@@ -2353,7 +2371,18 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["sindico", "morador", "contador", "porteiro"],
+      app_role: [
+        "sindico",
+        "morador",
+        "contador",
+        "porteiro",
+        "admin",
+        "financeiro",
+        "gestor",
+        "vendedor",
+        "comercial",
+        "consulta",
+      ],
       cnab_banco: [
         "sicoob",
         "itau",

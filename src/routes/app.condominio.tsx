@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { buscarCEP, formatCEP, formatCNPJ, isValidCNPJ, onlyDigits } from "@/lib/br-validators";
 
 export const Route = createFileRoute("/app/condominio")({
-  head: () => ({ meta: [{ title: "Condomínio — WHATSCOND" }] }),
+  head: () => ({ meta: [{ title: "Empresa — QiCond" }] }),
   component: CondominioPage,
 });
 
@@ -98,7 +98,7 @@ function CondominioPage() {
           <AlertCircle className="text-amber-500 shrink-0" />
           <div>
             <p className="font-semibold">Acesso restrito</p>
-            <p className="text-sm text-muted-foreground">Apenas síndicos podem editar dados do condomínio.</p>
+            <p className="text-sm text-muted-foreground">Apenas administradores podem editar dados da empresa.</p>
           </div>
         </div>
       </div>
@@ -112,7 +112,7 @@ function CondominioPage() {
       <header className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center"><Building2 /></div>
         <div>
-          <h1 className="text-2xl font-display font-bold">Dados do condomínio</h1>
+          <h1 className="text-2xl font-display font-bold">Dados da empresa</h1>
           <p className="text-sm text-muted-foreground">Edite informações cadastrais e compartilhe o código de acesso.</p>
         </div>
       </header>
@@ -129,7 +129,7 @@ function CondominioPage() {
             {cnpjErr && <p className="text-xs text-destructive mt-1">{cnpjErr}</p>}
           </div>
           <div>
-            <Label>WhatsApp do condomínio</Label>
+            <Label>WhatsApp da empresa</Label>
             <Input value={f.whatsapp_numero} onChange={(e) => upd("whatsapp_numero", e.target.value)} placeholder="+55 11 90000-0000" />
           </div>
           <div>

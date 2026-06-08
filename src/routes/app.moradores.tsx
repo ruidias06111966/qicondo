@@ -114,12 +114,17 @@ function MoradoresPage() {
           <AlertCircle className="text-amber-500 shrink-0" />
           <div>
             <p className="font-semibold">Acesso restrito</p>
-            <p className="text-sm text-muted-foreground">Apenas síndicos podem gerenciar moradores e convites.</p>
+            <p className="text-sm text-muted-foreground">Apenas administradores da empresa podem gerir utilizadores e convites.</p>
           </div>
         </div>
       </div>
     );
   }
+
+  const PERFIS_EQUIPE = new Set(["admin", "sindico", "financeiro", "contador", "gestor", "vendedor", "comercial", "consulta", "porteiro"]);
+  const membrosVisiveis = filtroEquipe
+    ? membros.filter((m) => PERFIS_EQUIPE.has(m.role))
+    : membros;
 
   return (
     <div className="p-6 max-w-6xl space-y-6">
@@ -127,38 +132,61 @@ function MoradoresPage() {
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center"><Users /></div>
           <div>
-            <h1 className="text-2xl font-display font-bold">Moradores e equipe</h1>
-            <p className="text-sm text-muted-foreground">Gerencie síndicos, contadores, porteiros e moradores.</p>
+            <h1 className="text-2xl font-display font-bold">Utilizadores</h1>
+            <p className="text-sm text-muted-foreground">Convide a equipa da empresa (Administrador, Financeiro, Gestor, Vendedor, Comercial, Contador, Consulta) e os moradores.</p>
           </div>
         </div>
-        <Button onClick={() => setOpen((v) => !v)}><Plus size={16} className="mr-2" /> Novo convite</Button>
+        <Button onClick={() => setOpen((v) => !v)}><Plus size={16} className="mr-2" /> Novo utilizador</Button>
       </header>
+
+      <div className="flex gap-2">
+        <button
+          onClick={() => setFiltroEquipe(true)}
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold transition ${filtroEquipe ? "bg-primary text-primary-foreground" : "bg-surface border border-border text-foreground hover:border-primary"}`}
+        >
+          Equipa interna
+        </button>
+        <button
+          onClick={() => setFiltroEquipe(false)}
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold transition ${!filtroEquipe ? "bg-primary text-primary-foreground" : "bg-surface border border-border text-foreground hover:border-primary"}`}
+        >
+          Todos (incluir moradores)
+        </button>
+      </div>
 
       {open && (
         <section className="rounded-xl border border-border bg-background p-5 space-y-4">
-          <h2 className="font-semibold">Enviar convite</h2>
+          <h2 className="font-semibold">Convidar novo utilizador</h2>
           <div className="grid sm:grid-cols-3 gap-4">
+            <div>
+              <Label>Nome</Label>
+              <Input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome completo" />
+            </div>
             <div>
               <Label>E-mail *</Label>
               <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@dominio.com" />
             </div>
             <div>
-              <Label>Nome</Label>
-              <Input value={nome} onChange={(e) => setNome(e.target.value)} />
-            </div>
-            <div>
-              <Label>Papel</Label>
+              <Label>Perfil *</Label>
               <Select value={role} onValueChange={setRole}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="sindico">Co-síndico</SelectItem>
-                  <SelectItem value="contador">Contador</SelectItem>
-                  <SelectItem value="porteiro">Porteiro</SelectItem>
+                  <SelectItem value="admin">Administrador — acesso total</SelectItem>
+                  <SelectItem value="financeiro">Financeiro — cobranças, pagamentos, despesas</SelectItem>
+                  <SelectItem value="contador">Contador — financeiro + CNAB</SelectItem>
+                  <SelectItem value="gestor">Gestor — operação e relatórios</SelectItem>
+                  <SelectItem value="vendedor">Vendedor — leads e prospecção</SelectItem>
+                  <SelectItem value="comercial">Comercial — leads e propostas</SelectItem>
+                  <SelectItem value="consulta">Consulta — só leitura</SelectItem>
+                  <SelectItem value="porteiro">Porteiro — encomendas, visitantes, ocorrências</SelectItem>
                   <SelectItem value="morador">Morador</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
+          <p className="text-xs text-muted-foreground">
+            Após criar o convite, copie o link e envie por e-mail ou WhatsApp. O utilizador cria a conta (ou faz login) e fica automaticamente ligado à empresa com este perfil.
+          </p>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
             <Button onClick={convidar} disabled={enviando}>
@@ -168,19 +196,19 @@ function MoradoresPage() {
         </section>
       )}
 
-      {loading ? <div className="text-muted-foreground flex items-center gap-2"><Loader2 className="animate-spin" /> Carregando…</div> : (
+      {loading ? <div className="text-muted-foreground flex items-center gap-2"><Loader2 className="animate-spin" /> A carregar…</div> : (
         <>
           <section>
-            <h2 className="font-semibold mb-3">Membros ativos ({membros.length})</h2>
+            <h2 className="font-semibold mb-3">Utilizadores ativos ({membrosVisiveis.length})</h2>
             <div className="grid gap-2">
-              {membros.length === 0 && <p className="text-sm text-muted-foreground">Nenhum membro além de você.</p>}
-              {membros.map((m) => (
+              {membrosVisiveis.length === 0 && <p className="text-sm text-muted-foreground">Nenhum utilizador além de si.</p>}
+              {membrosVisiveis.map((m) => (
                 <div key={`${m.user_id}-${m.role}`} className="rounded-lg border border-border bg-background p-3 flex items-center justify-between">
                   <div>
                     <p className="font-medium text-sm">{m.nome || "Sem nome"}</p>
                     <p className="text-xs text-muted-foreground">{m.telefone || "—"}</p>
                   </div>
-                  <span className="text-xs px-2 py-1 rounded-full bg-muted">{m.role}</span>
+                  <span className="text-xs px-2 py-1 rounded-full bg-muted font-medium">{ROLE_LABELS[m.role] ?? m.role}</span>
                 </div>
               ))}
             </div>
@@ -194,7 +222,7 @@ function MoradoresPage() {
                 <div key={c.id} className="rounded-lg border border-border bg-background p-3 flex items-center justify-between flex-wrap gap-2">
                   <div>
                     <p className="font-medium text-sm">{c.nome || c.email}</p>
-                    <p className="text-xs text-muted-foreground">{c.email} · {c.role} · expira {new Date(c.expira_em).toLocaleDateString("pt-BR")}</p>
+                    <p className="text-xs text-muted-foreground">{c.email} · {ROLE_LABELS[c.role] ?? c.role} · expira {new Date(c.expira_em).toLocaleDateString("pt-BR")}</p>
                   </div>
                   <Button size="sm" variant="outline" onClick={() => copiarLink(c.token)}>
                     <Copy size={12} className="mr-1" /> Copiar link

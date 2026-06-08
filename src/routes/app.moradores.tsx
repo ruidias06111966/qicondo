@@ -102,7 +102,7 @@ function MoradoresPage() {
   }
 
   function copiarLink(token: string) {
-    const url = `${window.location.origin}/convite/${token}`;
+    const url = `${window.location.origin}/auth/convite/${token}`;
     navigator.clipboard.writeText(url);
     toast.success("Link copiado");
   }

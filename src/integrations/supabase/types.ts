@@ -2134,7 +2134,17 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "sindico" | "morador" | "contador" | "porteiro"
+      app_role:
+        | "sindico"
+        | "morador"
+        | "contador"
+        | "porteiro"
+        | "admin"
+        | "financeiro"
+        | "gestor"
+        | "vendedor"
+        | "comercial"
+        | "consulta"
       cnab_banco:
         | "sicoob"
         | "itau"
@@ -2353,7 +2363,18 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["sindico", "morador", "contador", "porteiro"],
+      app_role: [
+        "sindico",
+        "morador",
+        "contador",
+        "porteiro",
+        "admin",
+        "financeiro",
+        "gestor",
+        "vendedor",
+        "comercial",
+        "consulta",
+      ],
       cnab_banco: [
         "sicoob",
         "itau",

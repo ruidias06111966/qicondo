@@ -35,8 +35,10 @@ function MoradoresPage() {
   const [loading, setLoading] = useState(true);
   const [membros, setMembros] = useState<Membro[]>([]);
   const [convites, setConvites] = useState<any[]>([]);
+  const [plano, setPlano] = useState<string>("basico");
+  const [limite, setLimite] = useState<number | null>(3);
+  const [usados, setUsados] = useState<number>(0);
 
-  // form convite
   // form convite
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -70,13 +72,32 @@ function MoradoresPage() {
       .eq("condominio_id", condominioId)
       .order("created_at", { ascending: false }));
     setConvites(cRes?.data ?? []);
+
+    // Plano + limite + uso actual
+    const condRes = await safeCall(
+      supabase.from("condominios").select("plano").eq("id", condominioId).maybeSingle(),
+    );
+    const planoAtual = (condRes?.data as any)?.plano ?? "basico";
+    setPlano(planoAtual);
+    const [limRes, usoRes] = await Promise.all([
+      supabase.rpc("limite_usuarios_plano", { _condominio_id: condominioId }),
+      supabase.rpc("contar_usuarios_empresa", { _condominio_id: condominioId }),
+    ]);
+    setLimite((limRes.data as number | null) ?? null);
+    setUsados((usoRes.data as number | null) ?? 0);
+
     setLoading(false);
   };
 
   useEffect(() => { carregar(); }, [condominioId]);
 
+
   async function convidar() {
     if (!condominioId || !email.trim()) { toast.error("Informe o e-mail"); return; }
+    if (limite !== null && usados >= limite) {
+      toast.error(`Limite do plano ${plano} atingido (${limite} utilizadores). Faça upgrade para adicionar mais.`);
+      return;
+    }
     setEnviando(true);
     const token = crypto.randomUUID().replace(/-/g, "");
     // hash via subtle crypto
@@ -95,11 +116,19 @@ function MoradoresPage() {
       token_hash,
     });
     setEnviando(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      if (error.message.includes("limite_plano_atingido")) {
+        toast.error(`Limite do plano ${plano} atingido. Faça upgrade para adicionar mais utilizadores.`);
+      } else {
+        toast.error(error.message);
+      }
+      return;
+    }
     toast.success("Convite criado");
     setEmail(""); setNome(""); setRole("morador"); setOpen(false);
     carregar();
   }
+
 
   function copiarLink(token: string) {
     const url = `${window.location.origin}/auth/convite/${token}`;
@@ -136,8 +165,34 @@ function MoradoresPage() {
             <p className="text-sm text-muted-foreground">Convide a equipa da empresa (Administrador, Financeiro, Gestor, Vendedor, Comercial, Contador, Consulta) e os moradores.</p>
           </div>
         </div>
-        <Button onClick={() => setOpen((v) => !v)}><Plus size={16} className="mr-2" /> Novo utilizador</Button>
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">Plano <span className="font-semibold capitalize text-foreground">{plano}</span></p>
+            <p className={`text-sm font-bold ${limite !== null && usados >= limite ? "text-destructive" : "text-foreground"}`}>
+              {usados} / {limite === null ? "∞" : limite} utilizadores
+            </p>
+          </div>
+          <Button
+            onClick={() => setOpen((v) => !v)}
+            disabled={limite !== null && usados >= limite}
+            title={limite !== null && usados >= limite ? "Limite do plano atingido" : ""}
+          >
+            <Plus size={16} className="mr-2" /> Novo utilizador
+          </Button>
+        </div>
       </header>
+
+      {limite !== null && usados >= limite && (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm flex items-start gap-3">
+          <AlertCircle className="text-destructive shrink-0" size={18} />
+          <div>
+            <p className="font-semibold text-destructive">Limite do plano {plano} atingido</p>
+            <p className="text-muted-foreground mt-0.5">
+              Já tem {usados} utilizadores (incluindo convites pendentes). Para adicionar mais, faça upgrade do plano em <a href="/contato" className="underline">Falar com vendas</a>.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-2">
         <button

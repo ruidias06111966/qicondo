@@ -2002,6 +2002,10 @@ export type Database = {
         Args: { _interno: boolean; _mensagem: string; _ocorrencia_id: string }
         Returns: string
       }
+      contar_usuarios_empresa: {
+        Args: { _condominio_id: string }
+        Returns: number
+      }
       criar_condominio: {
         Args: {
           _cep: string
@@ -2066,6 +2070,10 @@ export type Database = {
           condominio_id: string
           nome: string
         }[]
+      }
+      limite_usuarios_plano: {
+        Args: { _condominio_id: string }
+        Returns: number
       }
       marcar_encomenda_retirada: {
         Args: { _encomenda_id: string; _retirado_por_nome: string }

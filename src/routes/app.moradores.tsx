@@ -35,8 +35,10 @@ function MoradoresPage() {
   const [loading, setLoading] = useState(true);
   const [membros, setMembros] = useState<Membro[]>([]);
   const [convites, setConvites] = useState<any[]>([]);
+  const [plano, setPlano] = useState<string>("basico");
+  const [limite, setLimite] = useState<number | null>(3);
+  const [usados, setUsados] = useState<number>(0);
 
-  // form convite
   // form convite
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -70,10 +72,25 @@ function MoradoresPage() {
       .eq("condominio_id", condominioId)
       .order("created_at", { ascending: false }));
     setConvites(cRes?.data ?? []);
+
+    // Plano + limite + uso actual
+    const condRes = await safeCall(
+      supabase.from("condominios").select("plano").eq("id", condominioId).maybeSingle(),
+    );
+    const planoAtual = (condRes?.data as any)?.plano ?? "basico";
+    setPlano(planoAtual);
+    const [limRes, usoRes] = await Promise.all([
+      supabase.rpc("limite_usuarios_plano", { _condominio_id: condominioId }),
+      supabase.rpc("contar_usuarios_empresa", { _condominio_id: condominioId }),
+    ]);
+    setLimite((limRes.data as number | null) ?? null);
+    setUsados((usoRes.data as number | null) ?? 0);
+
     setLoading(false);
   };
 
   useEffect(() => { carregar(); }, [condominioId]);
+
 
   async function convidar() {
     if (!condominioId || !email.trim()) { toast.error("Informe o e-mail"); return; }

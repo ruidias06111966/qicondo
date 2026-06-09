@@ -165,8 +165,34 @@ function MoradoresPage() {
             <p className="text-sm text-muted-foreground">Convide a equipa da empresa (Administrador, Financeiro, Gestor, Vendedor, Comercial, Contador, Consulta) e os moradores.</p>
           </div>
         </div>
-        <Button onClick={() => setOpen((v) => !v)}><Plus size={16} className="mr-2" /> Novo utilizador</Button>
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">Plano <span className="font-semibold capitalize text-foreground">{plano}</span></p>
+            <p className={`text-sm font-bold ${limite !== null && usados >= limite ? "text-destructive" : "text-foreground"}`}>
+              {usados} / {limite === null ? "∞" : limite} utilizadores
+            </p>
+          </div>
+          <Button
+            onClick={() => setOpen((v) => !v)}
+            disabled={limite !== null && usados >= limite}
+            title={limite !== null && usados >= limite ? "Limite do plano atingido" : ""}
+          >
+            <Plus size={16} className="mr-2" /> Novo utilizador
+          </Button>
+        </div>
       </header>
+
+      {limite !== null && usados >= limite && (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm flex items-start gap-3">
+          <AlertCircle className="text-destructive shrink-0" size={18} />
+          <div>
+            <p className="font-semibold text-destructive">Limite do plano {plano} atingido</p>
+            <p className="text-muted-foreground mt-0.5">
+              Já tem {usados} utilizadores (incluindo convites pendentes). Para adicionar mais, faça upgrade do plano em <a href="/contato" className="underline">Falar com vendas</a>.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-2">
         <button

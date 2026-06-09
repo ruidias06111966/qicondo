@@ -51,6 +51,7 @@ function OnboardingPage() {
   async function criarCondominio() {
     const parsed = condominioSchema.safeParse(cond);
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
+    if (!responsavel.trim()) { toast.error("Informe o nome do responsável"); return; }
     setBusy(true);
     // garante sessão hidratada antes do RPC
     const { data: sess } = await supabase.auth.getSession();
@@ -60,6 +61,12 @@ function OnboardingPage() {
       navigate({ to: "/auth/login" });
       return;
     }
+    // Actualiza perfil do responsável
+    await supabase.from("profiles").update({
+      nome_completo: responsavel.trim(),
+      telefone: telefoneResp.trim() || null,
+    }).eq("id", user!.id);
+
     const codigo_publico = generateCondoCode();
     const { data: novoId, error } = await supabase.rpc("criar_condominio", {
       _nome: parsed.data.nome,
@@ -71,8 +78,10 @@ function OnboardingPage() {
       _whatsapp_numero: parsed.data.whatsapp_numero || "",
       _codigo_publico: codigo_publico,
     });
+    if (error || !novoId) { setBusy(false); toast.error(error?.message ?? "Falha"); return; }
+    // Define o plano escolhido
+    await supabase.from("condominios").update({ plano }).eq("id", novoId as string);
     setBusy(false);
-    if (error || !novoId) { toast.error(error?.message ?? "Falha"); return; }
     setCondId(novoId as string);
     await refresh();
     toast.success("Empresa cadastrada!");

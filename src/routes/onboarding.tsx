@@ -22,13 +22,22 @@ function OnboardingPage() {
   const [condId, setCondId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  // form criar condomínio
+  // form criar empresa
   const [cond, setCond] = useState({ nome: "", cnpj: "", endereco: "", cidade: "", estado: "", cep: "", whatsapp_numero: "" });
+  const [responsavel, setResponsavel] = useState("");
+  const [telefoneResp, setTelefoneResp] = useState("");
+  const [plano, setPlano] = useState<"basico" | "profissional" | "enterprise">("basico");
   // entrar com código
   const [codigo, setCodigo] = useState("");
   // unidades
   const [qtd, setQtd] = useState(10);
   const [taxa, setTaxa] = useState("");
+
+  // Pré-preencher responsável/telefone a partir do perfil
+  useEffect(() => {
+    if (profile?.nome_completo && !responsavel) setResponsavel(profile.nome_completo);
+    if (profile?.telefone && !telefoneResp) setTelefoneResp(profile.telefone);
+  }, [profile]);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth/login" });

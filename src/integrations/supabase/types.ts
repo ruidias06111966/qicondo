@@ -2203,7 +2203,7 @@ export type Database = {
         | "resolvida"
         | "fechada"
         | "cancelada"
-      plano_tipo: "basico" | "profissional" | "admin"
+      plano_tipo: "basico" | "profissional" | "admin" | "enterprise"
       reserva_status:
         | "pendente"
         | "confirmada"
@@ -2439,7 +2439,7 @@ export const Constants = {
         "fechada",
         "cancelada",
       ],
-      plano_tipo: ["basico", "profissional", "admin"],
+      plano_tipo: ["basico", "profissional", "admin", "enterprise"],
       reserva_status: [
         "pendente",
         "confirmada",

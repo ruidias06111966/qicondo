@@ -22,13 +22,22 @@ function OnboardingPage() {
   const [condId, setCondId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  // form criar condomínio
+  // form criar empresa
   const [cond, setCond] = useState({ nome: "", cnpj: "", endereco: "", cidade: "", estado: "", cep: "", whatsapp_numero: "" });
+  const [responsavel, setResponsavel] = useState("");
+  const [telefoneResp, setTelefoneResp] = useState("");
+  const [plano, setPlano] = useState<"basico" | "profissional" | "enterprise">("basico");
   // entrar com código
   const [codigo, setCodigo] = useState("");
   // unidades
   const [qtd, setQtd] = useState(10);
   const [taxa, setTaxa] = useState("");
+
+  // Pré-preencher responsável/telefone a partir do perfil
+  useEffect(() => {
+    if (profile?.nome_completo && !responsavel) setResponsavel(profile.nome_completo);
+    if (profile?.telefone && !telefoneResp) setTelefoneResp(profile.telefone);
+  }, [profile]);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth/login" });
@@ -42,6 +51,7 @@ function OnboardingPage() {
   async function criarCondominio() {
     const parsed = condominioSchema.safeParse(cond);
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
+    if (!responsavel.trim()) { toast.error("Informe o nome do responsável"); return; }
     setBusy(true);
     // garante sessão hidratada antes do RPC
     const { data: sess } = await supabase.auth.getSession();
@@ -51,6 +61,12 @@ function OnboardingPage() {
       navigate({ to: "/auth/login" });
       return;
     }
+    // Actualiza perfil do responsável
+    await supabase.from("profiles").update({
+      nome_completo: responsavel.trim(),
+      telefone: telefoneResp.trim() || null,
+    }).eq("id", user!.id);
+
     const codigo_publico = generateCondoCode();
     const { data: novoId, error } = await supabase.rpc("criar_condominio", {
       _nome: parsed.data.nome,
@@ -62,8 +78,10 @@ function OnboardingPage() {
       _whatsapp_numero: parsed.data.whatsapp_numero || "",
       _codigo_publico: codigo_publico,
     });
+    if (error || !novoId) { setBusy(false); toast.error(error?.message ?? "Falha"); return; }
+    // Define o plano escolhido
+    await supabase.from("condominios").update({ plano }).eq("id", novoId as string);
     setBusy(false);
-    if (error || !novoId) { toast.error(error?.message ?? "Falha"); return; }
     setCondId(novoId as string);
     await refresh();
     toast.success("Empresa cadastrada!");
@@ -147,10 +165,33 @@ function OnboardingPage() {
               <Input label="Nome da empresa*" value={cond.nome} onChange={(v) => setCond({ ...cond, nome: v })} className="sm:col-span-2" />
               <Input label="CNPJ" value={cond.cnpj} onChange={(v) => setCond({ ...cond, cnpj: v })} />
               <Input label="WhatsApp da empresa" value={cond.whatsapp_numero} onChange={(v) => setCond({ ...cond, whatsapp_numero: v })} />
+              <Input label="Responsável*" value={responsavel} onChange={setResponsavel} placeholder="Nome do administrador" />
+              <Input label="Telefone do responsável" value={telefoneResp} onChange={setTelefoneResp} placeholder="+5511999990000" />
               <Input label="Endereço" value={cond.endereco} onChange={(v) => setCond({ ...cond, endereco: v })} className="sm:col-span-2" />
               <Input label="Cidade" value={cond.cidade} onChange={(v) => setCond({ ...cond, cidade: v })} />
               <Input label="UF" maxLength={2} value={cond.estado} onChange={(v) => setCond({ ...cond, estado: v.toUpperCase() })} />
               <Input label="CEP" value={cond.cep} onChange={(v) => setCond({ ...cond, cep: v })} />
+              <div className="sm:col-span-2">
+                <label className="text-xs font-semibold text-muted-foreground">Plano pretendido*</label>
+                <div className="mt-2 grid sm:grid-cols-3 gap-2">
+                  {([
+                    { id: "basico", nome: "Básico", desc: "1 empresa · 3 utilizadores" },
+                    { id: "profissional", nome: "Profissional", desc: "1 empresa · 10 utilizadores" },
+                    { id: "enterprise", nome: "Enterprise", desc: "Utilizadores ilimitados" },
+                  ] as const).map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setPlano(p.id)}
+                      className={`text-left p-3 rounded-lg border-2 transition ${plano === p.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}
+                    >
+                      <p className="font-semibold text-sm">{p.nome}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{p.desc}</p>
+                      <p className="text-xs text-primary mt-1 font-medium">Sob consulta</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
               Ficará automaticamente registado como <b>Administrador</b> desta empresa. Depois convida a equipa em <b>Utilizadores</b>.

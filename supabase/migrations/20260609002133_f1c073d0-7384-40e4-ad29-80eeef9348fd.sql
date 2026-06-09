@@ -1,0 +1,1 @@
+ALTER TYPE plano_tipo ADD VALUE IF NOT EXISTS 'enterprise';

@@ -165,10 +165,33 @@ function OnboardingPage() {
               <Input label="Nome da empresa*" value={cond.nome} onChange={(v) => setCond({ ...cond, nome: v })} className="sm:col-span-2" />
               <Input label="CNPJ" value={cond.cnpj} onChange={(v) => setCond({ ...cond, cnpj: v })} />
               <Input label="WhatsApp da empresa" value={cond.whatsapp_numero} onChange={(v) => setCond({ ...cond, whatsapp_numero: v })} />
+              <Input label="Responsável*" value={responsavel} onChange={setResponsavel} placeholder="Nome do administrador" />
+              <Input label="Telefone do responsável" value={telefoneResp} onChange={setTelefoneResp} placeholder="+5511999990000" />
               <Input label="Endereço" value={cond.endereco} onChange={(v) => setCond({ ...cond, endereco: v })} className="sm:col-span-2" />
               <Input label="Cidade" value={cond.cidade} onChange={(v) => setCond({ ...cond, cidade: v })} />
               <Input label="UF" maxLength={2} value={cond.estado} onChange={(v) => setCond({ ...cond, estado: v.toUpperCase() })} />
               <Input label="CEP" value={cond.cep} onChange={(v) => setCond({ ...cond, cep: v })} />
+              <div className="sm:col-span-2">
+                <label className="text-xs font-semibold text-muted-foreground">Plano pretendido*</label>
+                <div className="mt-2 grid sm:grid-cols-3 gap-2">
+                  {([
+                    { id: "basico", nome: "Básico", desc: "1 empresa · 3 utilizadores" },
+                    { id: "profissional", nome: "Profissional", desc: "1 empresa · 10 utilizadores" },
+                    { id: "enterprise", nome: "Enterprise", desc: "Utilizadores ilimitados" },
+                  ] as const).map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setPlano(p.id)}
+                      className={`text-left p-3 rounded-lg border-2 transition ${plano === p.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}
+                    >
+                      <p className="font-semibold text-sm">{p.nome}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{p.desc}</p>
+                      <p className="text-xs text-primary mt-1 font-medium">Sob consulta</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
               Ficará automaticamente registado como <b>Administrador</b> desta empresa. Depois convida a equipa em <b>Utilizadores</b>.

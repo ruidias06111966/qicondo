@@ -94,6 +94,10 @@ function MoradoresPage() {
 
   async function convidar() {
     if (!condominioId || !email.trim()) { toast.error("Informe o e-mail"); return; }
+    if (limite !== null && usados >= limite) {
+      toast.error(`Limite do plano ${plano} atingido (${limite} utilizadores). Faça upgrade para adicionar mais.`);
+      return;
+    }
     setEnviando(true);
     const token = crypto.randomUUID().replace(/-/g, "");
     // hash via subtle crypto
@@ -112,11 +116,19 @@ function MoradoresPage() {
       token_hash,
     });
     setEnviando(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      if (error.message.includes("limite_plano_atingido")) {
+        toast.error(`Limite do plano ${plano} atingido. Faça upgrade para adicionar mais utilizadores.`);
+      } else {
+        toast.error(error.message);
+      }
+      return;
+    }
     toast.success("Convite criado");
     setEmail(""); setNome(""); setRole("morador"); setOpen(false);
     carregar();
   }
+
 
   function copiarLink(token: string) {
     const url = `${window.location.origin}/auth/convite/${token}`;

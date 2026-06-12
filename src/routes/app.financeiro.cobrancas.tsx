@@ -8,7 +8,7 @@ import {
   cancelarCobranca,
   registrarPagamentoManual,
   enviarLembreteCobranca,
-} from "@/server/financeiro.functions";
+} from "@/lib/financeiro.functions";
 
 import { brl, dateBR, competenciaBR } from "@/lib/format";
 import {

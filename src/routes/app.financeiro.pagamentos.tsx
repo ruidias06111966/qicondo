@@ -7,7 +7,7 @@ import {
   salvarConfigPagamento,
   executarAutomacaoLembretes,
   PLACEHOLDERS_OBRIGATORIOS,
-} from "@/server/financeiro.functions";
+} from "@/lib/financeiro.functions";
 import { brl, dateBR } from "@/lib/format";
 import { Field, EmptyState, safeCall } from "@/components/financeiro/ui";
 import { emitChanged } from "@/lib/safe-call";

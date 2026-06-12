@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useCondominioAtivo } from "@/auth/useCondominio";
-import { listarNotificacoesWA, reenviarNotificacaoWA } from "@/server/financeiro.functions";
+import { listarNotificacoesWA, reenviarNotificacaoWA } from "@/lib/financeiro.functions";
 import { EmptyState, Field, safeCall } from "@/components/financeiro/ui";
 import { dateTimeBR } from "@/lib/format";
 import { toast } from "sonner";

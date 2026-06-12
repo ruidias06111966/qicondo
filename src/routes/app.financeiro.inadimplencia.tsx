@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { brl, dateBR } from "@/lib/format";
 import { EmptyState } from "@/components/financeiro/ui";
 import { emitChanged } from "@/lib/safe-call";
-import { enviarLembretesInadimplencia } from "@/server/financeiro.functions";
+import { enviarLembretesInadimplencia } from "@/lib/financeiro.functions";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, MessageCircle } from "lucide-react";
 

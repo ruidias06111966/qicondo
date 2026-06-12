@@ -6,7 +6,7 @@ import {
   listarCategorias,
   criarDespesa,
   removerDespesa,
-} from "@/server/financeiro.functions";
+} from "@/lib/financeiro.functions";
 import { brl, dateBR } from "@/lib/format";
 import { Modal, Field, EmptyState, safeCall } from "@/components/financeiro/ui";
 import { toast } from "sonner";

@@ -30,6 +30,7 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthCadastroRouteImport } from './routes/auth.cadastro'
 import { Route as AppWhatsappRouteImport } from './routes/app.whatsapp'
 import { Route as AppVisitantesRouteImport } from './routes/app.visitantes'
+import { Route as AppUsuariosRouteImport } from './routes/app.usuarios'
 import { Route as AppReservasRouteImport } from './routes/app.reservas'
 import { Route as AppPreferenciasNotificacaoRouteImport } from './routes/app.preferencias-notificacao'
 import { Route as AppOcorrenciasRouteImport } from './routes/app.ocorrencias'
@@ -155,6 +156,11 @@ const AppWhatsappRoute = AppWhatsappRouteImport.update({
 const AppVisitantesRoute = AppVisitantesRouteImport.update({
   id: '/visitantes',
   path: '/visitantes',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppUsuariosRoute = AppUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
   getParentRoute: () => AppRoute,
 } as any)
 const AppReservasRoute = AppReservasRouteImport.update({
@@ -290,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/preferencias-notificacao': typeof AppPreferenciasNotificacaoRoute
   '/app/reservas': typeof AppReservasRoute
+  '/app/usuarios': typeof AppUsuariosRoute
   '/app/visitantes': typeof AppVisitantesRoute
   '/app/whatsapp': typeof AppWhatsappRoute
   '/auth/cadastro': typeof AuthCadastroRoute
@@ -332,6 +339,7 @@ export interface FileRoutesByTo {
   '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/preferencias-notificacao': typeof AppPreferenciasNotificacaoRoute
   '/app/reservas': typeof AppReservasRoute
+  '/app/usuarios': typeof AppUsuariosRoute
   '/app/visitantes': typeof AppVisitantesRoute
   '/app/whatsapp': typeof AppWhatsappRoute
   '/auth/cadastro': typeof AuthCadastroRoute
@@ -377,6 +385,7 @@ export interface FileRoutesById {
   '/app/ocorrencias': typeof AppOcorrenciasRoute
   '/app/preferencias-notificacao': typeof AppPreferenciasNotificacaoRoute
   '/app/reservas': typeof AppReservasRoute
+  '/app/usuarios': typeof AppUsuariosRoute
   '/app/visitantes': typeof AppVisitantesRoute
   '/app/whatsapp': typeof AppWhatsappRoute
   '/auth/cadastro': typeof AuthCadastroRoute
@@ -423,6 +432,7 @@ export interface FileRouteTypes {
     | '/app/ocorrencias'
     | '/app/preferencias-notificacao'
     | '/app/reservas'
+    | '/app/usuarios'
     | '/app/visitantes'
     | '/app/whatsapp'
     | '/auth/cadastro'
@@ -465,6 +475,7 @@ export interface FileRouteTypes {
     | '/app/ocorrencias'
     | '/app/preferencias-notificacao'
     | '/app/reservas'
+    | '/app/usuarios'
     | '/app/visitantes'
     | '/app/whatsapp'
     | '/auth/cadastro'
@@ -509,6 +520,7 @@ export interface FileRouteTypes {
     | '/app/ocorrencias'
     | '/app/preferencias-notificacao'
     | '/app/reservas'
+    | '/app/usuarios'
     | '/app/visitantes'
     | '/app/whatsapp'
     | '/auth/cadastro'
@@ -704,6 +716,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppVisitantesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/usuarios': {
+      id: '/app/usuarios'
+      path: '/usuarios'
+      fullPath: '/app/usuarios'
+      preLoaderRoute: typeof AppUsuariosRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/reservas': {
       id: '/app/reservas'
       path: '/reservas'
@@ -889,6 +908,7 @@ interface AppRouteChildren {
   AppOcorrenciasRoute: typeof AppOcorrenciasRoute
   AppPreferenciasNotificacaoRoute: typeof AppPreferenciasNotificacaoRoute
   AppReservasRoute: typeof AppReservasRoute
+  AppUsuariosRoute: typeof AppUsuariosRoute
   AppVisitantesRoute: typeof AppVisitantesRoute
   AppWhatsappRoute: typeof AppWhatsappRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -905,6 +925,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOcorrenciasRoute: AppOcorrenciasRoute,
   AppPreferenciasNotificacaoRoute: AppPreferenciasNotificacaoRoute,
   AppReservasRoute: AppReservasRoute,
+  AppUsuariosRoute: AppUsuariosRoute,
   AppVisitantesRoute: AppVisitantesRoute,
   AppWhatsappRoute: AppWhatsappRoute,
   AppIndexRoute: AppIndexRoute,

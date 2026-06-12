@@ -132,13 +132,13 @@ export function gerarHTML(rel: Relatorio): string {
   const tCobs = rel.cobrancas
     .map(
       (c) => `<tr>
-      <td>${competenciaBR(c.competencia)}</td>
-      <td>${dateBR(c.vencimento)}</td>
-      <td>${unidadeLabel(c.unidades)}</td>
-      <td>${c.categorias_financeiras?.nome ?? "—"}</td>
-      <td class="num">${brl(c.valor)}</td>
-      <td class="num">${brl(c.valor_pago)}</td>
-      <td>${c.status}</td>
+      <td>${esc(competenciaBR(c.competencia))}</td>
+      <td>${esc(dateBR(c.vencimento))}</td>
+      <td>${esc(unidadeLabel(c.unidades))}</td>
+      <td>${esc(c.categorias_financeiras?.nome) || "—"}</td>
+      <td class="num">${esc(brl(c.valor))}</td>
+      <td class="num">${esc(brl(c.valor_pago))}</td>
+      <td>${esc(c.status)}</td>
     </tr>`,
     )
     .join("");
@@ -146,10 +146,10 @@ export function gerarHTML(rel: Relatorio): string {
   const tPags = rel.pagamentos
     .map(
       (p) => `<tr>
-      <td>${dateBR(p.pago_em)}</td>
-      <td>${unidadeLabel(p.cobrancas?.unidades)}</td>
-      <td>${p.forma}</td>
-      <td class="num">${brl(p.valor)}</td>
+      <td>${esc(dateBR(p.pago_em))}</td>
+      <td>${esc(unidadeLabel(p.cobrancas?.unidades))}</td>
+      <td>${esc(p.forma)}</td>
+      <td class="num">${esc(brl(p.valor))}</td>
     </tr>`,
     )
     .join("");
@@ -157,27 +157,27 @@ export function gerarHTML(rel: Relatorio): string {
   const tDesps = rel.despesas
     .map(
       (d) => `<tr>
-      <td>${dateBR(d.data)}</td>
-      <td>${d.descricao}</td>
-      <td>${d.categorias_financeiras?.nome ?? "—"}</td>
-      <td>${d.fornecedor ?? "—"}</td>
-      <td class="num">${brl(d.valor)}</td>
+      <td>${esc(dateBR(d.data))}</td>
+      <td>${esc(d.descricao)}</td>
+      <td>${esc(d.categorias_financeiras?.nome) || "—"}</td>
+      <td>${esc(d.fornecedor) || "—"}</td>
+      <td class="num">${esc(brl(d.valor))}</td>
     </tr>`,
     )
     .join("");
 
-  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório ${rel.mes}</title><style>${styles}</style></head>
+  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório ${esc(rel.mes)}</title><style>${styles}</style></head>
 <body>
   <h1>Relatório Financeiro</h1>
   <div class="meta">
-    <strong>${rel.condominio?.nome ?? "Condomínio"}</strong>${rel.condominio?.cnpj ? " · CNPJ " + rel.condominio.cnpj : ""}<br/>
-    Competência: <strong>${competenciaBR(rel.mes + "-01")}</strong>
+    <strong>${esc(rel.condominio?.nome) || "Condomínio"}</strong>${rel.condominio?.cnpj ? " · CNPJ " + esc(rel.condominio.cnpj) : ""}<br/>
+    Competência: <strong>${esc(competenciaBR(rel.mes + "-01"))}</strong>
   </div>
   <div class="totais">
-    <div><p>Total cobrado</p><strong>${brl(totalCob)}</strong></div>
-    <div><p>Recebido</p><strong>${brl(totalPag)}</strong></div>
-    <div><p>Despesas</p><strong>${brl(totalDesp)}</strong></div>
-    <div><p>Saldo</p><strong>${brl(totalPag - totalDesp)}</strong></div>
+    <div><p>Total cobrado</p><strong>${esc(brl(totalCob))}</strong></div>
+    <div><p>Recebido</p><strong>${esc(brl(totalPag))}</strong></div>
+    <div><p>Despesas</p><strong>${esc(brl(totalDesp))}</strong></div>
+    <div><p>Saldo</p><strong>${esc(brl(totalPag - totalDesp))}</strong></div>
   </div>
   <button onclick="window.print()" style="padding:8px 16px;border:1px solid #111;background:#111;color:#fff;border-radius:6px;cursor:pointer;margin-bottom:16px">Imprimir / Salvar PDF</button>
 

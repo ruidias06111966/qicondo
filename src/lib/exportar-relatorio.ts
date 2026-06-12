@@ -96,6 +96,14 @@ export function baixarCSV(rel: Relatorio) {
   URL.revokeObjectURL(url);
 }
 
+const esc = (s: any): string =>
+  String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
 export function gerarHTML(rel: Relatorio): string {
   const totalCob = rel.cobrancas.reduce(
     (s, c) => s + Number(c.valor) + Number(c.multa) - Number(c.desconto),

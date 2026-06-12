@@ -139,7 +139,7 @@ export const revogarConvite = createServerFn({ method: "POST" })
     await ensureAdmin(context.supabase, context.userId, data.condominio_id);
     const { error } = await context.supabase
       .from("convites")
-      .update({ status: "revogado" })
+      .update({ status: "cancelado" })
       .eq("id", data.id)
       .eq("condominio_id", data.condominio_id);
     if (error) throw new Error(error.message);

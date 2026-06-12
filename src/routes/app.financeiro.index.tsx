@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useCondominioAtivo } from "@/auth/useCondominio";
-import { resumoFinanceiro, exportarRelatorioFinanceiro } from "@/server/financeiro.functions";
+import { resumoFinanceiro, exportarRelatorioFinanceiro } from "@/lib/financeiro.functions";
 import { brl } from "@/lib/format";
 import { Stat, safeCall } from "@/components/financeiro/ui";
 import { baixarCSV, abrirPDF } from "@/lib/exportar-relatorio";

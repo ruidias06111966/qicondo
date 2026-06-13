@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/auth/AuthProvider";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import { Logo } from "@/components/site/Logo";
+import { usePlatformAdmin } from "@/auth/usePlatformAdmin";
 import {
   LayoutDashboard, Users, Building2, MessageCircle, LogOut, Loader2,
-  Calendar, Package, Wrench, Wallet, Settings, Menu, X, Inbox
+  Calendar, Package, Wrench, Wallet, Settings, Menu, X, Inbox, Shield
 } from "lucide-react";
 
 export const Route = createFileRoute("/app")({
@@ -42,6 +43,7 @@ function AppLayout() {
   const navigate = useNavigate();
   const { loading, user, hasAnyRole, profile, signOut } = useAuth();
   const { role } = useCondominioAtivo();
+  const { isPlatformAdmin } = usePlatformAdmin();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
   const navItems = NAV.filter((it) => !it.roles || (role && it.roles.includes(role as Role)));
@@ -77,6 +79,11 @@ function AppLayout() {
               <item.icon size={18} /> {item.label}
             </Link>
           ))}
+          {isPlatformAdmin && (
+            <Link to="/admin" className="mt-4 flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium border border-dashed border-primary/40 text-primary hover:bg-primary/5">
+              <Shield size={18} /> Admin Master
+            </Link>
+          )}
         </nav>
         <div className="p-3 border-t border-border">
           <div className="flex items-center gap-3 px-2 py-2">

@@ -44,6 +44,7 @@ import { Route as AppDocumentosRouteImport } from './routes/app.documentos'
 import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes'
 import { Route as AppCondominioRouteImport } from './routes/app.condominio'
 import { Route as AppFinanceiroIndexRouteImport } from './routes/app.financeiro.index'
+import { Route as AdminEmpresasIndexRouteImport } from './routes/admin.empresas.index'
 import { Route as AuthConviteTokenRouteImport } from './routes/auth.convite.$token'
 import { Route as AppFinanceiroWhatsappRouteImport } from './routes/app.financeiro.whatsapp'
 import { Route as AppFinanceiroPagamentosRouteImport } from './routes/app.financeiro.pagamentos'
@@ -53,6 +54,7 @@ import { Route as AppFinanceiroCobrancasRouteImport } from './routes/app.finance
 import { Route as AppFinanceiroCategoriasRouteImport } from './routes/app.financeiro.categorias'
 import { Route as ApiPublicWaWebhookRouteImport } from './routes/api.public.wa-webhook'
 import { Route as ApiPublicWaDrainRouteImport } from './routes/api/public/wa-drain'
+import { Route as AdminEmpresasIdRouteImport } from './routes/admin.empresas.$id'
 import { Route as ApiPublicHooksLembretesCobrancaRouteImport } from './routes/api/public/hooks/lembretes-cobranca'
 
 const TermosRoute = TermosRouteImport.update({
@@ -231,6 +233,11 @@ const AppFinanceiroIndexRoute = AppFinanceiroIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppFinanceiroRoute,
 } as any)
+const AdminEmpresasIndexRoute = AdminEmpresasIndexRouteImport.update({
+  id: '/empresas/',
+  path: '/empresas/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AuthConviteTokenRoute = AuthConviteTokenRouteImport.update({
   id: '/auth/convite/$token',
   path: '/auth/convite/$token',
@@ -277,6 +284,11 @@ const ApiPublicWaDrainRoute = ApiPublicWaDrainRouteImport.update({
   path: '/api/public/wa-drain',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminEmpresasIdRoute = AdminEmpresasIdRouteImport.update({
+  id: '/empresas/$id',
+  path: '/empresas/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ApiPublicHooksLembretesCobrancaRoute =
   ApiPublicHooksLembretesCobrancaRouteImport.update({
     id: '/api/public/hooks/lembretes-cobranca',
@@ -319,6 +331,7 @@ export interface FileRoutesByFullPath {
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
+  '/admin/empresas/$id': typeof AdminEmpresasIdRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
   '/app/financeiro/categorias': typeof AppFinanceiroCategoriasRoute
@@ -328,6 +341,7 @@ export interface FileRoutesByFullPath {
   '/app/financeiro/pagamentos': typeof AppFinanceiroPagamentosRoute
   '/app/financeiro/whatsapp': typeof AppFinanceiroWhatsappRoute
   '/auth/convite/$token': typeof AuthConviteTokenRoute
+  '/admin/empresas/': typeof AdminEmpresasIndexRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
 }
@@ -363,6 +377,7 @@ export interface FileRoutesByTo {
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
+  '/admin/empresas/$id': typeof AdminEmpresasIdRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
   '/app/financeiro/categorias': typeof AppFinanceiroCategoriasRoute
@@ -372,6 +387,7 @@ export interface FileRoutesByTo {
   '/app/financeiro/pagamentos': typeof AppFinanceiroPagamentosRoute
   '/app/financeiro/whatsapp': typeof AppFinanceiroWhatsappRoute
   '/auth/convite/$token': typeof AuthConviteTokenRoute
+  '/admin/empresas': typeof AdminEmpresasIndexRoute
   '/app/financeiro': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
 }
@@ -411,6 +427,7 @@ export interface FileRoutesById {
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
+  '/admin/empresas/$id': typeof AdminEmpresasIdRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
   '/app/financeiro/categorias': typeof AppFinanceiroCategoriasRoute
@@ -420,6 +437,7 @@ export interface FileRoutesById {
   '/app/financeiro/pagamentos': typeof AppFinanceiroPagamentosRoute
   '/app/financeiro/whatsapp': typeof AppFinanceiroWhatsappRoute
   '/auth/convite/$token': typeof AuthConviteTokenRoute
+  '/admin/empresas/': typeof AdminEmpresasIndexRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
 }
@@ -460,6 +478,7 @@ export interface FileRouteTypes {
     | '/auth/redefinir-senha'
     | '/admin/'
     | '/app/'
+    | '/admin/empresas/$id'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
     | '/app/financeiro/categorias'
@@ -469,6 +488,7 @@ export interface FileRouteTypes {
     | '/app/financeiro/pagamentos'
     | '/app/financeiro/whatsapp'
     | '/auth/convite/$token'
+    | '/admin/empresas/'
     | '/app/financeiro/'
     | '/api/public/hooks/lembretes-cobranca'
   fileRoutesByTo: FileRoutesByTo
@@ -504,6 +524,7 @@ export interface FileRouteTypes {
     | '/auth/redefinir-senha'
     | '/admin'
     | '/app'
+    | '/admin/empresas/$id'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
     | '/app/financeiro/categorias'
@@ -513,6 +534,7 @@ export interface FileRouteTypes {
     | '/app/financeiro/pagamentos'
     | '/app/financeiro/whatsapp'
     | '/auth/convite/$token'
+    | '/admin/empresas'
     | '/app/financeiro'
     | '/api/public/hooks/lembretes-cobranca'
   id:
@@ -551,6 +573,7 @@ export interface FileRouteTypes {
     | '/auth/redefinir-senha'
     | '/admin/'
     | '/app/'
+    | '/admin/empresas/$id'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
     | '/app/financeiro/categorias'
@@ -560,6 +583,7 @@ export interface FileRouteTypes {
     | '/app/financeiro/pagamentos'
     | '/app/financeiro/whatsapp'
     | '/auth/convite/$token'
+    | '/admin/empresas/'
     | '/app/financeiro/'
     | '/api/public/hooks/lembretes-cobranca'
   fileRoutesById: FileRoutesById
@@ -837,6 +861,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceiroIndexRouteImport
       parentRoute: typeof AppFinanceiroRoute
     }
+    '/admin/empresas/': {
+      id: '/admin/empresas/'
+      path: '/empresas'
+      fullPath: '/admin/empresas/'
+      preLoaderRoute: typeof AdminEmpresasIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/auth/convite/$token': {
       id: '/auth/convite/$token'
       path: '/auth/convite/$token'
@@ -900,6 +931,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWaDrainRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/empresas/$id': {
+      id: '/admin/empresas/$id'
+      path: '/empresas/$id'
+      fullPath: '/admin/empresas/$id'
+      preLoaderRoute: typeof AdminEmpresasIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/api/public/hooks/lembretes-cobranca': {
       id: '/api/public/hooks/lembretes-cobranca'
       path: '/api/public/hooks/lembretes-cobranca'
@@ -912,10 +950,14 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminEmpresasIdRoute: typeof AdminEmpresasIdRoute
+  AdminEmpresasIndexRoute: typeof AdminEmpresasIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
+  AdminEmpresasIdRoute: AdminEmpresasIdRoute,
+  AdminEmpresasIndexRoute: AdminEmpresasIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

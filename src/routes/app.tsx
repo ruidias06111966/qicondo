@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/auth/AuthProvider";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import { Logo } from "@/components/site/Logo";
+import { usePlatformAdmin } from "@/auth/usePlatformAdmin";
 import {
   LayoutDashboard, Users, Building2, MessageCircle, LogOut, Loader2,
-  Calendar, Package, Wrench, Wallet, Settings, Menu, X, Inbox
+  Calendar, Package, Wrench, Wallet, Settings, Menu, X, Inbox, Shield
 } from "lucide-react";
 
 export const Route = createFileRoute("/app")({
@@ -42,6 +43,7 @@ function AppLayout() {
   const navigate = useNavigate();
   const { loading, user, hasAnyRole, profile, signOut } = useAuth();
   const { role } = useCondominioAtivo();
+  const { isPlatformAdmin } = usePlatformAdmin();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
   const navItems = NAV.filter((it) => !it.roles || (role && it.roles.includes(role as Role)));

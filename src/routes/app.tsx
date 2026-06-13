@@ -79,6 +79,11 @@ function AppLayout() {
               <item.icon size={18} /> {item.label}
             </Link>
           ))}
+          {isPlatformAdmin && (
+            <Link to="/admin" className="mt-4 flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium border border-dashed border-primary/40 text-primary hover:bg-primary/5">
+              <Shield size={18} /> Admin Master
+            </Link>
+          )}
         </nav>
         <div className="p-3 border-t border-border">
           <div className="flex items-center gap-3 px-2 py-2">

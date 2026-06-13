@@ -17,6 +17,8 @@ const PLANO_LABEL: Record<string, string> = { basico: "Básico", profissional: "
 function AdminIndex() {
   const mFn = useServerFn(metricasGlobais);
   const eFn = useServerFn(listarEmpresas);
+  const suspFn = useServerFn(definirSuspensao);
+  const delFn = useServerFn(apagarEmpresa);
   const [m, setM] = useState<any>(null);
   const [empresas, setEmpresas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

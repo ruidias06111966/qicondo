@@ -24,6 +24,7 @@ import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AuthRedefinirSenhaRouteImport } from './routes/auth.redefinir-senha'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthEsqueciSenhaRouteImport } from './routes/auth.esqueci-senha'
@@ -128,6 +129,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AuthRedefinirSenhaRoute = AuthRedefinirSenhaRouteImport.update({
   id: '/auth/redefinir-senha',
@@ -280,7 +286,7 @@ const ApiPublicHooksLembretesCobrancaRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/ajuda': typeof AjudaRoute
   '/app': typeof AppRouteWithChildren
   '/blog': typeof BlogRoute
@@ -311,6 +317,7 @@ export interface FileRoutesByFullPath {
   '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
+  '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
@@ -326,7 +333,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
   '/ajuda': typeof AjudaRoute
   '/blog': typeof BlogRoute
   '/contato': typeof ContatoRoute
@@ -355,6 +361,7 @@ export interface FileRoutesByTo {
   '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
+  '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
@@ -371,7 +378,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/ajuda': typeof AjudaRoute
   '/app': typeof AppRouteWithChildren
   '/blog': typeof BlogRoute
@@ -402,6 +409,7 @@ export interface FileRoutesById {
   '/auth/esqueci-senha': typeof AuthEsqueciSenhaRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
+  '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
@@ -450,6 +458,7 @@ export interface FileRouteTypes {
     | '/auth/esqueci-senha'
     | '/auth/login'
     | '/auth/redefinir-senha'
+    | '/admin/'
     | '/app/'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
@@ -465,7 +474,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/admin'
     | '/ajuda'
     | '/blog'
     | '/contato'
@@ -494,6 +502,7 @@ export interface FileRouteTypes {
     | '/auth/esqueci-senha'
     | '/auth/login'
     | '/auth/redefinir-senha'
+    | '/admin'
     | '/app'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
@@ -540,6 +549,7 @@ export interface FileRouteTypes {
     | '/auth/esqueci-senha'
     | '/auth/login'
     | '/auth/redefinir-senha'
+    | '/admin/'
     | '/app/'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
@@ -556,7 +566,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AjudaRoute: typeof AjudaRoute
   AppRoute: typeof AppRouteWithChildren
   BlogRoute: typeof BlogRoute
@@ -686,6 +696,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/auth/redefinir-senha': {
       id: '/auth/redefinir-senha'
@@ -893,6 +910,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 interface AppFinanceiroRouteChildren {
   AppFinanceiroCategoriasRoute: typeof AppFinanceiroCategoriasRoute
   AppFinanceiroCobrancasRoute: typeof AppFinanceiroCobrancasRoute
@@ -955,7 +982,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   AjudaRoute: AjudaRoute,
   AppRoute: AppRouteWithChildren,
   BlogRoute: BlogRoute,

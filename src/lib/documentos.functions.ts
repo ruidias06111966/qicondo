@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { drenarFila, checarSindico } from "./documentos.server";
+import { drenarFila, checarSindico } from "@/server/documentos.server";
 
 /** Enfileira manualmente (botão "Notificar agora" para qualquer documento aprovado/público). */
 export const enfileirarNotificacaoDocumento = createServerFn({ method: "POST" })

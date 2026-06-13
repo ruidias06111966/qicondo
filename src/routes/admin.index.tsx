@@ -113,7 +113,7 @@ function AdminIndex() {
                       <button
                         onClick={async () => {
                           const motivo = e.suspenso ? null : prompt("Motivo da suspensão (opcional):") || null;
-                          const r = await safeCall(useServerFn(definirSuspensao as any)({ data: { condominio_id: e.id, suspenso: !e.suspenso, motivo } } as any));
+                          const r = await safeCall(suspFn({ data: { condominio_id: e.id, suspenso: !e.suspenso, motivo } }));
                           if (r) { toast.success(e.suspenso ? "Reativada" : "Suspensa"); reload(); }
                         }}
                         className="p-1.5 rounded hover:bg-muted"
@@ -123,7 +123,7 @@ function AdminIndex() {
                         onClick={async () => {
                           const c = prompt(`Digite o nome exato "${e.nome}" para apagar:`);
                           if (!c) return;
-                          const r = await safeCall(useServerFn(apagarEmpresa as any)({ data: { condominio_id: e.id, confirmar_nome: c } } as any));
+                          const r = await safeCall(delFn({ data: { condominio_id: e.id, confirmar_nome: c } }));
                           if (r) { toast.success("Empresa apagada"); reload(); }
                         }}
                         className="p-1.5 rounded hover:bg-muted text-destructive"

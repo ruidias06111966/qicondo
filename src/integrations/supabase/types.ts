@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          acao: string
+          admin_user_id: string
+          created_at: string
+          entidade: string | null
+          entidade_id: string | null
+          id: string
+          metadata: Json | null
+        }
+        Insert: {
+          acao: string
+          admin_user_id: string
+          created_at?: string
+          entidade?: string | null
+          entidade_id?: string | null
+          id?: string
+          metadata?: Json | null
+        }
+        Update: {
+          acao?: string
+          admin_user_id?: string
+          created_at?: string
+          entidade?: string | null
+          entidade_id?: string | null
+          id?: string
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
       area_bloqueios: {
         Row: {
           area_id: string
@@ -537,6 +567,8 @@ export type Database = {
       }
       condominios: {
         Row: {
+          assinatura_fim: string | null
+          assinatura_inicio: string | null
           cep: string | null
           cidade: string | null
           cnpj: string | null
@@ -547,13 +579,18 @@ export type Database = {
           estado: string | null
           id: string
           logo_url: string | null
+          motivo_suspensao: string | null
           nome: string
           plano: Database["public"]["Enums"]["plano_tipo"]
+          suspenso: boolean
           total_unidades: number
           updated_at: string
+          valor_mensal: number | null
           whatsapp_numero: string | null
         }
         Insert: {
+          assinatura_fim?: string | null
+          assinatura_inicio?: string | null
           cep?: string | null
           cidade?: string | null
           cnpj?: string | null
@@ -564,13 +601,18 @@ export type Database = {
           estado?: string | null
           id?: string
           logo_url?: string | null
+          motivo_suspensao?: string | null
           nome: string
           plano?: Database["public"]["Enums"]["plano_tipo"]
+          suspenso?: boolean
           total_unidades?: number
           updated_at?: string
+          valor_mensal?: number | null
           whatsapp_numero?: string | null
         }
         Update: {
+          assinatura_fim?: string | null
+          assinatura_inicio?: string | null
           cep?: string | null
           cidade?: string | null
           cnpj?: string | null
@@ -581,10 +623,13 @@ export type Database = {
           estado?: string | null
           id?: string
           logo_url?: string | null
+          motivo_suspensao?: string | null
           nome?: string
           plano?: Database["public"]["Enums"]["plano_tipo"]
+          suspenso?: boolean
           total_unidades?: number
           updated_at?: string
+          valor_mensal?: number | null
           whatsapp_numero?: string | null
         }
         Relationships: []
@@ -1956,6 +2001,7 @@ export type Database = {
         Returns: string
       }
       aceitar_convite: { Args: { _token: string }; Returns: string }
+      admin_metricas_globais: { Args: never; Returns: Json }
       aprovar_reserva: { Args: { _reserva_id: string }; Returns: undefined }
       atribuir_ocorrencia: {
         Args: { _atribuido_a: string; _ocorrencia_id: string }
@@ -1978,6 +2024,7 @@ export type Database = {
         Returns: undefined
       }
       cancelar_reserva: { Args: { _reserva_id: string }; Returns: undefined }
+      claim_platform_admin: { Args: never; Returns: boolean }
       cnab_alocar_nosso_numero: {
         Args: { _condominio_id: string; _quantidade: number }
         Returns: {

@@ -16,7 +16,7 @@ import {
   enfileirarNotificacaoDocumento,
   reenviarFalhasDocumento,
   historicoNotificacoesDocumento,
-} from "@/server/documentos.functions";
+} from "@/lib/documentos.functions";
 
 export const Route = createFileRoute("/app/documentos")({
   head: () => ({ meta: [{ title: "Documentos — WHATSCOND" }] }),

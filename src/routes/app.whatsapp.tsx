@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useCondominioAtivo } from "@/auth/useCondominio";
-import { obterConfigWA, salvarConfigWA } from "@/server/whatsapp.functions";
+import { obterConfigWA, salvarConfigWA } from "@/lib/whatsapp.functions";
 import { Loader2, MessageCircle, Save, Copy, CheckCircle2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";

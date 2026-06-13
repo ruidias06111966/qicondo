@@ -40,8 +40,8 @@ function AdminLayout() {
           </p>
           <button
             onClick={async () => {
-              const r = await safeCall(reclamar(), "Não foi possível reclamar o acesso");
-              if (r.ok) { toast.success("É agora Admin Master."); refetch(); }
+              const r = await safeCall(reclamar());
+              if (r) { toast.success("É agora Admin Master."); refetch(); }
             }}
             className="w-full bg-primary text-primary-foreground rounded-lg py-2.5 font-medium hover:opacity-90"
           >Tornar-me Admin Master</button>

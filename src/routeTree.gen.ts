@@ -21,6 +21,7 @@ import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AjudaRouteImport } from './routes/ajuda'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AuthRedefinirSenhaRouteImport } from './routes/auth.redefinir-senha'
@@ -111,6 +112,11 @@ const AppRoute = AppRouteImport.update({
 const AjudaRoute = AjudaRouteImport.update({
   id: '/ajuda',
   path: '/ajuda',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -274,6 +280,7 @@ const ApiPublicHooksLembretesCobrancaRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/ajuda': typeof AjudaRoute
   '/app': typeof AppRouteWithChildren
   '/blog': typeof BlogRoute
@@ -319,6 +326,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/ajuda': typeof AjudaRoute
   '/blog': typeof BlogRoute
   '/contato': typeof ContatoRoute
@@ -363,6 +371,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/ajuda': typeof AjudaRoute
   '/app': typeof AppRouteWithChildren
   '/blog': typeof BlogRoute
@@ -410,6 +419,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/ajuda'
     | '/app'
     | '/blog'
@@ -455,6 +465,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/ajuda'
     | '/blog'
     | '/contato'
@@ -498,6 +509,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/ajuda'
     | '/app'
     | '/blog'
@@ -544,6 +556,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   AjudaRoute: typeof AjudaRoute
   AppRoute: typeof AppRouteWithChildren
   BlogRoute: typeof BlogRoute
@@ -651,6 +664,13 @@ declare module '@tanstack/react-router' {
       path: '/ajuda'
       fullPath: '/ajuda'
       preLoaderRoute: typeof AjudaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -935,6 +955,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   AjudaRoute: AjudaRoute,
   AppRoute: AppRouteWithChildren,
   BlogRoute: BlogRoute,

@@ -94,10 +94,7 @@ function MoradoresPage() {
 
   async function convidar() {
     if (!condominioId || !email.trim()) { toast.error("Informe o e-mail"); return; }
-    if (limite !== null && usados >= limite) {
-      toast.error(`Limite do plano ${plano} atingido (${limite} utilizadores). Faça upgrade para adicionar mais.`);
-      return;
-    }
+
     setEnviando(true);
     const token = crypto.randomUUID().replace(/-/g, "");
     // hash via subtle crypto
@@ -117,13 +114,10 @@ function MoradoresPage() {
     });
     setEnviando(false);
     if (error) {
-      if (error.message.includes("limite_plano_atingido")) {
-        toast.error(`Limite do plano ${plano} atingido. Faça upgrade para adicionar mais utilizadores.`);
-      } else {
-        toast.error(error.message);
-      }
+      toast.error(error.message);
       return;
     }
+
     toast.success("Convite criado");
     setEmail(""); setNome(""); setRole("morador"); setOpen(false);
     carregar();
@@ -166,33 +160,12 @@ function MoradoresPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="text-right">
-            <p className="text-xs text-muted-foreground">Plano <span className="font-semibold capitalize text-foreground">{plano}</span></p>
-            <p className={`text-sm font-bold ${limite !== null && usados >= limite ? "text-destructive" : "text-foreground"}`}>
-              {usados} / {limite === null ? "∞" : limite} utilizadores
-            </p>
-          </div>
-          <Button
-            onClick={() => setOpen((v) => !v)}
-            disabled={limite !== null && usados >= limite}
-            title={limite !== null && usados >= limite ? "Limite do plano atingido" : ""}
-          >
+          <Button onClick={() => setOpen((v) => !v)}>
             <Plus size={16} className="mr-2" /> Novo utilizador
           </Button>
         </div>
       </header>
 
-      {limite !== null && usados >= limite && (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm flex items-start gap-3">
-          <AlertCircle className="text-destructive shrink-0" size={18} />
-          <div>
-            <p className="font-semibold text-destructive">Limite do plano {plano} atingido</p>
-            <p className="text-muted-foreground mt-0.5">
-              Já tem {usados} utilizadores (incluindo convites pendentes). Para adicionar mais, faça upgrade do plano em <a href="/contato" className="underline">Falar com vendas</a>.
-            </p>
-          </div>
-        </div>
-      )}
 
       <div className="flex gap-2">
         <button

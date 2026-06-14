@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Building2, Users, Layers, Inbox, AlertTriangle, Loader2, Search, Pause, Play, Pencil, Trash2 } from "lucide-react";
+import { Building2, Users, Layers, AlertTriangle, Loader2, Search, Pause, Play, Pencil, Trash2 } from "lucide-react";
 import { metricasGlobais, listarEmpresas, atualizarAssinatura, definirSuspensao, apagarEmpresa } from "@/lib/platform.functions";
 import { safeCall } from "@/lib/safe-call";
 import { toast } from "sonner";
@@ -46,11 +46,10 @@ function AdminIndex() {
       </header>
 
       {/* Métricas */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <Kpi label="Empresas" value={m?.total_empresas} icon={Building2} sub={`${m?.empresas_ativas ?? 0} ativas`} />
         <Kpi label="Utilizadores" value={m?.total_utilizadores} icon={Users} />
         <Kpi label="Unidades" value={m?.total_unidades} icon={Layers} />
-        <Kpi label="MRR estimado" value={m ? `€ ${Number(m.mrr_estimado).toFixed(2)}` : "—"} icon={Inbox} />
       </div>
       {m?.empresas_suspensas > 0 && (
         <div className="flex items-center gap-2 text-sm bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-lg p-3">
@@ -85,7 +84,6 @@ function AdminIndex() {
                   <th className="text-left p-3">Plano</th>
                   <th className="text-right p-3">Users</th>
                   <th className="text-right p-3">Unidades</th>
-                  <th className="text-right p-3">Valor/mês</th>
                   <th className="text-left p-3">Validade</th>
                   <th className="text-left p-3">Estado</th>
                   <th className="text-right p-3">Ações</th>
@@ -101,7 +99,7 @@ function AdminIndex() {
                     <td className="p-3"><span className="px-2 py-0.5 rounded text-xs bg-muted">{PLANO_LABEL[e.plano] ?? e.plano}</span></td>
                     <td className="p-3 text-right">{e.total_utilizadores}</td>
                     <td className="p-3 text-right">{e.total_unidades}</td>
-                    <td className="p-3 text-right">{e.valor_mensal != null ? `€ ${Number(e.valor_mensal).toFixed(2)}` : "—"}</td>
+                    
                     <td className="p-3 text-xs">{e.assinatura_fim ?? "—"}</td>
                     <td className="p-3">
                       {e.suspenso
@@ -161,13 +159,13 @@ function EditarAssinaturaModal({ empresa, onClose, onSaved }: { empresa: any; on
   const [plano, setPlano] = useState(empresa.plano);
   const [inicio, setInicio] = useState(empresa.assinatura_inicio ?? "");
   const [fim, setFim] = useState(empresa.assinatura_fim ?? "");
-  const [valor, setValor] = useState(empresa.valor_mensal ?? "");
   const [saving, setSaving] = useState(false);
 
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur grid place-items-center z-50 p-4" onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} className="bg-background border border-border rounded-xl p-6 w-full max-w-md space-y-4">
         <h3 className="font-semibold text-lg">Assinatura — {empresa.nome}</h3>
+        <p className="text-xs text-muted-foreground">Valor da assinatura é sempre sob consulta — combinado fora do sistema.</p>
         <div className="space-y-3 text-sm">
           <Field label="Plano">
             <select value={plano} onChange={(e) => setPlano(e.target.value)} className="w-full bg-muted rounded px-3 py-2 border border-border">
@@ -178,9 +176,6 @@ function EditarAssinaturaModal({ empresa, onClose, onSaved }: { empresa: any; on
             <Field label="Início"><input type="date" value={inicio ?? ""} onChange={(e) => setInicio(e.target.value)} className="w-full bg-muted rounded px-3 py-2 border border-border" /></Field>
             <Field label="Fim"><input type="date" value={fim ?? ""} onChange={(e) => setFim(e.target.value)} className="w-full bg-muted rounded px-3 py-2 border border-border" /></Field>
           </div>
-          <Field label="Valor mensal (€) — opcional, sobrepõe ao plano">
-            <input type="number" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} className="w-full bg-muted rounded px-3 py-2 border border-border" />
-          </Field>
         </div>
         <div className="flex gap-2 justify-end">
           <button onClick={onClose} className="px-3 py-2 text-sm rounded hover:bg-muted">Cancelar</button>
@@ -193,7 +188,6 @@ function EditarAssinaturaModal({ empresa, onClose, onSaved }: { empresa: any; on
                 plano,
                 assinatura_inicio: inicio || null,
                 assinatura_fim: fim || null,
-                valor_mensal: valor === "" ? null : Number(valor),
               } }));
               setSaving(false);
               if (r) { toast.success("Assinatura atualizada"); onSaved(); }

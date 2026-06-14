@@ -90,10 +90,13 @@ import { AuthProvider } from "@/auth/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
 
 function RootComponent() {
+  const { queryClient } = Route.useRouteContext();
   return (
-    <AuthProvider>
-      <Outlet />
-      <Toaster richColors position="top-right" />
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Outlet />
+        <Toaster richColors position="top-right" />
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }

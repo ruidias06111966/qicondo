@@ -79,8 +79,7 @@ function OnboardingPage() {
       _codigo_publico: codigo_publico,
     });
     if (error || !novoId) { setBusy(false); toast.error(error?.message ?? "Falha"); return; }
-    // Define o plano escolhido
-    await supabase.from("condominios").update({ plano }).eq("id", novoId as string);
+    // Nota: o plano é atribuído pelo administrador da plataforma após contratação.
     setBusy(false);
     setCondId(novoId as string);
     await refresh();

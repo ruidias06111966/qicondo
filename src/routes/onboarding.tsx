@@ -174,9 +174,9 @@ function OnboardingPage() {
                 <label className="text-xs font-semibold text-muted-foreground">Plano pretendido*</label>
                 <div className="mt-2 grid sm:grid-cols-3 gap-2">
                   {([
-                    { id: "basico", nome: "Básico", desc: "1 empresa · 3 utilizadores" },
-                    { id: "profissional", nome: "Profissional", desc: "1 empresa · 10 utilizadores" },
-                    { id: "enterprise", nome: "Enterprise", desc: "Utilizadores ilimitados" },
+                    { id: "basico", nome: "Básico", desc: "Utilizadores ilimitados" },
+                    { id: "profissional", nome: "Profissional", desc: "Utilizadores ilimitados" },
+                    { id: "enterprise", nome: "Enterprise", desc: "Multi-empresa · ilimitado" },
                   ] as const).map((p) => (
                     <button
                       key={p.id}

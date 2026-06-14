@@ -50,10 +50,9 @@ function AdminEmpresaDetalhe() {
       </header>
 
       {/* Info */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <Box label="Plano" value={empresa.plano} />
         <Box label="Unidades" value={empresa.total_unidades} />
-        <Box label="Valor mensal" value={empresa.valor_mensal != null ? `€ ${Number(empresa.valor_mensal).toFixed(2)}` : "—"} />
         <Box label="Validade" value={empresa.assinatura_fim ?? "—"} />
       </div>
 

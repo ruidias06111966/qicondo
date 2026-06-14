@@ -71,7 +71,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Cobranças, reservas, encomendas, ocorrências e prestação de contas — tudo pelo WhatsApp que seus moradores já usam. Para pequenos condomínios, a partir de R$ 29/mês.",
+          "Cobranças, reservas, encomendas, ocorrências e prestação de contas — tudo pelo WhatsApp que seus moradores já usam. Planos sob consulta.",
       },
       { property: "og:title", content: "QiCond — Gestão de condomínio pelo WhatsApp" },
       {
@@ -280,8 +280,8 @@ function HomePage() {
           <p className="mt-6 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             QiCond cuida das cobranças, reservas, encomendas, ocorrências e
             prestação de contas. Você acompanha tudo num painel simples — e o
-            morador resolve o dia a dia direto na conversa. A partir de{" "}
-            <strong className="text-foreground">R$ 29/mês</strong>.
+            morador resolve o dia a dia direto na conversa. Planos{" "}
+            <strong className="text-foreground">sob consulta</strong>.
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-md sm:max-w-none mx-auto">

@@ -28,7 +28,7 @@ const plans: Plan[] = [
     name: "Básico",
     desc: "Para empresas que estão a começar e querem profissionalizar a operação.",
     highlight: false,
-    limites: { empresas: "1 empresa", utilizadores: "Até 3 utilizadores" },
+    limites: { empresas: "1 empresa", utilizadores: "Utilizadores ilimitados" },
     features: [
       { has: true,  label: "Cobranças e pagamentos" },
       { has: true,  label: "WhatsApp Bot (lembretes e confirmações)" },
@@ -45,7 +45,7 @@ const plans: Plan[] = [
     desc: "Recomendado para a maioria das empresas. Tudo desbloqueado + suporte prioritário.",
     highlight: true,
     badge: "Mais escolhido",
-    limites: { empresas: "1 empresa", utilizadores: "Até 10 utilizadores" },
+    limites: { empresas: "1 empresa", utilizadores: "Utilizadores ilimitados" },
     features: [
       { has: true, label: "Tudo do plano Básico" },
       { has: true, label: "Todos os 7 perfis com permissões dedicadas" },

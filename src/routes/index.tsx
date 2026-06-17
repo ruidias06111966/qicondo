@@ -519,9 +519,9 @@ function PricingSection() {
     <section id="precos" ref={ref} className="mx-auto max-w-7xl px-4 md:px-8 py-20">
       <div className="text-center mb-12">
         <div className="inline-block text-xs font-bold uppercase tracking-wider text-primary mb-3">Preços</div>
-        <h2 className="font-display font-extrabold text-3xl md:text-4xl">Planos simples e transparentes</h2>
+        <h2 className="font-display font-extrabold text-3xl md:text-4xl">Planos sob consulta</h2>
         <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-          Primeiro mês grátis. Sem taxa de setup, sem contrato, sem fidelidade.
+          Proposta personalizada para a sua realidade. Sem taxa de setup, sem contrato, sem fidelidade.
         </p>
       </div>
 

@@ -172,10 +172,10 @@ const whatsappFlow = [
 const plans = [
   {
     name: "Starter",
-    price: "29",
+    price: null,
     tagline: "Para condomínios de até 30 unidades em autogestão.",
     highlight: false,
-    cta: "Começar grátis",
+    cta: "Falar com vendas",
     features: [
       "Até 30 unidades",
       "Cobranças automáticas via WhatsApp",
@@ -189,10 +189,10 @@ const plans = [
   },
   {
     name: "Profissional",
-    price: "59",
+    price: null,
     tagline: "Para condomínios maiores e administradoras enxutas.",
     highlight: true,
-    cta: "Quero o Profissional",
+    cta: "Falar com vendas",
     features: [
       "Até 80 unidades",
       "Tudo do Starter, mais:",
@@ -205,6 +205,7 @@ const plans = [
       "Suporte prioritário em até 4h",
     ],
   },
+
 ];
 
 const compareRows = [

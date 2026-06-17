@@ -94,7 +94,7 @@ export const Route = createFileRoute("/")({
           operatingSystem: "Web, iOS, Android",
           description:
             "Sistema de gestão de condomínios via WhatsApp: cobranças, reservas, encomendas, ocorrências e prestação de contas.",
-          offers: { "@type": "Offer", price: "29", priceCurrency: "BRL" },
+          offers: { "@type": "Offer", price: "0", priceCurrency: "BRL", description: "Sob consulta" },
           aggregateRating: {
             "@type": "AggregateRating",
             ratingValue: "4.9",

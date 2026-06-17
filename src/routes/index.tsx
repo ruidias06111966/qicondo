@@ -558,17 +558,19 @@ function PricingSection() {
                 ))}
               </ul>
 
-              <Link
-                to="/contato"
-                onClick={() => track("plan_cta_click", { plan: p.name })}
-                className={`block text-center rounded-lg py-3 text-sm font-bold transition-all ${
+              <a
+                href={waLink(`Olá! Tenho interesse no plano ${p.name} do QiCond. Pode enviar uma proposta?`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => track("plan_cta_click", { plan: p.name, channel: "whatsapp" })}
+                className={`flex items-center justify-center gap-2 text-center rounded-lg py-3 text-sm font-bold transition-all ${
                   isPro
                     ? "bg-white text-primary hover:scale-[1.02]"
                     : "bg-primary text-primary-foreground hover:bg-[var(--color-primary-deep)]"
                 }`}
               >
-                {p.cta}
-              </Link>
+                <MessageCircle size={14} /> Falar no WhatsApp
+              </a>
             </div>
           );
         })}

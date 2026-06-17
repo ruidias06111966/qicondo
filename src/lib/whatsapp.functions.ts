@@ -1,3 +1,4 @@
+import { throwSafe } from "@/lib/safe-error";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -51,6 +52,6 @@ export const salvarConfigWA = createServerFn({ method: "POST" })
     if (data.app_secret?.includes("•••")) payload.app_secret = existing?.app_secret ?? null;
 
     const { error } = await supabaseAdmin.from("wa_config").upsert(payload, { onConflict: "condominio_id" });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return { ok: true };
   });

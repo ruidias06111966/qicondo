@@ -1,3 +1,4 @@
+import { throwSafe } from "@/lib/safe-error";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -23,7 +24,7 @@ export const enfileirarNotificacaoDocumento = createServerFn({ method: "POST" })
     const { data: count, error } = await supabaseAdmin.rpc("enqueue_documento_comunicado", {
       _documento_id: data.documento_id,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
 
     const r = await drenarFila(doc.condominio_id, 50);
     return { enfileirados: count ?? 0, ...r };

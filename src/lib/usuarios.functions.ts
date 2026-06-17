@@ -1,3 +1,4 @@
+import { throwSafe } from "@/lib/safe-error";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -35,7 +36,7 @@ export const listarUsuarios = createServerFn({ method: "POST" })
       .from("user_roles")
       .select("user_id, role, created_at")
       .eq("condominio_id", data.condominio_id);
-    if (e1) throw new Error(e1.message);
+    if (e1) throwSafe(e1);
 
     const ids = Array.from(new Set((roles ?? []).map((r) => r.user_id)));
     const { data: profs } = ids.length
@@ -123,7 +124,7 @@ export const convidarUsuario = createServerFn({ method: "POST" })
       if (/limite_plano_atingido/.test(error.message)) {
         throw new Error("Limite de utilizadores do plano atingido. Faça upgrade para adicionar mais.");
       }
-      throw new Error(error.message);
+      throwSafe(error);
     }
 
     return { convite: row, token };
@@ -142,7 +143,7 @@ export const revogarConvite = createServerFn({ method: "POST" })
       .update({ status: "cancelado" })
       .eq("id", data.id)
       .eq("condominio_id", data.condominio_id);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return { ok: true };
   });
 
@@ -172,13 +173,13 @@ export const alterarRoleUsuario = createServerFn({ method: "POST" })
       .eq("condominio_id", data.condominio_id)
       .eq("user_id", data.user_id)
       .eq("role", data.role_antigo);
-    if (e1) throw new Error(e1.message);
+    if (e1) throwSafe(e1);
     const { error: e2 } = await supabase.from("user_roles").insert({
       condominio_id: data.condominio_id,
       user_id: data.user_id,
       role: data.role_novo,
     });
-    if (e2) throw new Error(e2.message);
+    if (e2) throwSafe(e2);
     return { ok: true };
   });
 
@@ -197,6 +198,6 @@ export const removerUsuario = createServerFn({ method: "POST" })
       .delete()
       .eq("condominio_id", data.condominio_id)
       .eq("user_id", data.user_id);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return { ok: true };
   });

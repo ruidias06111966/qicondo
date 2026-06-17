@@ -1,3 +1,4 @@
+import { throwSafe } from "@/lib/safe-error";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -14,7 +15,7 @@ async function ensurePlatformAdmin(supabase: any, userId: string) {
     .select("user_id")
     .eq("user_id", userId)
     .maybeSingle();
-  if (error) throw new Error(error.message);
+  if (error) throwSafe(error);
   if (!data) throw new Error("forbidden");
 }
 
@@ -55,7 +56,7 @@ export const reclamarPlatformAdmin = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase.rpc("claim_platform_admin");
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     await logAdmin(supabase, userId, "platform_admin_reclamado");
     return { ok: true };
   });
@@ -66,7 +67,7 @@ export const metricasGlobais = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await ensurePlatformAdmin(context.supabase, context.userId);
     const { data, error } = await context.supabase.rpc("admin_metricas_globais");
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return data as Record<string, any>;
   });
 
@@ -81,7 +82,7 @@ export const listarEmpresas = createServerFn({ method: "GET" })
         "id, nome, cnpj, cidade, estado, plano, total_unidades, suspenso, motivo_suspensao, valor_mensal, assinatura_inicio, assinatura_fim, created_at",
       )
       .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
 
     // Conta utilizadores por empresa
     const { data: roles } = await context.supabase
@@ -109,7 +110,7 @@ export const detalheEmpresa = createServerFn({ method: "POST" })
 
     const { data: empresa, error: e1 } = await supabase
       .from("condominios").select("*").eq("id", data.condominio_id).maybeSingle();
-    if (e1) throw new Error(e1.message);
+    if (e1) throwSafe(e1);
     if (!empresa) throw new Error("Empresa não encontrada");
 
     const { data: roles } = await supabase
@@ -167,7 +168,7 @@ export const atualizarAssinatura = createServerFn({ method: "POST" })
     if (data.assinatura_fim !== undefined) patch.assinatura_fim = data.assinatura_fim;
     if (data.valor_mensal !== undefined) patch.valor_mensal = data.valor_mensal;
     const { error } = await context.supabase.from("condominios").update(patch).eq("id", data.condominio_id);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     await logAdmin(context.supabase, context.userId, "assinatura_atualizada", "condominios", data.condominio_id, patch);
     return { ok: true };
   });
@@ -188,7 +189,7 @@ export const definirSuspensao = createServerFn({ method: "POST" })
       suspenso: data.suspenso,
       motivo_suspensao: data.suspenso ? data.motivo ?? null : null,
     }).eq("id", data.condominio_id);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     await logAdmin(context.supabase, context.userId,
       data.suspenso ? "empresa_suspensa" : "empresa_reativada",
       "condominios", data.condominio_id, { motivo: data.motivo });
@@ -211,7 +212,7 @@ export const apagarEmpresa = createServerFn({ method: "POST" })
       throw new Error("Nome de confirmação não bate certo");
     }
     const { error } = await context.supabase.from("condominios").delete().eq("id", data.condominio_id);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     await logAdmin(context.supabase, context.userId, "empresa_apagada", "condominios", data.condominio_id, { nome: emp.nome });
     return { ok: true };
   });
@@ -231,11 +232,11 @@ export const alterarRoleEmpresa = createServerFn({ method: "POST" })
       .eq("condominio_id", data.condominio_id)
       .eq("user_id", data.user_id)
       .eq("role", data.role_antigo);
-    if (e1) throw new Error(e1.message);
+    if (e1) throwSafe(e1);
     const { error: e2 } = await context.supabase.from("user_roles").insert({
       condominio_id: data.condominio_id, user_id: data.user_id, role: data.role_novo,
     });
-    if (e2) throw new Error(e2.message);
+    if (e2) throwSafe(e2);
     await logAdmin(context.supabase, context.userId, "role_alterada", "user_roles", data.user_id, data);
     return { ok: true };
   });
@@ -249,7 +250,7 @@ export const removerUtilizadorEmpresa = createServerFn({ method: "POST" })
     await ensurePlatformAdmin(context.supabase, context.userId);
     const { error } = await context.supabase.from("user_roles").delete()
       .eq("condominio_id", data.condominio_id).eq("user_id", data.user_id);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     await logAdmin(context.supabase, context.userId, "utilizador_removido", "user_roles", data.user_id, { condominio_id: data.condominio_id });
     return { ok: true };
   });

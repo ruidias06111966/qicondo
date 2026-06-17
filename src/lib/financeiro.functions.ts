@@ -1,3 +1,4 @@
+import { throwSafe } from "@/lib/safe-error";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -33,7 +34,7 @@ export const criarCategoria = createServerFn({ method: "POST" })
       .insert({ ...data, cor: data.cor ?? "#10B981" })
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return row;
   });
 
@@ -48,7 +49,7 @@ export const listarCategorias = createServerFn({ method: "POST" })
       .eq("condominio_id", data.condominio_id)
       .order("tipo")
       .order("nome");
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return rows ?? [];
   });
 
@@ -57,7 +58,7 @@ export const removerCategoria = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("categorias_financeiras").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return { ok: true };
   });
 
@@ -93,7 +94,7 @@ export const semearCategoriasPadrao = createServerFn({ method: "POST" })
       .map((c) => ({ ...c, condominio_id: data.condominio_id }));
     if (novas.length === 0) return { inseridas: 0 };
     const { error } = await supabase.from("categorias_financeiras").insert(novas);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return { inseridas: novas.length };
   });
 
@@ -122,7 +123,7 @@ export const listarCobrancas = createServerFn({ method: "POST" })
     if (data.competencia) q = q.eq("competencia", data.competencia);
     if (data.unidade_id) q = q.eq("unidade_id", data.unidade_id);
     const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return rows ?? [];
   });
 
@@ -150,7 +151,7 @@ export const gerarCobrancasLote = createServerFn({ method: "POST" })
       _usar_taxa_unidade: data.usar_taxa_unidade,
       _valor_padrao: data.valor_padrao,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return { criadas: count as number };
   });
 
@@ -162,7 +163,7 @@ export const cancelarCobranca = createServerFn({ method: "POST" })
       .from("cobrancas")
       .update({ status: "cancelada" })
       .eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return { ok: true };
   });
 
@@ -185,7 +186,7 @@ export const registrarPagamentoManual = createServerFn({ method: "POST" })
       _pago_em: data.pago_em,
       _observacoes: (data.observacoes ?? null) as any,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return { id };
   });
 
@@ -209,7 +210,7 @@ export const criarDespesa = createServerFn({ method: "POST" })
       .insert({ ...data, registrado_por: context.userId })
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return row;
   });
 
@@ -229,7 +230,7 @@ export const listarDespesas = createServerFn({ method: "POST" })
       q = q.gte("data", `${data.mes}-01`).lt("data", proximoMes(data.mes));
     }
     const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return rows ?? [];
   });
 
@@ -238,7 +239,7 @@ export const removerDespesa = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("despesas").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return { ok: true };
   });
 
@@ -327,7 +328,7 @@ export const salvarConfigPagamento = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("config_pagamento").upsert(payload);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return { ok: true };
   });
 
@@ -548,7 +549,7 @@ export const listarNotificacoesWA = createServerFn({ method: "POST" })
     if (data.data_inicio) q = q.gte("created_at", `${data.data_inicio}T00:00:00`);
     if (data.data_fim) q = q.lte("created_at", `${data.data_fim}T23:59:59`);
     const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error);
     return rows ?? [];
   });
 

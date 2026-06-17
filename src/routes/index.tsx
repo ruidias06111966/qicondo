@@ -545,9 +545,7 @@ function PricingSection() {
               )}
               <div className={`text-sm font-semibold mb-2 ${isPro ? "text-white/80" : "text-muted-foreground"}`}>{p.name}</div>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className={`text-sm ${isPro ? "text-white/80" : "text-muted-foreground"}`}>R$</span>
-                <span className="font-display font-extrabold text-5xl">{p.price}</span>
-                <span className={`text-sm ${isPro ? "text-white/80" : "text-muted-foreground"}`}>/mês</span>
+                <span className="font-display font-extrabold text-3xl md:text-4xl">Sob consulta</span>
               </div>
               <p className={`text-sm mb-5 ${isPro ? "text-white/85" : "text-foreground"}`}>{p.tagline}</p>
 

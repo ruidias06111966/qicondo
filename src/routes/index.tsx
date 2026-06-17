@@ -94,7 +94,7 @@ export const Route = createFileRoute("/")({
           operatingSystem: "Web, iOS, Android",
           description:
             "Sistema de gestão de condomínios via WhatsApp: cobranças, reservas, encomendas, ocorrências e prestação de contas.",
-          offers: { "@type": "Offer", price: "29", priceCurrency: "BRL" },
+          offers: { "@type": "Offer", price: "0", priceCurrency: "BRL", description: "Sob consulta" },
           aggregateRating: {
             "@type": "AggregateRating",
             ratingValue: "4.9",
@@ -172,10 +172,10 @@ const whatsappFlow = [
 const plans = [
   {
     name: "Starter",
-    price: "29",
+    price: null,
     tagline: "Para condomínios de até 30 unidades em autogestão.",
     highlight: false,
-    cta: "Começar grátis",
+    cta: "Falar com vendas",
     features: [
       "Até 30 unidades",
       "Cobranças automáticas via WhatsApp",
@@ -189,10 +189,10 @@ const plans = [
   },
   {
     name: "Profissional",
-    price: "59",
+    price: null,
     tagline: "Para condomínios maiores e administradoras enxutas.",
     highlight: true,
-    cta: "Quero o Profissional",
+    cta: "Falar com vendas",
     features: [
       "Até 80 unidades",
       "Tudo do Starter, mais:",
@@ -205,6 +205,7 @@ const plans = [
       "Suporte prioritário em até 4h",
     ],
   },
+
 ];
 
 const compareRows = [
@@ -518,9 +519,9 @@ function PricingSection() {
     <section id="precos" ref={ref} className="mx-auto max-w-7xl px-4 md:px-8 py-20">
       <div className="text-center mb-12">
         <div className="inline-block text-xs font-bold uppercase tracking-wider text-primary mb-3">Preços</div>
-        <h2 className="font-display font-extrabold text-3xl md:text-4xl">Planos simples e transparentes</h2>
+        <h2 className="font-display font-extrabold text-3xl md:text-4xl">Planos sob consulta</h2>
         <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-          Primeiro mês grátis. Sem taxa de setup, sem contrato, sem fidelidade.
+          Proposta personalizada para a sua realidade. Sem taxa de setup, sem contrato, sem fidelidade.
         </p>
       </div>
 
@@ -544,9 +545,7 @@ function PricingSection() {
               )}
               <div className={`text-sm font-semibold mb-2 ${isPro ? "text-white/80" : "text-muted-foreground"}`}>{p.name}</div>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className={`text-sm ${isPro ? "text-white/80" : "text-muted-foreground"}`}>R$</span>
-                <span className="font-display font-extrabold text-5xl">{p.price}</span>
-                <span className={`text-sm ${isPro ? "text-white/80" : "text-muted-foreground"}`}>/mês</span>
+                <span className="font-display font-extrabold text-3xl md:text-4xl">Sob consulta</span>
               </div>
               <p className={`text-sm mb-5 ${isPro ? "text-white/85" : "text-foreground"}`}>{p.tagline}</p>
 
@@ -560,7 +559,7 @@ function PricingSection() {
               </ul>
 
               <Link
-                to="/auth/cadastro"
+                to="/contato"
                 onClick={() => track("plan_cta_click", { plan: p.name })}
                 className={`block text-center rounded-lg py-3 text-sm font-bold transition-all ${
                   isPro

@@ -559,7 +559,7 @@ function PricingSection() {
               </ul>
 
               <Link
-                to="/auth/cadastro"
+                to="/contato"
                 onClick={() => track("plan_cta_click", { plan: p.name })}
                 className={`block text-center rounded-lg py-3 text-sm font-bold transition-all ${
                   isPro

@@ -3,6 +3,10 @@ import { useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { CheckCircle2, ChevronDown, X, MessageCircle } from "lucide-react";
 
+const WHATSAPP_NUMBER = "5511999999999";
+const waLink = (msg: string) =>
+  `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+
 export const Route = createFileRoute("/precos")({
   head: () => ({
     meta: [

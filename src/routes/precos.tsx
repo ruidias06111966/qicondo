@@ -3,6 +3,10 @@ import { useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { CheckCircle2, ChevronDown, X, MessageCircle } from "lucide-react";
 
+const WHATSAPP_NUMBER = "5511999999999";
+const waLink = (msg: string) =>
+  `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+
 export const Route = createFileRoute("/precos")({
   head: () => ({
     meta: [
@@ -158,16 +162,18 @@ function PrecosPage() {
               ))}
             </ul>
 
-            <Link
-              to="/contato"
+            <a
+              href={waLink(`Olá! Tenho interesse no plano ${p.name} do QiCond. Pode enviar uma proposta?`)}
+              target="_blank"
+              rel="noopener noreferrer"
               className={`block text-center rounded-lg py-3 text-sm font-bold transition-all inline-flex items-center justify-center gap-2 ${
                 p.highlight
                   ? "bg-white text-primary hover:scale-[1.02]"
                   : "bg-primary text-primary-foreground hover:bg-[var(--color-primary-deep)]"
               }`}
             >
-              <MessageCircle size={14} /> Falar com vendas
-            </Link>
+              <MessageCircle size={14} /> Falar no WhatsApp
+            </a>
           </div>
         ))}
       </section>

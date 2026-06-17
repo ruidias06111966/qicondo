@@ -56,8 +56,8 @@ function ContatoPage() {
       <section className="mx-auto max-w-6xl px-4 md:px-8 pb-20 grid md:grid-cols-5 gap-8">
         <aside className="md:col-span-2 space-y-4">
           {[
-            { icon: MessageCircle, title: "WhatsApp", value: "+55 (11) 99999-0000", href: "https://wa.me/5511999990000" },
-            { icon: Mail, title: "Email", value: "ola@whatscond.app", href: "mailto:ola@whatscond.app" },
+            { icon: MessageCircle, title: "WhatsApp", value: "+55 61 98275-0884", href: "https://wa.me/5561982750884" },
+            { icon: Mail, title: "Email", value: "qidomino@gmail.com", href: "mailto:qidomino@gmail.com" },
             { icon: MapPin, title: "Onde estamos", value: "100% remoto · time no Brasil", href: null },
           ].map((c) => (
             <a

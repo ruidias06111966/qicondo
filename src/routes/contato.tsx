@@ -462,7 +462,7 @@ function Field({
         maxLength={255}
         aria-invalid={!!error}
         onInput={onInput}
-        className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ${error ? "border-destructive bg-destructive/5 focus:border-destructive focus:ring-destructive/20" : "border-input bg-background focus:border-primary focus:ring-primary/20"}`}
       />
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>

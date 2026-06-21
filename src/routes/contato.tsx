@@ -385,7 +385,7 @@ function ContatoPage() {
                   rows={4}
                   maxLength={1000}
                   placeholder="O que você precisa resolver? (cobrança, comunicação, reservas, etc.)"
-                  className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className={`w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 ${errors.mensagem ? "border-destructive bg-destructive/5 focus:border-destructive focus:ring-destructive/20" : "border-input focus:border-primary"}`}
                   aria-invalid={!!errors.mensagem}
                 />
                 {errors.mensagem && <p className="mt-1 text-xs text-destructive">{errors.mensagem}</p>}

@@ -71,22 +71,25 @@ function formatarTelefone(v: string): string {
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
 }
 
-function validarTelefone(v: string): boolean {
+function erroTelefone(v: string): string | null {
   const digits = limparDigitos(v);
-  if (digits.length < 10 || digits.length > 11) return false;
+  if (digits.length === 0) return "Informe o telefone.";
+  if (digits.length < 10) return "Telefone incompleto. Digite o DDD + número.";
+  if (digits.length > 11) return "Telefone muito longo. Use apenas DDD + número.";
   const ddd = digits.slice(0, 2);
-  if (!DDD_VALIDOS.has(ddd)) return false;
+  if (!DDD_VALIDOS.has(ddd)) return `DDD inválido (${ddd}). Escolha um DDD brasileiro válido.`;
   if (digits.length === 11) {
     const nono = digits[2];
-    if (nono !== "9") return false;
+    if (nono !== "9") return "Formato inválido. Celulares no Brasil começam com 9 após o DDD.";
     const primeiro = digits[3];
-    if (primeiro === "0" || primeiro === "1") return false;
+    if (primeiro === "0" || primeiro === "1") return "Formato inválido. O número não pode começar com 0 ou 1.";
   }
   if (digits.length === 10) {
     const primeiro = digits[2];
-    if (primeiro === "0" || primeiro === "1") return false;
+    if (primeiro === "9") return "Formato inválido. Fixos não usam o 9.";
+    if (primeiro === "0" || primeiro === "1") return "Formato inválido. O número não pode começar com 0 ou 1.";
   }
-  return true;
+  return null;
 }
 
 const schema = z.object({
@@ -95,10 +98,7 @@ const schema = z.object({
   telefone: z
     .string()
     .trim()
-    .min(1, "Informe o telefone")
-    .refine((v) => limparDigitos(v).length >= 10, "Telefone incompleto")
-    .refine((v) => limparDigitos(v).length <= 11, "Telefone muito longo")
-    .refine(validarTelefone, "Telefone inválido. Use formato (XX) XXXXX-XXXX"),
+    .refine((v) => erroTelefone(v) === null, (v) => ({ message: erroTelefone(v) ?? "Telefone inválido" })),
   perfil: z.enum(PERFIS, { message: "Selecione um perfil" }),
   condominio: z.string().trim().min(2, "Informe o nome do condomínio").max(120),
   unidades: z.enum(UNIDADES, { message: "Selecione a faixa" }),

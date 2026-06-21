@@ -491,7 +491,7 @@ function SelectField({
         name={name}
         defaultValue=""
         aria-invalid={!!error}
-        className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ${error ? "border-destructive bg-destructive/5 focus:border-destructive focus:ring-destructive/20" : "border-input bg-background focus:border-primary focus:ring-primary/20"}`}
       >
         <option value="" disabled>
           Selecione…

@@ -71,22 +71,25 @@ function formatarTelefone(v: string): string {
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
 }
 
-function validarTelefone(v: string): boolean {
+function erroTelefone(v: string): string | null {
   const digits = limparDigitos(v);
-  if (digits.length < 10 || digits.length > 11) return false;
+  if (digits.length === 0) return "Informe o telefone.";
+  if (digits.length < 10) return "Telefone incompleto. Digite o DDD + número.";
+  if (digits.length > 11) return "Telefone muito longo. Use apenas DDD + número.";
   const ddd = digits.slice(0, 2);
-  if (!DDD_VALIDOS.has(ddd)) return false;
+  if (!DDD_VALIDOS.has(ddd)) return `DDD inválido (${ddd}). Escolha um DDD brasileiro válido.`;
   if (digits.length === 11) {
     const nono = digits[2];
-    if (nono !== "9") return false;
+    if (nono !== "9") return "Formato inválido. Celulares no Brasil começam com 9 após o DDD.";
     const primeiro = digits[3];
-    if (primeiro === "0" || primeiro === "1") return false;
+    if (primeiro === "0" || primeiro === "1") return "Formato inválido. O número não pode começar com 0 ou 1.";
   }
   if (digits.length === 10) {
     const primeiro = digits[2];
-    if (primeiro === "0" || primeiro === "1") return false;
+    if (primeiro === "9") return "Formato inválido. Fixos não usam o 9.";
+    if (primeiro === "0" || primeiro === "1") return "Formato inválido. O número não pode começar com 0 ou 1.";
   }
-  return true;
+  return null;
 }
 
 const schema = z.object({
@@ -95,10 +98,7 @@ const schema = z.object({
   telefone: z
     .string()
     .trim()
-    .min(1, "Informe o telefone")
-    .refine((v) => limparDigitos(v).length >= 10, "Telefone incompleto")
-    .refine((v) => limparDigitos(v).length <= 11, "Telefone muito longo")
-    .refine(validarTelefone, "Telefone inválido. Use formato (XX) XXXXX-XXXX"),
+    .refine((v) => erroTelefone(v) === null, (v) => ({ message: erroTelefone(v) ?? "Telefone inválido" })),
   perfil: z.enum(PERFIS, { message: "Selecione um perfil" }),
   condominio: z.string().trim().min(2, "Informe o nome do condomínio").max(120),
   unidades: z.enum(UNIDADES, { message: "Selecione a faixa" }),
@@ -140,12 +140,13 @@ function ContatoPage() {
 
     // Encaminha para WhatsApp com mensagem pré-preenchida
     const d = result.data;
+    const telLimpo = limparDigitos(d.telefone);
     const msg = [
       `Olá! Gostaria de uma proposta do QiCond.`,
       ``,
       `Nome: ${d.nome}`,
       `Email: ${d.email}`,
-      `Telefone: ${d.telefone}`,
+      `Telefone: +55 ${telLimpo}`,
       `Perfil: ${d.perfil}`,
       `Condomínio: ${d.condominio}`,
       `Unidades: ${d.unidades}`,
@@ -384,17 +385,17 @@ function ContatoPage() {
                   rows={4}
                   maxLength={1000}
                   placeholder="O que você precisa resolver? (cobrança, comunicação, reservas, etc.)"
-                  className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className={`w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 ${errors.mensagem ? "border-destructive bg-destructive/5 focus:border-destructive focus:ring-destructive/20" : "border-input focus:border-primary"}`}
                   aria-invalid={!!errors.mensagem}
                 />
                 {errors.mensagem && <p className="mt-1 text-xs text-destructive">{errors.mensagem}</p>}
               </div>
 
-              <label className="mt-4 flex items-start gap-2.5 text-xs text-muted-foreground cursor-pointer">
+              <label className={`mt-4 flex items-start gap-2.5 text-xs cursor-pointer rounded-lg p-2 ${errors.consentimento ? "bg-destructive/5 border border-destructive text-destructive" : "text-muted-foreground"}`}>
                 <input
                   type="checkbox"
                   name="consentimento"
-                  className="mt-0.5 h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-primary/20"
+                  className={`mt-0.5 h-4 w-4 rounded text-primary focus:ring-2 focus:ring-primary/20 ${errors.consentimento ? "border-destructive" : "border-input"}`}
                 />
                 <span>
                   Concordo em ser contactado por email ou WhatsApp e li a{" "}
@@ -461,7 +462,7 @@ function Field({
         maxLength={255}
         aria-invalid={!!error}
         onInput={onInput}
-        className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ${error ? "border-destructive bg-destructive/5 focus:border-destructive focus:ring-destructive/20" : "border-input bg-background focus:border-primary focus:ring-primary/20"}`}
       />
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
@@ -490,7 +491,7 @@ function SelectField({
         name={name}
         defaultValue=""
         aria-invalid={!!error}
-        className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ${error ? "border-destructive bg-destructive/5 focus:border-destructive focus:ring-destructive/20" : "border-input bg-background focus:border-primary focus:ring-primary/20"}`}
       >
         <option value="" disabled>
           Selecione…

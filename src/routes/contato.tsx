@@ -140,12 +140,13 @@ function ContatoPage() {
 
     // Encaminha para WhatsApp com mensagem pré-preenchida
     const d = result.data;
+    const telLimpo = limparDigitos(d.telefone);
     const msg = [
       `Olá! Gostaria de uma proposta do QiCond.`,
       ``,
       `Nome: ${d.nome}`,
       `Email: ${d.email}`,
-      `Telefone: ${d.telefone}`,
+      `Telefone: +55 ${telLimpo}`,
       `Perfil: ${d.perfil}`,
       `Condomínio: ${d.condominio}`,
       `Unidades: ${d.unidades}`,

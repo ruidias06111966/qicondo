@@ -43,15 +43,62 @@ const PERFIS = [
 const UNIDADES = ["Até 30", "31 a 100", "101 a 300", "Mais de 300"] as const;
 const PRAZOS = ["Imediato", "Próximos 30 dias", "Próximos 90 dias", "Apenas pesquisando"] as const;
 
+const DDD_VALIDOS = new Set([
+  "11","12","13","14","15","16","17","18","19",
+  "21","22","24","27","28","31","32","33","34","35","37","38",
+  "41","42","43","44","45","46","47","48","49",
+  "51","53","54","55","61","62","63","64","65","66","67","68","69",
+  "71","73","74","75","77","79",
+  "81","82","83","84","85","86","87","88","89",
+  "91","92","93","94","95","96","97","98","99",
+]);
+
+function limparDigitos(v: string): string {
+  return v.replace(/\D/g, "");
+}
+
+function formatarTelefone(v: string): string {
+  const digits = limparDigitos(v).slice(0, 11);
+  if (digits.length <= 2) {
+    return digits.length ? `(${digits}` : "";
+  }
+  if (digits.length <= 6) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  }
+  if (digits.length <= 10) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  }
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
+function validarTelefone(v: string): boolean {
+  const digits = limparDigitos(v);
+  if (digits.length < 10 || digits.length > 11) return false;
+  const ddd = digits.slice(0, 2);
+  if (!DDD_VALIDOS.has(ddd)) return false;
+  if (digits.length === 11) {
+    const nono = digits[2];
+    if (nono !== "9") return false;
+    const primeiro = digits[3];
+    if (primeiro === "0" || primeiro === "1") return false;
+  }
+  if (digits.length === 10) {
+    const primeiro = digits[2];
+    if (primeiro === "0" || primeiro === "1") return false;
+  }
+  return true;
+}
+
 const schema = z.object({
   nome: z.string().trim().min(2, "Informe seu nome completo").max(100),
   email: z.string().trim().email("Email inválido").max(255),
   telefone: z
     .string()
     .trim()
-    .min(8, "Telefone inválido")
-    .max(20)
-    .regex(/^[0-9()+\-\s]+$/, "Use apenas números e (), +, -"),
+    .min(1, "Informe o telefone")
+    .refine((v) => limparDigitos(v).length >= 10, "Telefone incompleto")
+    .refine((v) => limparDigitos(v).length <= 11, "Telefone muito longo")
+    .refine(validarTelefone, "Telefone inválido. Use formato (XX) XXXXX-XXXX"),
   perfil: z.enum(PERFIS, { message: "Selecione um perfil" }),
   condominio: z.string().trim().min(2, "Informe o nome do condomínio").max(120),
   unidades: z.enum(UNIDADES, { message: "Selecione a faixa" }),
@@ -291,6 +338,10 @@ function ContatoPage() {
                   placeholder="(61) 90000-0000"
                   error={errors.telefone}
                   required
+                  onInput={(e) => {
+                    const target = e.currentTarget;
+                    target.value = formatarTelefone(target.value);
+                  }}
                 />
                 <SelectField
                   name="perfil"
@@ -388,6 +439,7 @@ function Field({
   placeholder,
   error,
   required,
+  onInput,
 }: {
   name: string;
   label: string;
@@ -395,6 +447,7 @@ function Field({
   placeholder?: string;
   error?: string;
   required?: boolean;
+  onInput?: (e: React.FormEvent<HTMLInputElement>) => void;
 }) {
   return (
     <div>
@@ -407,6 +460,7 @@ function Field({
         placeholder={placeholder}
         maxLength={255}
         aria-invalid={!!error}
+        onInput={onInput}
         className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
       />
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}

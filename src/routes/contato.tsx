@@ -391,11 +391,11 @@ function ContatoPage() {
                 {errors.mensagem && <p className="mt-1 text-xs text-destructive">{errors.mensagem}</p>}
               </div>
 
-              <label className="mt-4 flex items-start gap-2.5 text-xs text-muted-foreground cursor-pointer">
+              <label className={`mt-4 flex items-start gap-2.5 text-xs cursor-pointer rounded-lg p-2 ${errors.consentimento ? "bg-destructive/5 border border-destructive text-destructive" : "text-muted-foreground"}`}>
                 <input
                   type="checkbox"
                   name="consentimento"
-                  className="mt-0.5 h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-primary/20"
+                  className={`mt-0.5 h-4 w-4 rounded text-primary focus:ring-2 focus:ring-primary/20 ${errors.consentimento ? "border-destructive" : "border-input"}`}
                 />
                 <span>
                   Concordo em ser contactado por email ou WhatsApp e li a{" "}

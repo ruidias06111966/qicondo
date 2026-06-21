@@ -338,6 +338,10 @@ function ContatoPage() {
                   placeholder="(61) 90000-0000"
                   error={errors.telefone}
                   required
+                  onInput={(e) => {
+                    const target = e.currentTarget;
+                    target.value = formatarTelefone(target.value);
+                  }}
                 />
                 <SelectField
                   name="perfil"

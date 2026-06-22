@@ -654,19 +654,28 @@ function LeadFormSection() {
   const [querDemo, setQuerDemo] = useState(false);
   const [leadId, setLeadId] = useState<string | null>(null);
 
+  const telErro = telefone.trim() ? erroTelefone(telefone) : null;
+  const telOk = telefone.trim() !== "" && telErro === null;
+
   const waLeadLink = useMemo(() => {
-    const msg = `Olá! Sou ${nome || "[seu nome]"}, do condomínio ${condominio || "[nome do condomínio]"}. Meu WhatsApp: ${telefone || "[seu telefone]"}. Quero conhecer o QiCond.`;
+    const telTxt = telOk ? telefoneE164BR(telefone) : (telefone || "[seu telefone]");
+    const msg = `Olá! Sou ${nome || "[seu nome]"}, do condomínio ${condominio || "[nome do condomínio]"}. Meu WhatsApp: ${telTxt}. Quero conhecer o QiCond.`;
     return waLink(msg);
-  }, [nome, condominio, telefone]);
+  }, [nome, condominio, telefone, telOk]);
 
   const waDemoLink = useMemo(() => {
-    const msg = `Olá! Sou ${nome}, do condomínio ${condominio}. Gostaria de agendar uma demonstração de 15 minutos do QiCond. Meu WhatsApp: ${telefone}.`;
+    const telTxt = telOk ? telefoneE164BR(telefone) : telefone;
+    const msg = `Olá! Sou ${nome}, do condomínio ${condominio}. Gostaria de agendar uma demonstração de 15 minutos do QiCond. Meu WhatsApp: ${telTxt}.`;
     return waLink(msg);
-  }, [nome, condominio, telefone]);
+  }, [nome, condominio, telefone, telOk]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!nome.trim() || !condominio.trim() || !telefone.trim()) return;
+    if (!telOk) {
+      toast.error(telErro ?? "Telefone inválido. Confira o DDD e o número.");
+      return;
+    }
     if (!consent) {
       toast.error("Você precisa aceitar os termos da LGPD para continuar.");
       return;

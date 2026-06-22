@@ -34,10 +34,14 @@ import {
   Loader2,
 } from "lucide-react";
 
+import {
+  formatarTelefone,
+  erroTelefone,
+  telefoneE164BR,
+  buildWaUrl,
+} from "@/lib/wa-link";
+
 const SITE_URL = "https://qicond.lovable.app";
-// Número oficial do QiCond para o botão flutuante e captura de leads.
-// (Trocar para o número real assim que disponível.)
-const WHATSAPP_NUMBER = "5561982750884";
 const WHATSAPP_DEFAULT_MSG =
   "Olá! Vim pelo site do QiCond e quero saber mais sobre a gestão de condomínio pelo WhatsApp.";
 
@@ -49,7 +53,7 @@ function buildPersonalMsg(lead: { nome?: string; condominio?: string } | null, b
 }
 
 function waLink(message: string) {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  return buildWaUrl(message);
 }
 
 // Lê o último lead salvo em localStorage (preenche WA personalizado).

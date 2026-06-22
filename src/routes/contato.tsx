@@ -180,9 +180,7 @@ function ContatoPage() {
       <section className="mx-auto max-w-6xl px-4 md:px-8 pb-20 grid md:grid-cols-5 gap-8">
         <aside className="md:col-span-2 space-y-4">
           <a
-            href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-              "Olá! Gostaria de saber mais sobre o QiCond.",
-            )}`}
+            href={buildWaUrl("Olá! Gostaria de saber mais sobre o QiCond.")}
             target="_blank"
             rel="noopener noreferrer"
             className="block rounded-2xl bg-[#25D366] text-white p-5 hover:opacity-95 transition-opacity"

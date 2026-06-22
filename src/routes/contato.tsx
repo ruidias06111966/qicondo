@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 
 import {
-  limparDigitos,
   formatarTelefone,
   erroTelefone,
   telefoneE164BR,

@@ -15,7 +15,16 @@ import {
   Sparkles,
 } from "lucide-react";
 
-const WHATSAPP_NUMBER = "5561982750884";
+import {
+  WHATSAPP_NUMBER,
+  limparDigitos,
+  formatarTelefone,
+  erroTelefone,
+  telefoneE164BR,
+  buildWaUrl,
+} from "@/lib/wa-link";
+
+const WHATSAPP_DISPLAY = "+55 61 98275-0884";
 const CONTACT_EMAIL = "qidomino@gmail.com";
 
 export const Route = createFileRoute("/contato")({

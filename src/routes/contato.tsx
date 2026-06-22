@@ -98,15 +98,14 @@ function ContatoPage() {
     setErrors({});
     setSubmitting(true);
 
-    // Encaminha para WhatsApp com mensagem pré-preenchida
+    // Encaminha para WhatsApp com mensagem pré-preenchida — formato padronizado
     const d = result.data;
-    const telLimpo = limparDigitos(d.telefone);
     const msg = [
       `Olá! Gostaria de uma proposta do QiCond.`,
       ``,
       `Nome: ${d.nome}`,
       `Email: ${d.email}`,
-      `Telefone: +55 ${telLimpo}`,
+      `Telefone: ${telefoneE164BR(d.telefone)}`,
       `Perfil: ${d.perfil}`,
       `Condomínio: ${d.condominio}`,
       `Unidades: ${d.unidades}`,
@@ -114,9 +113,7 @@ function ContatoPage() {
       ``,
       d.mensagem,
     ].join("\n");
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
-    // Abre WhatsApp em nova aba e mostra confirmação
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.open(buildWaUrl(msg), "_blank", "noopener,noreferrer");
     setSent(true);
     setSubmitting(false);
   }

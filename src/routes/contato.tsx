@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 
 import {
-  WHATSAPP_NUMBER,
   limparDigitos,
   formatarTelefone,
   erroTelefone,
@@ -24,7 +23,6 @@ import {
   buildWaUrl,
 } from "@/lib/wa-link";
 
-const WHATSAPP_DISPLAY = "+55 61 98275-0884";
 const CONTACT_EMAIL = "qidomino@gmail.com";
 
 export const Route = createFileRoute("/contato")({

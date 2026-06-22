@@ -13,6 +13,7 @@ import { Route as TermosRouteImport } from './routes/termos'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as RecursosRouteImport } from './routes/recursos'
+import { Route as ProximosPassosRouteImport } from './routes/proximos-passos'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PrecosRouteImport } from './routes/precos'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -75,6 +76,11 @@ const SobreRoute = SobreRouteImport.update({
 const RecursosRoute = RecursosRouteImport.update({
   id: '/recursos',
   path: '/recursos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProximosPassosRoute = ProximosPassosRouteImport.update({
+  id: '/proximos-passos',
+  path: '/proximos-passos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacidadeRoute = PrivacidadeRouteImport.update({
@@ -307,6 +313,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/precos': typeof PrecosRoute
   '/privacidade': typeof PrivacidadeRoute
+  '/proximos-passos': typeof ProximosPassosRoute
   '/recursos': typeof RecursosRoute
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
@@ -354,6 +361,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/precos': typeof PrecosRoute
   '/privacidade': typeof PrivacidadeRoute
+  '/proximos-passos': typeof ProximosPassosRoute
   '/recursos': typeof RecursosRoute
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
@@ -403,6 +411,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/precos': typeof PrecosRoute
   '/privacidade': typeof PrivacidadeRoute
+  '/proximos-passos': typeof ProximosPassosRoute
   '/recursos': typeof RecursosRoute
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
@@ -454,6 +463,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/precos'
     | '/privacidade'
+    | '/proximos-passos'
     | '/recursos'
     | '/sobre'
     | '/status'
@@ -501,6 +511,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/precos'
     | '/privacidade'
+    | '/proximos-passos'
     | '/recursos'
     | '/sobre'
     | '/status'
@@ -549,6 +560,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/precos'
     | '/privacidade'
+    | '/proximos-passos'
     | '/recursos'
     | '/sobre'
     | '/status'
@@ -599,6 +611,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   PrecosRoute: typeof PrecosRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
+  ProximosPassosRoute: typeof ProximosPassosRoute
   RecursosRoute: typeof RecursosRoute
   SobreRoute: typeof SobreRoute
   StatusRoute: typeof StatusRoute
@@ -642,6 +655,13 @@ declare module '@tanstack/react-router' {
       path: '/recursos'
       fullPath: '/recursos'
       preLoaderRoute: typeof RecursosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/proximos-passos': {
+      id: '/proximos-passos'
+      path: '/proximos-passos'
+      fullPath: '/proximos-passos'
+      preLoaderRoute: typeof ProximosPassosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacidade': {
@@ -1033,6 +1053,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   PrecosRoute: PrecosRoute,
   PrivacidadeRoute: PrivacidadeRoute,
+  ProximosPassosRoute: ProximosPassosRoute,
   RecursosRoute: RecursosRoute,
   SobreRoute: SobreRoute,
   StatusRoute: StatusRoute,

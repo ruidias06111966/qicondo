@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -260,10 +260,29 @@ function ContatoPage() {
                 </a>
                 . Respondemos em até 1 dia útil.
               </p>
+
+              <div className="mt-6 rounded-xl border border-primary/30 bg-primary-soft/40 p-4 text-left max-w-md mx-auto">
+                <div className="text-[10px] uppercase tracking-wider font-bold text-primary mb-1">
+                  Próximo passo
+                </div>
+                <div className="text-sm font-bold mb-1">
+                  Prepare o seu condomínio com o checklist
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Reunimos o que você precisa ter em mãos e mensagens prontas para iniciar a conversa no WhatsApp.
+                </p>
+                <Link
+                  to="/proximos-passos"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-[var(--color-primary-deep)] transition-colors"
+                >
+                  Ver próximos passos
+                </Link>
+              </div>
+
               <button
                 type="button"
                 onClick={() => setSent(false)}
-                className="mt-6 inline-flex items-center justify-center rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold hover:border-primary transition-colors"
+                className="mt-4 inline-flex items-center justify-center rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold hover:border-primary transition-colors"
               >
                 Enviar nova mensagem
               </button>

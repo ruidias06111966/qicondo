@@ -834,11 +834,17 @@ function LeadFormSection() {
                 <div>
                   <label htmlFor="lead-tel" className="text-xs font-semibold text-foreground mb-1.5 block">WhatsApp</label>
                   <input
-                    id="lead-tel" type="tel" required minLength={8} maxLength={20} value={telefone}
-                    onChange={(e) => setTelefone(e.target.value)}
+                    id="lead-tel" type="tel" inputMode="tel" required maxLength={16} value={telefone}
+                    onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
                     placeholder="(11) 98765-4321"
-                    className="w-full h-11 rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    aria-invalid={telErro ? true : undefined}
+                    className={`w-full h-11 rounded-lg border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
+                      telErro ? "border-destructive bg-destructive/5" : "border-input"
+                    }`}
                   />
+                  {telErro && (
+                    <p className="mt-1 text-xs text-destructive">{telErro}</p>
+                  )}
                 </div>
 
                 {/* Opção de demo */}

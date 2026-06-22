@@ -2,10 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { CheckCircle2, ChevronDown, X, MessageCircle } from "lucide-react";
+import { buildWaUrl } from "@/lib/wa-link";
 
-const WHATSAPP_NUMBER = "5561982750884";
-const waLink = (msg: string) =>
-  `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+const waLink = (msg: string) => buildWaUrl(msg);
 
 export const Route = createFileRoute("/precos")({
   head: () => ({

@@ -34,10 +34,14 @@ import {
   Loader2,
 } from "lucide-react";
 
+import {
+  formatarTelefone,
+  erroTelefone,
+  telefoneE164BR,
+  buildWaUrl,
+} from "@/lib/wa-link";
+
 const SITE_URL = "https://qicond.lovable.app";
-// Número oficial do QiCond para o botão flutuante e captura de leads.
-// (Trocar para o número real assim que disponível.)
-const WHATSAPP_NUMBER = "5561982750884";
 const WHATSAPP_DEFAULT_MSG =
   "Olá! Vim pelo site do QiCond e quero saber mais sobre a gestão de condomínio pelo WhatsApp.";
 
@@ -49,7 +53,7 @@ function buildPersonalMsg(lead: { nome?: string; condominio?: string } | null, b
 }
 
 function waLink(message: string) {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  return buildWaUrl(message);
 }
 
 // Lê o último lead salvo em localStorage (preenche WA personalizado).
@@ -650,19 +654,28 @@ function LeadFormSection() {
   const [querDemo, setQuerDemo] = useState(false);
   const [leadId, setLeadId] = useState<string | null>(null);
 
+  const telErro = telefone.trim() ? erroTelefone(telefone) : null;
+  const telOk = telefone.trim() !== "" && telErro === null;
+
   const waLeadLink = useMemo(() => {
-    const msg = `Olá! Sou ${nome || "[seu nome]"}, do condomínio ${condominio || "[nome do condomínio]"}. Meu WhatsApp: ${telefone || "[seu telefone]"}. Quero conhecer o QiCond.`;
+    const telTxt = telOk ? telefoneE164BR(telefone) : (telefone || "[seu telefone]");
+    const msg = `Olá! Sou ${nome || "[seu nome]"}, do condomínio ${condominio || "[nome do condomínio]"}. Meu WhatsApp: ${telTxt}. Quero conhecer o QiCond.`;
     return waLink(msg);
-  }, [nome, condominio, telefone]);
+  }, [nome, condominio, telefone, telOk]);
 
   const waDemoLink = useMemo(() => {
-    const msg = `Olá! Sou ${nome}, do condomínio ${condominio}. Gostaria de agendar uma demonstração de 15 minutos do QiCond. Meu WhatsApp: ${telefone}.`;
+    const telTxt = telOk ? telefoneE164BR(telefone) : telefone;
+    const msg = `Olá! Sou ${nome}, do condomínio ${condominio}. Gostaria de agendar uma demonstração de 15 minutos do QiCond. Meu WhatsApp: ${telTxt}.`;
     return waLink(msg);
-  }, [nome, condominio, telefone]);
+  }, [nome, condominio, telefone, telOk]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!nome.trim() || !condominio.trim() || !telefone.trim()) return;
+    if (!telOk) {
+      toast.error(telErro ?? "Telefone inválido. Confira o DDD e o número.");
+      return;
+    }
     if (!consent) {
       toast.error("Você precisa aceitar os termos da LGPD para continuar.");
       return;
@@ -821,11 +834,17 @@ function LeadFormSection() {
                 <div>
                   <label htmlFor="lead-tel" className="text-xs font-semibold text-foreground mb-1.5 block">WhatsApp</label>
                   <input
-                    id="lead-tel" type="tel" required minLength={8} maxLength={20} value={telefone}
-                    onChange={(e) => setTelefone(e.target.value)}
+                    id="lead-tel" type="tel" inputMode="tel" required maxLength={16} value={telefone}
+                    onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
                     placeholder="(11) 98765-4321"
-                    className="w-full h-11 rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    aria-invalid={telErro ? true : undefined}
+                    className={`w-full h-11 rounded-lg border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
+                      telErro ? "border-destructive bg-destructive/5" : "border-input"
+                    }`}
                   />
+                  {telErro && (
+                    <p className="mt-1 text-xs text-destructive">{telErro}</p>
+                  )}
                 </div>
 
                 {/* Opção de demo */}

@@ -52,55 +52,6 @@ const PERFIS = [
 const UNIDADES = ["Até 30", "31 a 100", "101 a 300", "Mais de 300"] as const;
 const PRAZOS = ["Imediato", "Próximos 30 dias", "Próximos 90 dias", "Apenas pesquisando"] as const;
 
-const DDD_VALIDOS = new Set([
-  "11","12","13","14","15","16","17","18","19",
-  "21","22","24","27","28","31","32","33","34","35","37","38",
-  "41","42","43","44","45","46","47","48","49",
-  "51","53","54","55","61","62","63","64","65","66","67","68","69",
-  "71","73","74","75","77","79",
-  "81","82","83","84","85","86","87","88","89",
-  "91","92","93","94","95","96","97","98","99",
-]);
-
-function limparDigitos(v: string): string {
-  return v.replace(/\D/g, "");
-}
-
-function formatarTelefone(v: string): string {
-  const digits = limparDigitos(v).slice(0, 11);
-  if (digits.length <= 2) {
-    return digits.length ? `(${digits}` : "";
-  }
-  if (digits.length <= 6) {
-    return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-  }
-  if (digits.length <= 10) {
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
-  }
-  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
-}
-
-function erroTelefone(v: string): string | null {
-  const digits = limparDigitos(v);
-  if (digits.length === 0) return "Informe o telefone.";
-  if (digits.length < 10) return "Telefone incompleto. Digite o DDD + número.";
-  if (digits.length > 11) return "Telefone muito longo. Use apenas DDD + número.";
-  const ddd = digits.slice(0, 2);
-  if (!DDD_VALIDOS.has(ddd)) return `DDD inválido (${ddd}). Escolha um DDD brasileiro válido.`;
-  if (digits.length === 11) {
-    const nono = digits[2];
-    if (nono !== "9") return "Formato inválido. Celulares no Brasil começam com 9 após o DDD.";
-    const primeiro = digits[3];
-    if (primeiro === "0" || primeiro === "1") return "Formato inválido. O número não pode começar com 0 ou 1.";
-  }
-  if (digits.length === 10) {
-    const primeiro = digits[2];
-    if (primeiro === "9") return "Formato inválido. Fixos não usam o 9.";
-    if (primeiro === "0" || primeiro === "1") return "Formato inválido. O número não pode começar com 0 ou 1.";
-  }
-  return null;
-}
-
 const schema = z.object({
   nome: z.string().trim().min(2, "Informe seu nome completo").max(100),
   email: z.string().trim().email("Email inválido").max(255),

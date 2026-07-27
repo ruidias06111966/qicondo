@@ -56,6 +56,7 @@ import { Route as AppFinanceiroCategoriasRouteImport } from './routes/app.financ
 import { Route as ApiPublicWaWebhookRouteImport } from './routes/api.public.wa-webhook'
 import { Route as ApiPublicWaDrainRouteImport } from './routes/api/public/wa-drain'
 import { Route as AdminEmpresasIdRouteImport } from './routes/admin.empresas.$id'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicHooksLembretesCobrancaRouteImport } from './routes/api/public/hooks/lembretes-cobranca'
 
 const TermosRoute = TermosRouteImport.update({
@@ -295,6 +296,12 @@ const AdminEmpresasIdRoute = AdminEmpresasIdRouteImport.update({
   path: '/empresas/$id',
   getParentRoute: () => AdminRoute,
 } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksLembretesCobrancaRoute =
   ApiPublicHooksLembretesCobrancaRouteImport.update({
     id: '/api/public/hooks/lembretes-cobranca',
@@ -351,6 +358,7 @@ export interface FileRoutesByFullPath {
   '/admin/empresas/': typeof AdminEmpresasIndexRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -398,6 +406,7 @@ export interface FileRoutesByTo {
   '/admin/empresas': typeof AdminEmpresasIndexRoute
   '/app/financeiro': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -449,6 +458,7 @@ export interface FileRoutesById {
   '/admin/empresas/': typeof AdminEmpresasIndexRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -501,6 +511,7 @@ export interface FileRouteTypes {
     | '/admin/empresas/'
     | '/app/financeiro/'
     | '/api/public/hooks/lembretes-cobranca'
+    | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -548,6 +559,7 @@ export interface FileRouteTypes {
     | '/admin/empresas'
     | '/app/financeiro'
     | '/api/public/hooks/lembretes-cobranca'
+    | '/lovable/email/queue/process'
   id:
     | '__root__'
     | '/'
@@ -598,6 +610,7 @@ export interface FileRouteTypes {
     | '/admin/empresas/'
     | '/app/financeiro/'
     | '/api/public/hooks/lembretes-cobranca'
+    | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -625,6 +638,7 @@ export interface RootRouteChildren {
   ApiPublicWaWebhookRoute: typeof ApiPublicWaWebhookRoute
   AuthConviteTokenRoute: typeof AuthConviteTokenRoute
   ApiPublicHooksLembretesCobrancaRoute: typeof ApiPublicHooksLembretesCobrancaRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -958,6 +972,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEmpresasIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/lembretes-cobranca': {
       id: '/api/public/hooks/lembretes-cobranca'
       path: '/api/public/hooks/lembretes-cobranca'
@@ -1067,17 +1088,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicWaWebhookRoute: ApiPublicWaWebhookRoute,
   AuthConviteTokenRoute: AuthConviteTokenRoute,
   ApiPublicHooksLembretesCobrancaRoute: ApiPublicHooksLembretesCobrancaRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

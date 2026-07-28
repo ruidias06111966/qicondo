@@ -9,119 +9,59 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TermosRouteImport } from './routes/termos'
-import { Route as StatusRouteImport } from './routes/status'
-import { Route as SobreRouteImport } from './routes/sobre'
-import { Route as RecursosRouteImport } from './routes/recursos'
-import { Route as ProximosPassosRouteImport } from './routes/proximos-passos'
-import { Route as PrivacidadeRouteImport } from './routes/privacidade'
-import { Route as PrecosRouteImport } from './routes/precos'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as LgpdRouteImport } from './routes/lgpd'
-import { Route as ContatoRouteImport } from './routes/contato'
-import { Route as BlogRouteImport } from './routes/blog'
-import { Route as AppRouteImport } from './routes/app'
-import { Route as AjudaRouteImport } from './routes/ajuda'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AjudaRouteImport } from './routes/ajuda'
+import { Route as AppRouteImport } from './routes/app'
+import { Route as BlogRouteImport } from './routes/blog'
+import { Route as ContatoRouteImport } from './routes/contato'
+import { Route as LgpdRouteImport } from './routes/lgpd'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as PrecosRouteImport } from './routes/precos'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as ProximosPassosRouteImport } from './routes/proximos-passos'
+import { Route as RecursosRouteImport } from './routes/recursos'
+import { Route as SobreRouteImport } from './routes/sobre'
+import { Route as StatusRouteImport } from './routes/status'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as AuthRedefinirSenhaRouteImport } from './routes/auth.redefinir-senha'
-import { Route as AuthLoginRouteImport } from './routes/auth.login'
-import { Route as AuthEsqueciSenhaRouteImport } from './routes/auth.esqueci-senha'
-import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
-import { Route as AuthCadastroRouteImport } from './routes/auth.cadastro'
-import { Route as AppWhatsappRouteImport } from './routes/app.whatsapp'
-import { Route as AppVisitantesRouteImport } from './routes/app.visitantes'
-import { Route as AppUsuariosRouteImport } from './routes/app.usuarios'
-import { Route as AppReservasRouteImport } from './routes/app.reservas'
-import { Route as AppPreferenciasNotificacaoRouteImport } from './routes/app.preferencias-notificacao'
-import { Route as AppOcorrenciasRouteImport } from './routes/app.ocorrencias'
-import { Route as AppMoradoresRouteImport } from './routes/app.moradores'
-import { Route as AppLeadsRouteImport } from './routes/app.leads'
-import { Route as AppFinanceiroRouteImport } from './routes/app.financeiro'
-import { Route as AppEncomendasRouteImport } from './routes/app.encomendas'
-import { Route as AppDocumentosRouteImport } from './routes/app.documentos'
-import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes'
+import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppCondominioRouteImport } from './routes/app.condominio'
-import { Route as AppFinanceiroIndexRouteImport } from './routes/app.financeiro.index'
+import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes'
+import { Route as AppDocumentosRouteImport } from './routes/app.documentos'
+import { Route as AppEncomendasRouteImport } from './routes/app.encomendas'
+import { Route as AppFinanceiroRouteImport } from './routes/app.financeiro'
+import { Route as AppLeadsRouteImport } from './routes/app.leads'
+import { Route as AppMoradoresRouteImport } from './routes/app.moradores'
+import { Route as AppOcorrenciasRouteImport } from './routes/app.ocorrencias'
+import { Route as AppPreferenciasNotificacaoRouteImport } from './routes/app.preferencias-notificacao'
+import { Route as AppReservasRouteImport } from './routes/app.reservas'
+import { Route as AppUsuariosRouteImport } from './routes/app.usuarios'
+import { Route as AppVisitantesRouteImport } from './routes/app.visitantes'
+import { Route as AppWhatsappRouteImport } from './routes/app.whatsapp'
+import { Route as AuthCadastroRouteImport } from './routes/auth.cadastro'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AuthEsqueciSenhaRouteImport } from './routes/auth.esqueci-senha'
+import { Route as AuthLoginRouteImport } from './routes/auth.login'
+import { Route as AuthRedefinirSenhaRouteImport } from './routes/auth.redefinir-senha'
 import { Route as AdminEmpresasIndexRouteImport } from './routes/admin.empresas.index'
-import { Route as AuthConviteTokenRouteImport } from './routes/auth.convite.$token'
-import { Route as AppFinanceiroWhatsappRouteImport } from './routes/app.financeiro.whatsapp'
-import { Route as AppFinanceiroPagamentosRouteImport } from './routes/app.financeiro.pagamentos'
-import { Route as AppFinanceiroInadimplenciaRouteImport } from './routes/app.financeiro.inadimplencia'
-import { Route as AppFinanceiroDespesasRouteImport } from './routes/app.financeiro.despesas'
-import { Route as AppFinanceiroCobrancasRouteImport } from './routes/app.financeiro.cobrancas'
-import { Route as AppFinanceiroCategoriasRouteImport } from './routes/app.financeiro.categorias'
-import { Route as ApiPublicWaWebhookRouteImport } from './routes/api.public.wa-webhook'
-import { Route as ApiPublicWaDrainRouteImport } from './routes/api/public/wa-drain'
 import { Route as AdminEmpresasIdRouteImport } from './routes/admin.empresas.$id'
-import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as ApiPublicWaDrainRouteImport } from './routes/api/public/wa-drain'
+import { Route as ApiPublicWaWebhookRouteImport } from './routes/api.public.wa-webhook'
+import { Route as AppFinanceiroIndexRouteImport } from './routes/app.financeiro.index'
+import { Route as AppFinanceiroCategoriasRouteImport } from './routes/app.financeiro.categorias'
+import { Route as AppFinanceiroCobrancasRouteImport } from './routes/app.financeiro.cobrancas'
+import { Route as AppFinanceiroDespesasRouteImport } from './routes/app.financeiro.despesas'
+import { Route as AppFinanceiroInadimplenciaRouteImport } from './routes/app.financeiro.inadimplencia'
+import { Route as AppFinanceiroPagamentosRouteImport } from './routes/app.financeiro.pagamentos'
+import { Route as AppFinanceiroWhatsappRouteImport } from './routes/app.financeiro.whatsapp'
+import { Route as AuthConviteTokenRouteImport } from './routes/auth.convite.$token'
 import { Route as ApiPublicHooksLembretesCobrancaRouteImport } from './routes/api/public/hooks/lembretes-cobranca'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
-const TermosRoute = TermosRouteImport.update({
-  id: '/termos',
-  path: '/termos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StatusRoute = StatusRouteImport.update({
-  id: '/status',
-  path: '/status',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SobreRoute = SobreRouteImport.update({
-  id: '/sobre',
-  path: '/sobre',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RecursosRoute = RecursosRouteImport.update({
-  id: '/recursos',
-  path: '/recursos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProximosPassosRoute = ProximosPassosRouteImport.update({
-  id: '/proximos-passos',
-  path: '/proximos-passos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacidadeRoute = PrivacidadeRouteImport.update({
-  id: '/privacidade',
-  path: '/privacidade',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrecosRoute = PrecosRouteImport.update({
-  id: '/precos',
-  path: '/precos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LgpdRoute = LgpdRouteImport.update({
-  id: '/lgpd',
-  path: '/lgpd',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContatoRoute = ContatoRouteImport.update({
-  id: '/contato',
-  path: '/contato',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BlogRoute = BlogRouteImport.update({
-  id: '/blog',
-  path: '/blog',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppRoute = AppRouteImport.update({
-  id: '/app',
-  path: '/app',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AjudaRoute = AjudaRouteImport.update({
-  id: '/ajuda',
-  path: '/ajuda',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -129,64 +69,119 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AjudaRoute = AjudaRouteImport.update({
+  id: '/ajuda',
+  path: '/ajuda',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppRoute,
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContatoRoute = ContatoRouteImport.update({
+  id: '/contato',
+  path: '/contato',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LgpdRoute = LgpdRouteImport.update({
+  id: '/lgpd',
+  path: '/lgpd',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrecosRoute = PrecosRouteImport.update({
+  id: '/precos',
+  path: '/precos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProximosPassosRoute = ProximosPassosRouteImport.update({
+  id: '/proximos-passos',
+  path: '/proximos-passos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecursosRoute = RecursosRouteImport.update({
+  id: '/recursos',
+  path: '/recursos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SobreRoute = SobreRouteImport.update({
+  id: '/sobre',
+  path: '/sobre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
-const AuthRedefinirSenhaRoute = AuthRedefinirSenhaRouteImport.update({
-  id: '/auth/redefinir-senha',
-  path: '/auth/redefinir-senha',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: '/auth/login',
-  path: '/auth/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthEsqueciSenhaRoute = AuthEsqueciSenhaRouteImport.update({
-  id: '/auth/esqueci-senha',
-  path: '/auth/esqueci-senha',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/auth/callback',
-  path: '/auth/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthCadastroRoute = AuthCadastroRouteImport.update({
-  id: '/auth/cadastro',
-  path: '/auth/cadastro',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppWhatsappRoute = AppWhatsappRouteImport.update({
-  id: '/whatsapp',
-  path: '/whatsapp',
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppVisitantesRoute = AppVisitantesRouteImport.update({
-  id: '/visitantes',
-  path: '/visitantes',
+const AppCondominioRoute = AppCondominioRouteImport.update({
+  id: '/condominio',
+  path: '/condominio',
   getParentRoute: () => AppRoute,
 } as any)
-const AppUsuariosRoute = AppUsuariosRouteImport.update({
-  id: '/usuarios',
-  path: '/usuarios',
+const AppConfiguracoesRoute = AppConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
   getParentRoute: () => AppRoute,
 } as any)
-const AppReservasRoute = AppReservasRouteImport.update({
-  id: '/reservas',
-  path: '/reservas',
+const AppDocumentosRoute = AppDocumentosRouteImport.update({
+  id: '/documentos',
+  path: '/documentos',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEncomendasRoute = AppEncomendasRouteImport.update({
+  id: '/encomendas',
+  path: '/encomendas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLeadsRoute = AppLeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMoradoresRoute = AppMoradoresRouteImport.update({
+  id: '/moradores',
+  path: '/moradores',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOcorrenciasRoute = AppOcorrenciasRouteImport.update({
+  id: '/ocorrencias',
+  path: '/ocorrencias',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPreferenciasNotificacaoRoute =
@@ -195,69 +190,89 @@ const AppPreferenciasNotificacaoRoute =
     path: '/preferencias-notificacao',
     getParentRoute: () => AppRoute,
   } as any)
-const AppOcorrenciasRoute = AppOcorrenciasRouteImport.update({
-  id: '/ocorrencias',
-  path: '/ocorrencias',
+const AppReservasRoute = AppReservasRouteImport.update({
+  id: '/reservas',
+  path: '/reservas',
   getParentRoute: () => AppRoute,
 } as any)
-const AppMoradoresRoute = AppMoradoresRouteImport.update({
-  id: '/moradores',
-  path: '/moradores',
+const AppUsuariosRoute = AppUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
   getParentRoute: () => AppRoute,
 } as any)
-const AppLeadsRoute = AppLeadsRouteImport.update({
-  id: '/leads',
-  path: '/leads',
+const AppVisitantesRoute = AppVisitantesRouteImport.update({
+  id: '/visitantes',
+  path: '/visitantes',
   getParentRoute: () => AppRoute,
 } as any)
-const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
-  id: '/financeiro',
-  path: '/financeiro',
+const AppWhatsappRoute = AppWhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
   getParentRoute: () => AppRoute,
 } as any)
-const AppEncomendasRoute = AppEncomendasRouteImport.update({
-  id: '/encomendas',
-  path: '/encomendas',
-  getParentRoute: () => AppRoute,
+const AuthCadastroRoute = AuthCadastroRouteImport.update({
+  id: '/auth/cadastro',
+  path: '/auth/cadastro',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppDocumentosRoute = AppDocumentosRouteImport.update({
-  id: '/documentos',
-  path: '/documentos',
-  getParentRoute: () => AppRoute,
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppConfiguracoesRoute = AppConfiguracoesRouteImport.update({
-  id: '/configuracoes',
-  path: '/configuracoes',
-  getParentRoute: () => AppRoute,
+const AuthEsqueciSenhaRoute = AuthEsqueciSenhaRouteImport.update({
+  id: '/auth/esqueci-senha',
+  path: '/auth/esqueci-senha',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppCondominioRoute = AppCondominioRouteImport.update({
-  id: '/condominio',
-  path: '/condominio',
-  getParentRoute: () => AppRoute,
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppFinanceiroIndexRoute = AppFinanceiroIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppFinanceiroRoute,
+const AuthRedefinirSenhaRoute = AuthRedefinirSenhaRouteImport.update({
+  id: '/auth/redefinir-senha',
+  path: '/auth/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminEmpresasIndexRoute = AdminEmpresasIndexRouteImport.update({
   id: '/empresas/',
   path: '/empresas/',
   getParentRoute: () => AdminRoute,
 } as any)
-const AuthConviteTokenRoute = AuthConviteTokenRouteImport.update({
-  id: '/auth/convite/$token',
-  path: '/auth/convite/$token',
+const AdminEmpresasIdRoute = AdminEmpresasIdRouteImport.update({
+  id: '/empresas/$id',
+  path: '/empresas/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
+const ApiPublicWaDrainRoute = ApiPublicWaDrainRouteImport.update({
+  id: '/api/public/wa-drain',
+  path: '/api/public/wa-drain',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppFinanceiroWhatsappRoute = AppFinanceiroWhatsappRouteImport.update({
-  id: '/whatsapp',
-  path: '/whatsapp',
+const ApiPublicWaWebhookRoute = ApiPublicWaWebhookRouteImport.update({
+  id: '/api/public/wa-webhook',
+  path: '/api/public/wa-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppFinanceiroIndexRoute = AppFinanceiroIndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => AppFinanceiroRoute,
 } as any)
-const AppFinanceiroPagamentosRoute = AppFinanceiroPagamentosRouteImport.update({
-  id: '/pagamentos',
-  path: '/pagamentos',
+const AppFinanceiroCategoriasRoute = AppFinanceiroCategoriasRouteImport.update({
+  id: '/categorias',
+  path: '/categorias',
+  getParentRoute: () => AppFinanceiroRoute,
+} as any)
+const AppFinanceiroCobrancasRoute = AppFinanceiroCobrancasRouteImport.update({
+  id: '/cobrancas',
+  path: '/cobrancas',
+  getParentRoute: () => AppFinanceiroRoute,
+} as any)
+const AppFinanceiroDespesasRoute = AppFinanceiroDespesasRouteImport.update({
+  id: '/despesas',
+  path: '/despesas',
   getParentRoute: () => AppFinanceiroRoute,
 } as any)
 const AppFinanceiroInadimplenciaRoute =
@@ -266,46 +281,31 @@ const AppFinanceiroInadimplenciaRoute =
     path: '/inadimplencia',
     getParentRoute: () => AppFinanceiroRoute,
   } as any)
-const AppFinanceiroDespesasRoute = AppFinanceiroDespesasRouteImport.update({
-  id: '/despesas',
-  path: '/despesas',
+const AppFinanceiroPagamentosRoute = AppFinanceiroPagamentosRouteImport.update({
+  id: '/pagamentos',
+  path: '/pagamentos',
   getParentRoute: () => AppFinanceiroRoute,
 } as any)
-const AppFinanceiroCobrancasRoute = AppFinanceiroCobrancasRouteImport.update({
-  id: '/cobrancas',
-  path: '/cobrancas',
+const AppFinanceiroWhatsappRoute = AppFinanceiroWhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
   getParentRoute: () => AppFinanceiroRoute,
 } as any)
-const AppFinanceiroCategoriasRoute = AppFinanceiroCategoriasRouteImport.update({
-  id: '/categorias',
-  path: '/categorias',
-  getParentRoute: () => AppFinanceiroRoute,
-} as any)
-const ApiPublicWaWebhookRoute = ApiPublicWaWebhookRouteImport.update({
-  id: '/api/public/wa-webhook',
-  path: '/api/public/wa-webhook',
+const AuthConviteTokenRoute = AuthConviteTokenRouteImport.update({
+  id: '/auth/convite/$token',
+  path: '/auth/convite/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicWaDrainRoute = ApiPublicWaDrainRouteImport.update({
-  id: '/api/public/wa-drain',
-  path: '/api/public/wa-drain',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminEmpresasIdRoute = AdminEmpresasIdRouteImport.update({
-  id: '/empresas/$id',
-  path: '/empresas/$id',
-  getParentRoute: () => AdminRoute,
-} as any)
-const LovableEmailQueueProcessRoute =
-  LovableEmailQueueProcessRouteImport.update({
-    id: '/lovable/email/queue/process',
-    path: '/lovable/email/queue/process',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicHooksLembretesCobrancaRoute =
   ApiPublicHooksLembretesCobrancaRouteImport.update({
     id: '/api/public/hooks/lembretes-cobranca',
     path: '/api/public/hooks/lembretes-cobranca',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -643,95 +643,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/termos': {
-      id: '/termos'
-      path: '/termos'
-      fullPath: '/termos'
-      preLoaderRoute: typeof TermosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/status': {
-      id: '/status'
-      path: '/status'
-      fullPath: '/status'
-      preLoaderRoute: typeof StatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sobre': {
-      id: '/sobre'
-      path: '/sobre'
-      fullPath: '/sobre'
-      preLoaderRoute: typeof SobreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/recursos': {
-      id: '/recursos'
-      path: '/recursos'
-      fullPath: '/recursos'
-      preLoaderRoute: typeof RecursosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/proximos-passos': {
-      id: '/proximos-passos'
-      path: '/proximos-passos'
-      fullPath: '/proximos-passos'
-      preLoaderRoute: typeof ProximosPassosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacidade': {
-      id: '/privacidade'
-      path: '/privacidade'
-      fullPath: '/privacidade'
-      preLoaderRoute: typeof PrivacidadeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/precos': {
-      id: '/precos'
-      path: '/precos'
-      fullPath: '/precos'
-      preLoaderRoute: typeof PrecosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lgpd': {
-      id: '/lgpd'
-      path: '/lgpd'
-      fullPath: '/lgpd'
-      preLoaderRoute: typeof LgpdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contato': {
-      id: '/contato'
-      path: '/contato'
-      fullPath: '/contato'
-      preLoaderRoute: typeof ContatoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/blog': {
-      id: '/blog'
-      path: '/blog'
-      fullPath: '/blog'
-      preLoaderRoute: typeof BlogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ajuda': {
-      id: '/ajuda'
-      path: '/ajuda'
-      fullPath: '/ajuda'
-      preLoaderRoute: typeof AjudaRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -741,19 +657,96 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/ajuda': {
+      id: '/ajuda'
+      path: '/ajuda'
+      fullPath: '/ajuda'
+      preLoaderRoute: typeof AjudaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/': {
-      id: '/app/'
-      path: '/'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRoute
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contato': {
+      id: '/contato'
+      path: '/contato'
+      fullPath: '/contato'
+      preLoaderRoute: typeof ContatoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lgpd': {
+      id: '/lgpd'
+      path: '/lgpd'
+      fullPath: '/lgpd'
+      preLoaderRoute: typeof LgpdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/precos': {
+      id: '/precos'
+      path: '/precos'
+      fullPath: '/precos'
+      preLoaderRoute: typeof PrecosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/proximos-passos': {
+      id: '/proximos-passos'
+      path: '/proximos-passos'
+      fullPath: '/proximos-passos'
+      preLoaderRoute: typeof ProximosPassosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recursos': {
+      id: '/recursos'
+      path: '/recursos'
+      fullPath: '/recursos'
+      preLoaderRoute: typeof RecursosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/': {
       id: '/admin/'
@@ -762,123 +755,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/auth/redefinir-senha': {
-      id: '/auth/redefinir-senha'
-      path: '/auth/redefinir-senha'
-      fullPath: '/auth/redefinir-senha'
-      preLoaderRoute: typeof AuthRedefinirSenhaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/login': {
-      id: '/auth/login'
-      path: '/auth/login'
-      fullPath: '/auth/login'
-      preLoaderRoute: typeof AuthLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/esqueci-senha': {
-      id: '/auth/esqueci-senha'
-      path: '/auth/esqueci-senha'
-      fullPath: '/auth/esqueci-senha'
-      preLoaderRoute: typeof AuthEsqueciSenhaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/cadastro': {
-      id: '/auth/cadastro'
-      path: '/auth/cadastro'
-      fullPath: '/auth/cadastro'
-      preLoaderRoute: typeof AuthCadastroRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/app/whatsapp': {
-      id: '/app/whatsapp'
-      path: '/whatsapp'
-      fullPath: '/app/whatsapp'
-      preLoaderRoute: typeof AppWhatsappRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/visitantes': {
-      id: '/app/visitantes'
-      path: '/visitantes'
-      fullPath: '/app/visitantes'
-      preLoaderRoute: typeof AppVisitantesRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/usuarios': {
-      id: '/app/usuarios'
-      path: '/usuarios'
-      fullPath: '/app/usuarios'
-      preLoaderRoute: typeof AppUsuariosRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/reservas': {
-      id: '/app/reservas'
-      path: '/reservas'
-      fullPath: '/app/reservas'
-      preLoaderRoute: typeof AppReservasRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/preferencias-notificacao': {
-      id: '/app/preferencias-notificacao'
-      path: '/preferencias-notificacao'
-      fullPath: '/app/preferencias-notificacao'
-      preLoaderRoute: typeof AppPreferenciasNotificacaoRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/ocorrencias': {
-      id: '/app/ocorrencias'
-      path: '/ocorrencias'
-      fullPath: '/app/ocorrencias'
-      preLoaderRoute: typeof AppOcorrenciasRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/moradores': {
-      id: '/app/moradores'
-      path: '/moradores'
-      fullPath: '/app/moradores'
-      preLoaderRoute: typeof AppMoradoresRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/leads': {
-      id: '/app/leads'
-      path: '/leads'
-      fullPath: '/app/leads'
-      preLoaderRoute: typeof AppLeadsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/financeiro': {
-      id: '/app/financeiro'
-      path: '/financeiro'
-      fullPath: '/app/financeiro'
-      preLoaderRoute: typeof AppFinanceiroRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/encomendas': {
-      id: '/app/encomendas'
-      path: '/encomendas'
-      fullPath: '/app/encomendas'
-      preLoaderRoute: typeof AppEncomendasRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/documentos': {
-      id: '/app/documentos'
-      path: '/documentos'
-      fullPath: '/app/documentos'
-      preLoaderRoute: typeof AppDocumentosRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/configuracoes': {
-      id: '/app/configuracoes'
-      path: '/configuracoes'
-      fullPath: '/app/configuracoes'
-      preLoaderRoute: typeof AppConfiguracoesRouteImport
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/condominio': {
@@ -888,12 +769,124 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCondominioRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/financeiro/': {
-      id: '/app/financeiro/'
-      path: '/'
-      fullPath: '/app/financeiro/'
-      preLoaderRoute: typeof AppFinanceiroIndexRouteImport
-      parentRoute: typeof AppFinanceiroRoute
+    '/app/configuracoes': {
+      id: '/app/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/app/configuracoes'
+      preLoaderRoute: typeof AppConfiguracoesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/documentos': {
+      id: '/app/documentos'
+      path: '/documentos'
+      fullPath: '/app/documentos'
+      preLoaderRoute: typeof AppDocumentosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/encomendas': {
+      id: '/app/encomendas'
+      path: '/encomendas'
+      fullPath: '/app/encomendas'
+      preLoaderRoute: typeof AppEncomendasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/financeiro': {
+      id: '/app/financeiro'
+      path: '/financeiro'
+      fullPath: '/app/financeiro'
+      preLoaderRoute: typeof AppFinanceiroRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/leads': {
+      id: '/app/leads'
+      path: '/leads'
+      fullPath: '/app/leads'
+      preLoaderRoute: typeof AppLeadsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/moradores': {
+      id: '/app/moradores'
+      path: '/moradores'
+      fullPath: '/app/moradores'
+      preLoaderRoute: typeof AppMoradoresRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/ocorrencias': {
+      id: '/app/ocorrencias'
+      path: '/ocorrencias'
+      fullPath: '/app/ocorrencias'
+      preLoaderRoute: typeof AppOcorrenciasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/preferencias-notificacao': {
+      id: '/app/preferencias-notificacao'
+      path: '/preferencias-notificacao'
+      fullPath: '/app/preferencias-notificacao'
+      preLoaderRoute: typeof AppPreferenciasNotificacaoRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/reservas': {
+      id: '/app/reservas'
+      path: '/reservas'
+      fullPath: '/app/reservas'
+      preLoaderRoute: typeof AppReservasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/usuarios': {
+      id: '/app/usuarios'
+      path: '/usuarios'
+      fullPath: '/app/usuarios'
+      preLoaderRoute: typeof AppUsuariosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/visitantes': {
+      id: '/app/visitantes'
+      path: '/visitantes'
+      fullPath: '/app/visitantes'
+      preLoaderRoute: typeof AppVisitantesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/whatsapp': {
+      id: '/app/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/app/whatsapp'
+      preLoaderRoute: typeof AppWhatsappRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/auth/cadastro': {
+      id: '/auth/cadastro'
+      path: '/auth/cadastro'
+      fullPath: '/auth/cadastro'
+      preLoaderRoute: typeof AuthCadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/esqueci-senha': {
+      id: '/auth/esqueci-senha'
+      path: '/auth/esqueci-senha'
+      fullPath: '/auth/esqueci-senha'
+      preLoaderRoute: typeof AuthEsqueciSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/redefinir-senha': {
+      id: '/auth/redefinir-senha'
+      path: '/auth/redefinir-senha'
+      fullPath: '/auth/redefinir-senha'
+      preLoaderRoute: typeof AuthRedefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/empresas/': {
       id: '/admin/empresas/'
@@ -902,46 +895,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEmpresasIndexRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/auth/convite/$token': {
-      id: '/auth/convite/$token'
-      path: '/auth/convite/$token'
-      fullPath: '/auth/convite/$token'
-      preLoaderRoute: typeof AuthConviteTokenRouteImport
+    '/admin/empresas/$id': {
+      id: '/admin/empresas/$id'
+      path: '/empresas/$id'
+      fullPath: '/admin/empresas/$id'
+      preLoaderRoute: typeof AdminEmpresasIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/api/public/wa-drain': {
+      id: '/api/public/wa-drain'
+      path: '/api/public/wa-drain'
+      fullPath: '/api/public/wa-drain'
+      preLoaderRoute: typeof ApiPublicWaDrainRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/financeiro/whatsapp': {
-      id: '/app/financeiro/whatsapp'
-      path: '/whatsapp'
-      fullPath: '/app/financeiro/whatsapp'
-      preLoaderRoute: typeof AppFinanceiroWhatsappRouteImport
-      parentRoute: typeof AppFinanceiroRoute
+    '/api/public/wa-webhook': {
+      id: '/api/public/wa-webhook'
+      path: '/api/public/wa-webhook'
+      fullPath: '/api/public/wa-webhook'
+      preLoaderRoute: typeof ApiPublicWaWebhookRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/app/financeiro/pagamentos': {
-      id: '/app/financeiro/pagamentos'
-      path: '/pagamentos'
-      fullPath: '/app/financeiro/pagamentos'
-      preLoaderRoute: typeof AppFinanceiroPagamentosRouteImport
-      parentRoute: typeof AppFinanceiroRoute
-    }
-    '/app/financeiro/inadimplencia': {
-      id: '/app/financeiro/inadimplencia'
-      path: '/inadimplencia'
-      fullPath: '/app/financeiro/inadimplencia'
-      preLoaderRoute: typeof AppFinanceiroInadimplenciaRouteImport
-      parentRoute: typeof AppFinanceiroRoute
-    }
-    '/app/financeiro/despesas': {
-      id: '/app/financeiro/despesas'
-      path: '/despesas'
-      fullPath: '/app/financeiro/despesas'
-      preLoaderRoute: typeof AppFinanceiroDespesasRouteImport
-      parentRoute: typeof AppFinanceiroRoute
-    }
-    '/app/financeiro/cobrancas': {
-      id: '/app/financeiro/cobrancas'
-      path: '/cobrancas'
-      fullPath: '/app/financeiro/cobrancas'
-      preLoaderRoute: typeof AppFinanceiroCobrancasRouteImport
+    '/app/financeiro/': {
+      id: '/app/financeiro/'
+      path: '/'
+      fullPath: '/app/financeiro/'
+      preLoaderRoute: typeof AppFinanceiroIndexRouteImport
       parentRoute: typeof AppFinanceiroRoute
     }
     '/app/financeiro/categorias': {
@@ -951,32 +930,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceiroCategoriasRouteImport
       parentRoute: typeof AppFinanceiroRoute
     }
-    '/api/public/wa-webhook': {
-      id: '/api/public/wa-webhook'
-      path: '/api/public/wa-webhook'
-      fullPath: '/api/public/wa-webhook'
-      preLoaderRoute: typeof ApiPublicWaWebhookRouteImport
-      parentRoute: typeof rootRouteImport
+    '/app/financeiro/cobrancas': {
+      id: '/app/financeiro/cobrancas'
+      path: '/cobrancas'
+      fullPath: '/app/financeiro/cobrancas'
+      preLoaderRoute: typeof AppFinanceiroCobrancasRouteImport
+      parentRoute: typeof AppFinanceiroRoute
     }
-    '/api/public/wa-drain': {
-      id: '/api/public/wa-drain'
-      path: '/api/public/wa-drain'
-      fullPath: '/api/public/wa-drain'
-      preLoaderRoute: typeof ApiPublicWaDrainRouteImport
-      parentRoute: typeof rootRouteImport
+    '/app/financeiro/despesas': {
+      id: '/app/financeiro/despesas'
+      path: '/despesas'
+      fullPath: '/app/financeiro/despesas'
+      preLoaderRoute: typeof AppFinanceiroDespesasRouteImport
+      parentRoute: typeof AppFinanceiroRoute
     }
-    '/admin/empresas/$id': {
-      id: '/admin/empresas/$id'
-      path: '/empresas/$id'
-      fullPath: '/admin/empresas/$id'
-      preLoaderRoute: typeof AdminEmpresasIdRouteImport
-      parentRoute: typeof AdminRoute
+    '/app/financeiro/inadimplencia': {
+      id: '/app/financeiro/inadimplencia'
+      path: '/inadimplencia'
+      fullPath: '/app/financeiro/inadimplencia'
+      preLoaderRoute: typeof AppFinanceiroInadimplenciaRouteImport
+      parentRoute: typeof AppFinanceiroRoute
     }
-    '/lovable/email/queue/process': {
-      id: '/lovable/email/queue/process'
-      path: '/lovable/email/queue/process'
-      fullPath: '/lovable/email/queue/process'
-      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+    '/app/financeiro/pagamentos': {
+      id: '/app/financeiro/pagamentos'
+      path: '/pagamentos'
+      fullPath: '/app/financeiro/pagamentos'
+      preLoaderRoute: typeof AppFinanceiroPagamentosRouteImport
+      parentRoute: typeof AppFinanceiroRoute
+    }
+    '/app/financeiro/whatsapp': {
+      id: '/app/financeiro/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/app/financeiro/whatsapp'
+      preLoaderRoute: typeof AppFinanceiroWhatsappRouteImport
+      parentRoute: typeof AppFinanceiroRoute
+    }
+    '/auth/convite/$token': {
+      id: '/auth/convite/$token'
+      path: '/auth/convite/$token'
+      fullPath: '/auth/convite/$token'
+      preLoaderRoute: typeof AuthConviteTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/lembretes-cobranca': {
@@ -984,6 +977,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/hooks/lembretes-cobranca'
       fullPath: '/api/public/hooks/lembretes-cobranca'
       preLoaderRoute: typeof ApiPublicHooksLembretesCobrancaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

@@ -4,18 +4,18 @@ import { useAuth } from "@/auth/AuthProvider";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import { Logo } from "@/components/site/Logo";
 import { usePlatformAdmin } from "@/auth/usePlatformAdmin";
+import { ADMIN, FIN_VER, temAcesso } from "@/auth/permissoes";
+import type { Role } from "@/auth/useCondominio";
 import {
   LayoutDashboard, Users, Building2, MessageCircle, LogOut, Loader2,
-  Calendar, Package, Wrench, Wallet, Settings, Menu, X, Inbox, Shield
+  Calendar, Package, Wrench, Wallet, Settings, Menu, X, Inbox, Shield,
+  FileText, UserCheck
 } from "lucide-react";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
 });
 
-type Role =
-  | "sindico" | "admin" | "morador" | "contador" | "porteiro"
-  | "financeiro" | "gestor" | "vendedor" | "comercial" | "consulta";
 type NavItem = {
   to: string;
   label: string;
@@ -23,14 +23,14 @@ type NavItem = {
   exact?: boolean;
   roles?: Role[]; // se omitido, todos veem
 };
-const ADMIN: Role[] = ["sindico", "admin"];
-const FINANCEIRO: Role[] = ["sindico", "admin", "contador", "financeiro"];
 const NAV: NavItem[] = [
   { to: "/app", label: "Visão geral", icon: LayoutDashboard, exact: true },
-  { to: "/app/financeiro", label: "Financeiro", icon: Wallet, roles: FINANCEIRO },
+  { to: "/app/financeiro", label: "Financeiro", icon: Wallet, roles: FIN_VER },
   { to: "/app/reservas", label: "Reservas", icon: Calendar },
-  { to: "/app/encomendas", label: "Encomendas", icon: Package, roles: ["sindico", "admin", "porteiro"] },
+  { to: "/app/encomendas", label: "Encomendas", icon: Package },
+  { to: "/app/visitantes", label: "Visitantes", icon: UserCheck },
   { to: "/app/ocorrencias", label: "Ocorrências", icon: Wrench },
+  { to: "/app/documentos", label: "Documentos", icon: FileText },
   { to: "/app/usuarios", label: "Equipa", icon: Users, roles: ADMIN },
   { to: "/app/moradores", label: "Moradores", icon: Users, roles: ADMIN },
   { to: "/app/condominio", label: "Empresa", icon: Building2, roles: ADMIN },
@@ -46,7 +46,7 @@ function AppLayout() {
   const { isPlatformAdmin } = usePlatformAdmin();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
-  const navItems = NAV.filter((it) => !it.roles || (role && it.roles.includes(role as Role)));
+  const navItems = NAV.filter((it) => temAcesso(role, it.roles));
 
   useEffect(() => {
     if (loading) return;

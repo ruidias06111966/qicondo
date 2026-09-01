@@ -725,7 +725,7 @@ export type Database = {
           role: Database["public"]["Enums"]["app_role"]
           status: Database["public"]["Enums"]["convite_status"]
           telefone: string | null
-          token: string
+          token: string | null
           token_hash: string | null
           unidade_id: string | null
         }
@@ -742,7 +742,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"]
           status?: Database["public"]["Enums"]["convite_status"]
           telefone?: string | null
-          token: string
+          token?: string | null
           token_hash?: string | null
           unidade_id?: string | null
         }
@@ -759,7 +759,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"]
           status?: Database["public"]["Enums"]["convite_status"]
           telefone?: string | null
-          token?: string
+          token?: string | null
           token_hash?: string | null
           unidade_id?: string | null
         }

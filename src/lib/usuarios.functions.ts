@@ -5,6 +5,9 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const ROLES = [
   "admin",
+  // Legado: equivalente a `admin`. Não é oferecido em novos convites, mas tem de
+  // ser aceite aqui para que contas antigas possam ser lidas e alteradas.
+  "sindico",
   "financeiro",
   "gestor",
   "vendedor",
@@ -106,6 +109,8 @@ export const convidarUsuario = createServerFn({ method: "POST" })
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
 
+    // Só o hash é persistido. O token em claro volta uma única vez na resposta,
+    // para o administrador copiar o link; a partir daí é irrecuperável.
     const { data: row, error } = await supabase
       .from("convites")
       .insert({
@@ -113,7 +118,6 @@ export const convidarUsuario = createServerFn({ method: "POST" })
         email: data.email,
         nome: data.nome,
         role: data.role,
-        token,
         token_hash,
         enviado_por: userId,
       })
@@ -163,8 +167,13 @@ export const alterarRoleUsuario = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await ensureAdmin(supabase, userId, data.condominio_id);
-    if (data.user_id === userId && data.role_antigo === "admin" && data.role_novo !== "admin") {
-      throw new Error("Não pode remover o seu próprio papel de admin.");
+    // `sindico` tem os mesmos poderes de `admin` (ver `is_sindico`), por isso a
+    // guarda de auto-despromoção tem de cobrir os dois — senão um síndico único
+    // consegue despromover-se e ficar sem ninguém a gerir a empresa.
+    const eraGestor = data.role_antigo === "admin" || data.role_antigo === "sindico";
+    const continuaGestor = data.role_novo === "admin" || data.role_novo === "sindico";
+    if (data.user_id === userId && eraGestor && !continuaGestor) {
+      throw new Error("Não pode remover o seu próprio papel de administrador.");
     }
     // Apaga o antigo e adiciona o novo (user_roles tem unique user_id+condominio_id+role)
     const { error: e1 } = await supabase

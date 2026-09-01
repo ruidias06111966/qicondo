@@ -8,9 +8,9 @@ import {
 export const Route = createFileRoute("/recursos")({
   head: () => ({
     meta: [
-      { title: "Recursos — WHATSCOND" },
-      { name: "description", content: "Conheça todos os módulos do WHATSCOND: cobrança, assembleias, reservas, encomendas, ocorrências e mais." },
-      { property: "og:title", content: "Recursos do WHATSCOND" },
+      { title: "Recursos — QiCond" },
+      { name: "description", content: "Conheça todos os módulos do QiCond: cobrança, assembleias, reservas, encomendas, ocorrências e mais." },
+      { property: "og:title", content: "Recursos do QiCond" },
     ],
   }),
   component: RecursosPage,

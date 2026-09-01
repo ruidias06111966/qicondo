@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/auth/AuthProvider";
+import { destinoAposLogin } from "@/auth/proximo-destino";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth/callback")({
@@ -15,7 +16,8 @@ function CallbackPage() {
   useEffect(() => {
     if (loading) return;
     if (!user) { navigate({ to: "/auth/login" }); return; }
-    navigate({ to: hasAnyRole ? "/app" : "/onboarding" });
+    // O OAuth do Google não preserva query strings — o destino vem do sessionStorage.
+    navigate({ to: destinoAposLogin(undefined, hasAnyRole) });
   }, [loading, user, hasAnyRole, navigate]);
 
   return (

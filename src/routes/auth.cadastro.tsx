@@ -5,23 +5,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/auth/AuthProvider";
 import { cadastroSchema } from "@/auth/validators";
+import { caminhoInternoSeguro, destinoAposLogin, validarNext } from "@/auth/proximo-destino";
 import { Logo } from "@/components/site/Logo";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth/cadastro")({
-  head: () => ({ meta: [{ title: "Criar conta — WHATSCOND" }] }),
+  head: () => ({ meta: [{ title: "Criar conta — QiCond" }] }),
+  validateSearch: validarNext,
   component: CadastroPage,
 });
 
 function CadastroPage() {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  // Ver nota em auth.login.tsx: o href do <Link> usa o valor que passamos.
+  const { next: nextBruto } = Route.useSearch();
+  const next = caminhoInternoSeguro(nextBruto) ?? undefined;
+  const { user, loading, hasAnyRole } = useAuth();
   const [form, setForm] = useState({ nome_completo: "", email: "", telefone: "+55", senha: "" });
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) navigate({ to: "/onboarding" });
-  }, [loading, user, navigate]);
+    // Confirmação de e-mail desligada no Supabase → a sessão fica activa já aqui.
+    if (!loading && user) navigate({ to: destinoAposLogin(next, hasAnyRole) });
+  }, [loading, user, hasAnyRole, next, navigate]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -48,7 +54,8 @@ function CadastroPage() {
       return;
     }
     toast.success("Conta criada! Verifique seu e-mail para confirmar.");
-    navigate({ to: "/auth/login" });
+    // `next` segue para o login para não perder um convite pendente.
+    navigate({ to: "/auth/login", search: next ? { next } : {} });
   }
 
   async function onGoogle() {
@@ -71,7 +78,7 @@ function CadastroPage() {
             <li>✓ 14 dias de avaliação no plano Profissional</li>
           </ul>
         </div>
-        <p className="text-sm text-primary-foreground/70">© WHATSCOND</p>
+        <p className="text-sm text-primary-foreground/70">© QiCond</p>
       </div>
 
       <div className="flex items-center justify-center p-6 sm:p-12 overflow-y-auto">
@@ -80,7 +87,13 @@ function CadastroPage() {
           <h1 className="font-display text-3xl font-extrabold">Criar conta de síndico</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Já tem conta?{" "}
-            <Link to="/auth/login" className="text-primary font-semibold hover:underline">Entrar</Link>
+            <Link
+              to="/auth/login"
+              search={next ? { next } : {}}
+              className="text-primary font-semibold hover:underline"
+            >
+              Entrar
+            </Link>
           </p>
 
           <button

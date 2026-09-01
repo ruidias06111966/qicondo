@@ -113,7 +113,7 @@ function PrecosPage() {
           Planos <span className="text-gradient-brand">sob consulta</span>
         </h1>
         <p className="mt-5 text-muted-foreground max-w-2xl mx-auto">
-          Contratação por empresa, com utilizadores ilimitados nos planos superiores. Sem fidelidade, sem taxa de setup, 30 dias para experimentar.
+          Contratação por empresa, com utilizadores ilimitados em todos os planos. Sem fidelidade, sem taxa de setup, 30 dias para experimentar.
         </p>
       </section>
 

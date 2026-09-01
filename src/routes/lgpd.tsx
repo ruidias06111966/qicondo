@@ -3,7 +3,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { Shield, Lock, Database, FileCheck, UserCheck, Mail } from "lucide-react";
 
 export const Route = createFileRoute("/lgpd")({
-  head: () => ({ meta: [{ title: "LGPD — WHATSCOND" }, { name: "description", content: "Compromisso do WHATSCOND com a Lei Geral de Proteção de Dados." }] }),
+  head: () => ({ meta: [{ title: "LGPD — QiCond" }, { name: "description", content: "Compromisso do QiCond com a Lei Geral de Proteção de Dados." }] }),
   component: LgpdPage,
 });
 
@@ -30,7 +30,7 @@ function LgpdPage() {
           { icon: FileCheck, title: "Logs de auditoria", desc: "Cada ação registrada com usuário, data, hora e IP. Exportável quando preciso." },
           { icon: UserCheck, title: "Controle de acesso por perfil", desc: "Síndico, morador e contador veem apenas o que devem ver." },
           { icon: Shield, title: "Opt-in WhatsApp registrado", desc: "Consentimento de cada morador armazenado conforme exige a Meta e a LGPD." },
-          { icon: Mail, title: "DPO acessível", desc: "Encarregado de dados disponível em dpo@whatscond.app para qualquer solicitação." },
+          { icon: Mail, title: "DPO acessível", desc: "Encarregado de dados disponível em qidomino@gmail.com para qualquer solicitação." },
         ].map((b) => (
           <div key={b.title} className="rounded-2xl border border-border bg-surface p-6">
             <div className="h-11 w-11 rounded-xl bg-primary-soft text-primary flex items-center justify-center mb-4">
@@ -54,7 +54,7 @@ function LgpdPage() {
           </ul>
           <div className="mt-6 pt-6 border-t border-border">
             <p className="text-sm text-muted-foreground">Para exercer qualquer direito, escreva para:</p>
-            <a href="mailto:dpo@whatscond.app" className="text-primary font-bold text-lg hover:underline">dpo@whatscond.app</a>
+            <a href="mailto:qidomino@gmail.com" className="text-primary font-bold text-lg hover:underline">qidomino@gmail.com</a>
           </div>
         </div>
       </section>

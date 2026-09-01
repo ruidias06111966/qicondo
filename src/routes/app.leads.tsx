@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useCondominioAtivo } from "@/auth/useCondominio";
 import { safeCall } from "@/lib/safe-call";
 import { linkWhatsApp } from "@/lib/whatsapp";
-import { Inbox, MessageCircle, Loader2, RefreshCw, Calendar } from "lucide-react";
+import { Inbox, MessageCircle, Loader2, RefreshCw, Calendar, Shield } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/leads")({
+  head: () => ({ meta: [{ title: "Leads do site — QiCond" }] }),
   component: LeadsPage,
 });
 
@@ -41,6 +43,7 @@ const STATUS_COLORS: Record<Lead["status"], string> = {
 };
 
 function LeadsPage() {
+  const { isAdmin } = useCondominioAtivo();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<"todos" | Lead["status"]>("todos");
@@ -73,6 +76,21 @@ function LeadsPage() {
   }
 
   const visiveis = filtro === "todos" ? leads : leads.filter((l) => l.status === filtro);
+
+  // O item já não aparece no menu para outros perfis; isto cobre o URL directo.
+  if (!isAdmin) {
+    return (
+      <div className="p-6 max-w-xl">
+        <div className="rounded-2xl border border-border bg-background p-6 text-center">
+          <Shield className="mx-auto mb-3 text-muted-foreground" />
+          <h2 className="font-display text-xl font-bold mb-1">Acesso restrito</h2>
+          <p className="text-sm text-muted-foreground">
+            Apenas administradores da empresa podem ver os leads do site.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-8 max-w-6xl mx-auto">

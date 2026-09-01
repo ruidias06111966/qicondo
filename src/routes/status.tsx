@@ -3,7 +3,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/status")({
-  head: () => ({ meta: [{ title: "Status — WHATSCOND" }, { name: "description", content: "Status em tempo real dos serviços WHATSCOND." }] }),
+  head: () => ({ meta: [{ title: "Status — QiCond" }, { name: "description", content: "Status em tempo real dos serviços QiCond." }] }),
   component: StatusPage,
 });
 

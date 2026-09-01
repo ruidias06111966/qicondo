@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { safeCall } from "@/lib/safe-call";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "Admin Master — WHATSCOND" }] }),
+  head: () => ({ meta: [{ title: "Admin Master — QiCond" }] }),
   component: AdminLayout,
 });
 

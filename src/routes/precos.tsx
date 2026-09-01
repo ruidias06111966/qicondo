@@ -31,9 +31,7 @@ const plans: Plan[] = [
     name: "Básico",
     desc: "Para empresas que estão a começar e querem profissionalizar a operação.",
     highlight: false,
-    // Limites espelham `limite_usuarios_plano()` na base de dados. Se mudarem
-    // aqui sem mudar lá, o convite é recusado com "limite_plano_atingido".
-    limites: { empresas: "1 empresa", utilizadores: "Até 3 utilizadores" },
+    limites: { empresas: "1 empresa", utilizadores: "Utilizadores ilimitados" },
     features: [
       { has: true,  label: "Cobranças e pagamentos" },
       { has: true,  label: "WhatsApp Bot (lembretes e confirmações)" },
@@ -50,7 +48,7 @@ const plans: Plan[] = [
     desc: "Recomendado para a maioria das empresas. Tudo desbloqueado + suporte prioritário.",
     highlight: true,
     badge: "Mais escolhido",
-    limites: { empresas: "1 empresa", utilizadores: "Até 10 utilizadores" },
+    limites: { empresas: "1 empresa", utilizadores: "Utilizadores ilimitados" },
     features: [
       { has: true, label: "Tudo do plano Básico" },
       { has: true, label: "Todos os 7 perfis com permissões dedicadas" },
@@ -115,7 +113,7 @@ function PrecosPage() {
           Planos <span className="text-gradient-brand">sob consulta</span>
         </h1>
         <p className="mt-5 text-muted-foreground max-w-2xl mx-auto">
-          Contratação por empresa: 3 utilizadores no Básico, 10 no Profissional e sem limite no Enterprise. Sem fidelidade, sem taxa de setup, 30 dias para experimentar.
+          Contratação por empresa, com utilizadores ilimitados em todos os planos. Sem fidelidade, sem taxa de setup, 30 dias para experimentar.
         </p>
       </section>
 

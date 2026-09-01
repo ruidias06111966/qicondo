@@ -65,7 +65,7 @@ function PrivacidadePage() {
 
           <h2 className="font-display font-extrabold text-2xl text-foreground mt-10">7. Encarregado de dados (DPO)</h2>
           <p>Para exercer seus direitos ou tirar dúvidas sobre privacidade, fale com nosso DPO:</p>
-          <p><a href="mailto:dpo@whatscond.app" className="text-primary font-semibold">dpo@whatscond.app</a></p>
+          <p><a href="mailto:qidomino@gmail.com" className="text-primary font-semibold">qidomino@gmail.com</a></p>
         </div>
       </article>
     </SiteLayout>

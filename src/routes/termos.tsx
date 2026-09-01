@@ -65,7 +65,7 @@ function TermosPage() {
       <p>Fica eleito o foro da comarca de São Paulo/SP para dirimir quaisquer controvérsias.</p>
 
       <h2>10. Contato</h2>
-      <p>Dúvidas? Escreva para <a href="mailto:juridico@whatscond.app" className="text-primary">juridico@whatscond.app</a>.</p>
+      <p>Dúvidas? Escreva para <a href="mailto:qidomino@gmail.com" className="text-primary">qidomino@gmail.com</a>.</p>
     </LegalPage>
   );
 }

@@ -169,24 +169,18 @@ function MoradoresPage() {
         </div>
       </header>
 
-      {/* Uso do plano — é o que faz um convite ser recusado com "limite atingido". */}
+      {/* Plano e utilizadores — todos os planos têm utilizadores ilimitados. */}
       <section className="rounded-xl border border-border bg-background p-4 flex items-center justify-between gap-4 flex-wrap">
         <div>
           <p className="text-sm font-semibold">
             Plano {PLANO_LABELS[plano] ?? plano}
           </p>
           <p className="text-xs text-muted-foreground">
-            {limite === null
-              ? `${usados} utilizador(es) — sem limite neste plano.`
-              : `${usados} de ${limite} utilizadores usados (convites pendentes contam).`}
+            {usados} utilizador(es) — utilizadores ilimitados neste plano.
           </p>
         </div>
-        {limite !== null && usados >= limite && (
-          <span className="text-xs px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-semibold">
-            Limite atingido — novos convites serão recusados
-          </span>
-        )}
       </section>
+
 
       {linkNovo && (
         <section className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-2">

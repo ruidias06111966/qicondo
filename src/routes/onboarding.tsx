@@ -171,11 +171,12 @@ function OnboardingPage() {
               <Input label="UF" maxLength={2} value={cond.estado} onChange={(v) => setCond({ ...cond, estado: v.toUpperCase() })} />
               <Input label="CEP" value={cond.cep} onChange={(v) => setCond({ ...cond, cep: v })} />
               <div className="sm:col-span-2">
-                <label className="text-xs font-semibold text-muted-foreground">Plano pretendido*</label>
+                <label className="text-xs font-semibold text-muted-foreground">Plano pretendido</label>
                 <div className="mt-2 grid sm:grid-cols-3 gap-2">
                   {([
-                    { id: "basico", nome: "Básico", desc: "Utilizadores ilimitados" },
-                    { id: "profissional", nome: "Profissional", desc: "Utilizadores ilimitados" },
+                    // Limites iguais a `limite_usuarios_plano()` na base de dados.
+                    { id: "basico", nome: "Básico", desc: "Até 3 utilizadores" },
+                    { id: "profissional", nome: "Profissional", desc: "Até 10 utilizadores" },
                     { id: "enterprise", nome: "Enterprise", desc: "Multi-empresa · ilimitado" },
                   ] as const).map((p) => (
                     <button
@@ -193,7 +194,9 @@ function OnboardingPage() {
               </div>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              Ficará automaticamente registado como <b>Administrador</b> desta empresa. Depois convida a equipa em <b>Utilizadores</b>.
+              Ficará automaticamente registado como <b>Administrador</b> desta empresa. Depois convida a equipa em <b>Equipa</b>.
+              A empresa começa no plano <b>Básico</b> (até 3 utilizadores); o plano escolhido acima é só uma indicação para a nossa
+              equipa comercial e é activado após a contratação.
             </p>
             <Actions>
               <button onClick={() => setStep("intro")} className="btn-ghost">Voltar</button>

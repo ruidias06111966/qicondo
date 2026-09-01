@@ -116,20 +116,41 @@ export function Stat({
   );
 }
 
-type SubItem = { to: string; label: string; icon: any; restrito?: boolean };
+/**
+ * `restrito`  — precisa de gerir o financeiro (sindico | admin | contador | financeiro).
+ * `apenasAdmin` — o servidor exige `is_sindico` (dados bancários, chave PIX e
+ *   automação de mensagens). Sem esta distinção, o perfil `financeiro` via as abas
+ *   e apanhava "Não tem permissão" em todas as acções.
+ */
+type SubItem = { to: string; label: string; icon: any; restrito?: boolean; apenasAdmin?: boolean };
 const SUB: SubItem[] = [
   { to: "/app/financeiro", label: "Visão geral", icon: TrendingUp },
   { to: "/app/financeiro/cobrancas", label: "Cobranças", icon: FileText },
   { to: "/app/financeiro/despesas", label: "Despesas", icon: Wallet, restrito: true },
   { to: "/app/financeiro/inadimplencia", label: "Inadimplência", icon: AlertTriangle, restrito: true },
   { to: "/app/financeiro/categorias", label: "Categorias", icon: Tag, restrito: true },
-  { to: "/app/financeiro/pagamentos", label: "Pagamentos", icon: CreditCard, restrito: true },
-  { to: "/app/financeiro/whatsapp", label: "Mensagens WhatsApp", icon: MessageCircle, restrito: true },
+  { to: "/app/financeiro/pagamentos", label: "Pagamentos", icon: CreditCard, restrito: true, apenasAdmin: true },
+  { to: "/app/financeiro/whatsapp", label: "Mensagens WhatsApp", icon: MessageCircle, restrito: true, apenasAdmin: true },
 ];
 
-export function FinanceiroSubNav({ podeGerir }: { podeGerir: boolean }) {
+/**
+ * Verdadeiro quando o caminho corresponde a uma aba restrita a quem gere o
+ * financeiro. Usado pelo layout para bloquear navegação directa por URL — as
+ * abas restritas já não aparecem na sub-navegação, mas o URL continua acessível.
+ */
+export function rotaFinanceiraBloqueada(
+  path: string,
+  { podeGerir, isAdmin }: { podeGerir: boolean; isAdmin: boolean },
+): boolean {
+  const item = SUB.find((i) => i.to !== "/app/financeiro" && path.startsWith(i.to));
+  if (!item) return false;
+  if (item.apenasAdmin) return !isAdmin;
+  return !!item.restrito && !podeGerir;
+}
+
+export function FinanceiroSubNav({ podeGerir, isAdmin }: { podeGerir: boolean; isAdmin: boolean }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
-  const items = SUB.filter((i) => !i.restrito || podeGerir);
+  const items = SUB.filter((i) => (i.apenasAdmin ? isAdmin : !i.restrito || podeGerir));
   return (
     <div className="border-b border-border mb-6 -mx-2 overflow-x-auto">
       <div className="flex gap-1 px-2 min-w-max">

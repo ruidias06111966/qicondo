@@ -5,7 +5,7 @@ import { ArrowRight, Calendar } from "lucide-react";
 export const Route = createFileRoute("/blog")({
   head: () => ({
     meta: [
-      { title: "Blog — WHATSCOND" },
+      { title: "Blog — QiCond" },
       { name: "description", content: "Conteúdo prático para síndicos: gestão de condomínio, LGPD, finanças, assembleias e mais." },
     ],
   }),

@@ -19,20 +19,20 @@ export function LegalPage({ title, updated, children }: { title: string; updated
 }
 
 export const Route = createFileRoute("/termos")({
-  head: () => ({ meta: [{ title: "Termos de uso — WHATSCOND" }, { name: "description", content: "Termos e condições de uso do WHATSCOND." }] }),
+  head: () => ({ meta: [{ title: "Termos de uso — QiCond" }, { name: "description", content: "Termos e condições de uso do QiCond." }] }),
   component: TermosPage,
 });
 
 function TermosPage() {
   return (
     <LegalPage title="Termos de uso" updated="03 de maio de 2026">
-      <p>Bem-vindo ao WHATSCOND. Ao usar nossos serviços, você concorda com estes termos. Leia com atenção.</p>
+      <p>Bem-vindo ao QiCond. Ao usar nossos serviços, você concorda com estes termos. Leia com atenção.</p>
 
       <h2>1. Aceitação</h2>
       <p>Ao criar uma conta ou utilizar nossos serviços, você concorda integralmente com estes Termos de Uso e com nossa Política de Privacidade.</p>
 
       <h2>2. Descrição do serviço</h2>
-      <p>O WHATSCOND é uma plataforma SaaS de gestão para condomínios residenciais, integrada ao WhatsApp Business API. Oferecemos cobrança, comunicação, reservas, ocorrências e prestação de contas.</p>
+      <p>O QiCond é uma plataforma SaaS de gestão para condomínios residenciais, integrada ao WhatsApp Business API. Oferecemos cobrança, comunicação, reservas, ocorrências e prestação de contas.</p>
 
       <h2>3. Cadastro e conta</h2>
       <ul>
@@ -56,7 +56,7 @@ function TermosPage() {
       <p>Reservamos o direito de suspender contas que violem estes termos, com aviso prévio quando possível.</p>
 
       <h2>7. Limitação de responsabilidade</h2>
-      <p>O WHATSCOND é uma ferramenta de apoio à gestão. As decisões e responsabilidades legais permanecem com o síndico e o condomínio.</p>
+      <p>O QiCond é uma ferramenta de apoio à gestão. As decisões e responsabilidades legais permanecem com o síndico e o condomínio.</p>
 
       <h2>8. Alterações</h2>
       <p>Estes termos podem ser atualizados. Notificaremos por email com pelo menos 30 dias de antecedência sobre mudanças relevantes.</p>

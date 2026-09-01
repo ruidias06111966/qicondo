@@ -14,7 +14,7 @@ import {
 import { Users, UserPlus, Copy, Trash2, X, Loader2, Shield } from "lucide-react";
 
 export const Route = createFileRoute("/app/usuarios")({
-  head: () => ({ meta: [{ title: "Equipa — WHATSCOND" }] }),
+  head: () => ({ meta: [{ title: "Equipa — QiCond" }] }),
   component: UsuariosPage,
 });
 
@@ -244,15 +244,24 @@ function UsuariosPage() {
 }
 
 function SelectRole({ atual, onChange }: { atual: string; onChange: (v: string) => void }) {
+  // `sindico`, `porteiro` e `morador` não são atribuíveis por aqui, mas podem ser
+  // o papel actual (contas antigas ou vindas de convite de morador). Sem esta
+  // entrada o select mostrava "Administrador" para elas — e bastava um clique
+  // acidental para promover alguém a admin.
+  const opcoes = ROLES_CONVIDAR.includes(atual as (typeof ROLES_CONVIDAR)[number])
+    ? [...ROLES_CONVIDAR]
+    : [atual, ...ROLES_CONVIDAR];
+
   return (
     <select
       value={atual}
       onChange={(e) => onChange(e.target.value)}
+      title="Alterar perfil"
       className="text-xs rounded-md border border-input bg-background px-2 py-1.5"
     >
-      {ROLES_CONVIDAR.map((r) => (
+      {opcoes.map((r) => (
         <option key={r} value={r}>
-          {ROLE_LABEL[r]}
+          {ROLE_LABEL[r] ?? r}
         </option>
       ))}
     </select>

@@ -4,6 +4,7 @@ import { useCondominioAtivo } from "@/auth/useCondominio";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { safeCall } from "@/lib/safe-call";
+import { convidarUsuario } from "@/lib/usuarios.functions";
 import { Users, Mail, Loader2, Plus, Copy, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,12 @@ const ROLE_LABELS: Record<string, string> = {
   morador: "Morador",
 };
 
+const PLANO_LABELS: Record<string, string> = {
+  basico: "Básico",
+  profissional: "Profissional",
+  enterprise: "Enterprise",
+};
+
 type Membro = { user_id: string; role: string; nome: string | null; telefone: string | null; email: string | null };
 
 function MoradoresPage() {
@@ -46,6 +53,8 @@ function MoradoresPage() {
   const [role, setRole] = useState("morador");
   const [enviando, setEnviando] = useState(false);
   const [filtroEquipe, setFiltroEquipe] = useState(true);
+  // Token do convite acabado de criar — só existe nesta sessão do ecrã.
+  const [linkNovo, setLinkNovo] = useState<string | null>(null);
 
   const carregar = async () => {
     if (!condominioId) return;
@@ -68,7 +77,7 @@ function MoradoresPage() {
 
     const cRes = await safeCall(supabase
       .from("convites")
-      .select("id, email, nome, role, status, expira_em, token, created_at")
+      .select("id, email, nome, role, status, expira_em, created_at")
       .eq("condominio_id", condominioId)
       .order("created_at", { ascending: false }));
     setConvites(cRes?.data ?? []);
@@ -93,39 +102,33 @@ function MoradoresPage() {
 
 
   async function convidar() {
-    if (!condominioId || !email.trim()) { toast.error("Informe o e-mail"); return; }
+    if (!condominioId) return;
+    if (!nome.trim() || nome.trim().length < 2) { toast.error("Informe o nome"); return; }
+    if (!email.trim()) { toast.error("Informe o e-mail"); return; }
 
     setEnviando(true);
-    const token = crypto.randomUUID().replace(/-/g, "");
-    // hash via subtle crypto
-    const enc = new TextEncoder().encode(token);
-    const buf = await crypto.subtle.digest("SHA-256", enc);
-    const token_hash = Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
-
-    const uid = (await supabase.auth.getUser()).data.user!.id;
-    const { error } = await supabase.from("convites").insert({
-      condominio_id: condominioId,
-      email: email.trim().toLowerCase(),
-      nome: nome.trim() || null,
-      role: role as any,
-      enviado_por: uid,
-      token,
-      token_hash,
-    });
+    // Passa pela server function: valida permissão, gera o token e guarda apenas
+    // o hash. O token em claro volta uma única vez, aqui.
+    const r = await safeCall(
+      convidarUsuario({
+        data: {
+          condominio_id: condominioId,
+          nome: nome.trim(),
+          email: email.trim().toLowerCase(),
+          role: role as any,
+        },
+      }),
+    );
     setEnviando(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
+    if (!r) return;
 
-    toast.success("Convite criado");
-    setEmail(""); setNome(""); setRole("morador"); setOpen(false);
+    setLinkNovo(`${window.location.origin}/auth/convite/${r.token}`);
+    toast.success("Convite criado — copie o link abaixo");
+    setEmail(""); setNome(""); setRole("morador");
     carregar();
   }
 
-
-  function copiarLink(token: string) {
-    const url = `${window.location.origin}/auth/convite/${token}`;
+  function copiarLink(url: string) {
     navigator.clipboard.writeText(url);
     toast.success("Link copiado");
   }
@@ -166,6 +169,40 @@ function MoradoresPage() {
         </div>
       </header>
 
+      {/* Uso do plano — é o que faz um convite ser recusado com "limite atingido". */}
+      <section className="rounded-xl border border-border bg-background p-4 flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <p className="text-sm font-semibold">
+            Plano {PLANO_LABELS[plano] ?? plano}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {limite === null
+              ? `${usados} utilizador(es) — sem limite neste plano.`
+              : `${usados} de ${limite} utilizadores usados (convites pendentes contam).`}
+          </p>
+        </div>
+        {limite !== null && usados >= limite && (
+          <span className="text-xs px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-semibold">
+            Limite atingido — novos convites serão recusados
+          </span>
+        )}
+      </section>
+
+      {linkNovo && (
+        <section className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-2">
+          <p className="text-sm font-semibold">Link do convite (válido 7 dias)</p>
+          <p className="text-xs text-muted-foreground">
+            Copie agora e envie por e-mail ou WhatsApp — este link não volta a ser mostrado.
+          </p>
+          <div className="flex gap-2">
+            <Input readOnly value={linkNovo} className="font-mono text-xs" />
+            <Button onClick={() => copiarLink(linkNovo)}>
+              <Copy size={14} className="mr-1" /> Copiar
+            </Button>
+            <Button variant="outline" onClick={() => setLinkNovo(null)}>Fechar</Button>
+          </div>
+        </section>
+      )}
 
       <div className="flex gap-2">
         <button
@@ -187,7 +224,7 @@ function MoradoresPage() {
           <h2 className="font-semibold">Convidar novo utilizador</h2>
           <div className="grid sm:grid-cols-3 gap-4">
             <div>
-              <Label>Nome</Label>
+              <Label>Nome *</Label>
               <Input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome completo" />
             </div>
             <div>
@@ -252,9 +289,9 @@ function MoradoresPage() {
                     <p className="font-medium text-sm">{c.nome || c.email}</p>
                     <p className="text-xs text-muted-foreground">{c.email} · {ROLE_LABELS[c.role] ?? c.role} · expira {new Date(c.expira_em).toLocaleDateString("pt-BR")}</p>
                   </div>
-                  <Button size="sm" variant="outline" onClick={() => copiarLink(c.token)}>
-                    <Copy size={12} className="mr-1" /> Copiar link
-                  </Button>
+                  <span className="text-xs text-muted-foreground">
+                    Link entregue na criação
+                  </span>
                 </div>
               ))}
             </div>

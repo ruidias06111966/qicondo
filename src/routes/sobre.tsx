@@ -5,8 +5,8 @@ import { Heart, Target, Lightbulb, Users } from "lucide-react";
 export const Route = createFileRoute("/sobre")({
   head: () => ({
     meta: [
-      { title: "Sobre — WHATSCOND" },
-      { name: "description", content: "Conheça a história, a missão e o time por trás do WHATSCOND." },
+      { title: "Sobre — QiCond" },
+      { name: "description", content: "Conheça a história, a missão e o time por trás do QiCond." },
     ],
   }),
   component: SobrePage,

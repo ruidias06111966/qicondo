@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/auth/AuthProvider";
 import { useCondominioAtivo } from "@/auth/useCondominio";
@@ -9,7 +9,7 @@ import { Building2, Users, Wallet, AlertCircle, TrendingUp, MessageCircle } from
 import { safeCall } from "@/lib/safe-call";
 
 export const Route = createFileRoute("/app/")({
-  head: () => ({ meta: [{ title: "Painel — WHATSCOND" }] }),
+  head: () => ({ meta: [{ title: "Painel — QiCond" }] }),
   component: DashboardPage,
 });
 
@@ -55,6 +55,20 @@ function DashboardPage() {
     })();
     return () => { cancelled = true; };
   }, [condominioId, user]);
+
+  // `null` = ainda a verificar; evita piscar o aviso antes de sabermos o estado.
+  const [waAtivo, setWaAtivo] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!condominioId) return;
+    let cancelled = false;
+    (async () => {
+      const r = await safeCall(
+        supabase.from("wa_config").select("ativo").eq("condominio_id", condominioId).maybeSingle(),
+      );
+      if (!cancelled) setWaAtivo(!!r?.data?.ativo);
+    })();
+    return () => { cancelled = true; };
+  }, [condominioId]);
 
   const isSindico = roles.some((r) => r.role === "sindico");
 
@@ -107,13 +121,23 @@ function DashboardPage() {
         )}
       </section>
 
-      <section className="mt-6 bg-primary/5 border border-primary/20 rounded-2xl p-6 flex items-start gap-4">
-        <MessageCircle className="text-primary shrink-0" />
-        <div>
-          <p className="font-semibold">WhatsApp ainda não conectado</p>
-          <p className="text-sm text-muted-foreground mt-1">Na Fase 5 vamos ativar a integração oficial Meta Cloud API. Por enquanto, comunique-se manualmente.</p>
-        </div>
-      </section>
+      {/* Só aparece enquanto a integração não estiver ligada — antes era um aviso
+          fixo a anunciar uma "Fase 5" que já foi entregue. */}
+      {waAtivo === false && (
+        <section className="mt-6 bg-primary/5 border border-primary/20 rounded-2xl p-6 flex items-start gap-4">
+          <MessageCircle className="text-primary shrink-0" />
+          <div>
+            <p className="font-semibold">WhatsApp ainda não conectado</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Ligue a integração oficial Meta Cloud API para enviar cobranças, avisos de
+              encomenda e confirmações de reserva automaticamente.
+            </p>
+            <Link to="/app/whatsapp" className="text-sm text-primary font-semibold hover:underline mt-2 inline-block">
+              Configurar WhatsApp →
+            </Link>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

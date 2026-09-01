@@ -4,10 +4,11 @@ import { Loader2, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
+import { guardarDestino, limparDestino } from "@/auth/proximo-destino";
 import { Logo } from "@/components/site/Logo";
 
 export const Route = createFileRoute("/auth/convite/$token")({
-  head: () => ({ meta: [{ title: "Aceitar convite — WHATSCOND" }] }),
+  head: () => ({ meta: [{ title: "Aceitar convite — QiCond" }] }),
   component: AceitarConvitePage,
 });
 
@@ -23,10 +24,8 @@ function AceitarConvitePage() {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      // Guarda o token para retomar após login
-      try {
-        sessionStorage.setItem("convite_pendente", token);
-      } catch {}
+      // Guarda o destino para retomar depois do login (inclui OAuth, que perde a query string).
+      guardarDestino(`/auth/convite/${token}`);
       setStatus("precisa_login");
       return;
     }
@@ -47,9 +46,7 @@ function AceitarConvitePage() {
       setStatus("erro");
       return;
     }
-    try {
-      sessionStorage.removeItem("convite_pendente");
-    } catch {}
+    limparDestino();
     await refresh();
     toast.success("Convite aceite com sucesso!");
     setStatus("ok");
@@ -81,14 +78,14 @@ function AceitarConvitePage() {
               <div className="mt-6 flex flex-col gap-2">
                 <Link
                   to="/auth/login"
-                  search={{ next: `/auth/convite/${token}` } as never}
+                  search={{ next: `/auth/convite/${token}` }}
                   className="btn-primary justify-center"
                 >
                   Entrar <ArrowRight size={16} />
                 </Link>
                 <Link
                   to="/auth/cadastro"
-                  search={{ next: `/auth/convite/${token}` } as never}
+                  search={{ next: `/auth/convite/${token}` }}
                   className="text-sm text-primary font-semibold mt-2"
                 >
                   Não tenho conta — criar conta

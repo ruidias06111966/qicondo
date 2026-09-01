@@ -5,16 +5,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/auth/AuthProvider";
 import { loginSchema } from "@/auth/validators";
+import { caminhoInternoSeguro, destinoAposLogin, validarNext } from "@/auth/proximo-destino";
 import { Logo } from "@/components/site/Logo";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth/login")({
-  head: () => ({ meta: [{ title: "Entrar — WHATSCOND" }] }),
+  head: () => ({ meta: [{ title: "Entrar — QiCond" }] }),
+  validateSearch: validarNext,
   component: LoginPage,
 });
 
 function LoginPage() {
   const navigate = useNavigate();
+  // `validateSearch` limpa o valor ao entrar na rota, mas o `<Link>` constrói o
+  // href a partir do que lhe passamos — sanear aqui evita reencaminhar um
+  // `?next=` externo para a página de cadastro.
+  const { next: nextBruto } = Route.useSearch();
+  const next = caminhoInternoSeguro(nextBruto) ?? undefined;
   const { user, loading, hasAnyRole } = useAuth();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -22,9 +29,9 @@ function LoginPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate({ to: hasAnyRole ? "/app" : "/onboarding" });
+      navigate({ to: destinoAposLogin(next, hasAnyRole) });
     }
-  }, [loading, user, hasAnyRole, navigate]);
+  }, [loading, user, hasAnyRole, next, navigate]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -63,7 +70,7 @@ function LoginPage() {
             Entre para ver cobranças, reservas, encomendas e a prestação de contas — sem instalar app.
           </p>
         </div>
-        <p className="text-sm text-primary-foreground/70">© WHATSCOND</p>
+        <p className="text-sm text-primary-foreground/70">© QiCond</p>
       </div>
 
       <div className="flex items-center justify-center p-6 sm:p-12">
@@ -72,8 +79,12 @@ function LoginPage() {
           <h1 className="font-display text-3xl font-extrabold">Entrar</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Não tem conta?{" "}
-            <Link to="/auth/cadastro" className="text-primary font-semibold hover:underline">
-              Cadastre seu condomínio
+            <Link
+              to="/auth/cadastro"
+              search={next ? { next } : {}}
+              className="text-primary font-semibold hover:underline"
+            >
+              Cadastre a sua empresa
             </Link>
           </p>
 

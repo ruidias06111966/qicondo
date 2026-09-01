@@ -67,9 +67,12 @@ function InadimplenciaPage() {
     setSending(true);
     try {
       const r = await enviarLembretesInadimplencia({
-        data: { cobranca_ids: Array.from(sel) },
+        data: { condominio_id: condominioId, cobranca_ids: Array.from(sel) },
       });
       toast.success(`${r.enfileirados} lembrete(s) enfileirados via WhatsApp`);
+      if (r.falhas > 0) {
+        toast.warning(`${r.falhas} cobrança(s) não puderam ser processadas`);
+      }
       emitChanged("wa:changed");
       setSel(new Set());
     } catch (e: any) {

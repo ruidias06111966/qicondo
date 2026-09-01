@@ -37,7 +37,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "QiCond é o sistema de gestão para pequenos condomínios feito para o WhatsApp. Cobranças, reservas, encomendas e prestação de contas em um só lugar. A partir de R$ 29/mês.",
+          "QiCond é o sistema de gestão para empresas e condomínios feito para o WhatsApp. Cobranças, reservas, encomendas e prestação de contas em um só lugar. Planos sob consulta.",
       },
       { name: "author", content: "QiCond" },
       { name: "theme-color", content: "#0B7A55" },
@@ -45,7 +45,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         property: "og:description",
         content:
-          "Cobranças automáticas, reservas e prestação de contas no WhatsApp. Para condomínios de até 50 unidades a partir de R$ 29/mês.",
+          "Cobranças automáticas, reservas e prestação de contas no WhatsApp. Planos sob consulta, sem fidelidade.",
       },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "QiCond" },

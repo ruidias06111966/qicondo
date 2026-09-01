@@ -1,32 +1,29 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Building2, MessageCircle, Users, FileText, Wallet, Settings, Bell } from "lucide-react";
-import { useCondominioAtivo } from "@/auth/useCondominio";
+import { Building2, MessageCircle, Users, FileText, Wallet, Settings, Bell, UserCheck } from "lucide-react";
+import { useCondominioAtivo, type Role } from "@/auth/useCondominio";
+import { ADMIN, FIN_VER, temAcesso } from "@/auth/permissoes";
 
 export const Route = createFileRoute("/app/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações — QiCond" }] }),
   component: ConfigPage,
 });
 
-type Role =
-  | "sindico" | "admin" | "morador" | "contador" | "porteiro"
-  | "financeiro" | "gestor" | "vendedor" | "comercial" | "consulta";
 type Item = { to: string; icon: typeof Building2; title: string; desc: string; roles?: Role[] };
-
-const ADMIN: Role[] = ["sindico", "admin"];
-const FINANCEIRO: Role[] = ["sindico", "admin", "contador", "financeiro"];
 
 const ITEMS: Item[] = [
   { to: "/app/condominio", icon: Building2, title: "Dados da empresa", desc: "Nome, CNPJ, endereço e código público.", roles: ADMIN },
-  { to: "/app/moradores", icon: Users, title: "Utilizadores e moradores", desc: "Convide a equipa (Administrador, Financeiro, Gestor, Vendedor, Comercial, Contador, Consulta) e os moradores.", roles: ADMIN },
+  { to: "/app/usuarios", icon: Users, title: "Equipa e convites", desc: "Convide a equipa (Administrador, Financeiro, Gestor, Vendedor, Comercial, Contador, Consulta) e altere perfis.", roles: ADMIN },
+  { to: "/app/moradores", icon: Users, title: "Moradores e unidades", desc: "Vincule moradores às unidades e acompanhe o limite do plano.", roles: ADMIN },
+  { to: "/app/visitantes", icon: UserCheck, title: "Visitantes", desc: "Controlo de entradas, autorizações e pré-cadastro." },
   { to: "/app/documentos", icon: FileText, title: "Documentos oficiais", desc: "Atas, convenções, regimentos." },
   { to: "/app/whatsapp", icon: MessageCircle, title: "WhatsApp Bot", desc: "Integração Meta Cloud API.", roles: ADMIN },
-  { to: "/app/financeiro", icon: Wallet, title: "Financeiro", desc: "Cobranças, pagamentos, CNAB.", roles: FINANCEIRO },
+  { to: "/app/financeiro", icon: Wallet, title: "Financeiro", desc: "Cobranças, pagamentos, CNAB.", roles: FIN_VER },
   { to: "/app/preferencias-notificacao", icon: Bell, title: "Preferências de notificação", desc: "Escolha o que recebe pelo WhatsApp." },
 ];
 
 function ConfigPage() {
   const { role } = useCondominioAtivo();
-  const items = ITEMS.filter((it) => !it.roles || (role && it.roles.includes(role as Role)));
+  const items = ITEMS.filter((it) => temAcesso(role, it.roles));
 
   return (
     <div className="p-6 max-w-5xl space-y-6">

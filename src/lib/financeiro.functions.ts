@@ -87,7 +87,7 @@ export const semearCategoriasPadrao = createServerFn({ method: "POST" })
       .from("categorias_financeiras")
       .select("nome, tipo")
       .eq("condominio_id", data.condominio_id);
-    if (errSel) throw new Error(errSel.message);
+    if (errSel) throwSafe(errSel);
     const chaves = new Set((existentes ?? []).map((c) => `${c.tipo}|${(c.nome || "").toLowerCase()}`));
     const novas = CATEGORIAS_PADRAO
       .filter((c) => !chaves.has(`${c.tipo}|${c.nome.toLowerCase()}`))
@@ -254,14 +254,29 @@ export const resumoFinanceiro = createServerFn({ method: "POST" })
     const inicio = `${data.mes}-01`;
     const fim = proximoMes(data.mes);
 
-    const [{ data: cob }, { data: pag }, { data: desp }, { data: vencidas }] = await Promise.all([
+    const [rCob, rPag, rDesp, rVenc] = await Promise.all([
       supabase.from("cobrancas").select("valor, valor_pago, multa, juros, desconto, status").eq("condominio_id", data.condominio_id).gte("competencia", inicio).lt("competencia", fim),
       supabase.from("pagamentos").select("valor").eq("condominio_id", data.condominio_id).gte("pago_em", inicio).lt("pago_em", fim),
       supabase.from("despesas").select("valor").eq("condominio_id", data.condominio_id).gte("data", inicio).lt("data", fim),
       supabase.from("cobrancas").select("id, valor, valor_pago, multa, juros, desconto").eq("condominio_id", data.condominio_id).in("status", ["pendente", "vencida", "parcial"]).lt("vencimento", new Date().toISOString().slice(0, 10)),
     ]);
 
-    const totalCobrado = (cob ?? []).reduce((s, c: any) => s + Number(c.valor) + Number(c.multa) - Number(c.desconto), 0);
+    // Sem isto, um erro de RLS/rede virava silenciosamente "R$ 0,00" no painel —
+    // indistinguível de um mês legitimamente vazio.
+    for (const r of [rCob, rPag, rDesp, rVenc]) {
+      if (r.error) throwSafe(r.error);
+    }
+    const { data: cob } = rCob;
+    const { data: pag } = rPag;
+    const { data: desp } = rDesp;
+    const { data: vencidas } = rVenc;
+
+    // Inclui `juros`, tal como o cálculo de inadimplência abaixo — antes os dois
+    // números usavam fórmulas diferentes para o mesmo saldo.
+    const totalCobrado = (cob ?? []).reduce(
+      (s, c: any) => s + Number(c.valor) + Number(c.multa) + Number(c.juros) - Number(c.desconto),
+      0,
+    );
     const totalRecebidoMes = (pag ?? []).reduce((s, p: any) => s + Number(p.valor), 0);
     const totalDespesas = (desp ?? []).reduce((s, d: any) => s + Number(d.valor), 0);
     const totalInadimplencia = (vencidas ?? []).reduce(
@@ -375,86 +390,143 @@ export const obterConfigPagamento = createServerFn({ method: "POST" })
     };
   });
 
+/**
+ * Primeiro dia do mês seguinte a `mes` ("YYYY-MM"), em `YYYY-MM-DD`.
+ *
+ * Usa `Date.UTC`: `new Date(y, m, 1)` cria a data no fuso local e `toISOString()`
+ * converte para UTC, o que devolvia o dia anterior em qualquer fuso a leste de
+ * Greenwich — cortando um dia inteiro de todos os filtros de competência.
+ */
 function proximoMes(mes: string) {
   const [y, m] = mes.split("-").map(Number);
-  const d = new Date(y, m, 1);
-  return d.toISOString().slice(0, 10);
+  return new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10);
 }
 
 // ===== WhatsApp lembretes =====
+
+/**
+ * Enfileira o lembrete de uma cobrança. Partilhado pelo envio individual e pelo
+ * envio em lote — antes o lote reinvocava a server function e passava-lhe um
+ * `context`, argumento que o `inputValidator` ignora, refazendo a validação do
+ * JWT e a checagem de permissão a cada id da lista.
+ *
+ * Assume que a permissão já foi verificada pelo chamador.
+ */
+async function enfileirarLembrete(
+  supabase: any,
+  cobrancaId: string,
+): Promise<number> {
+  const { data: cob, error } = await supabase
+    .from("cobrancas")
+    .select("id, condominio_id, unidade_id, valor, multa, juros, desconto, valor_pago, vencimento, unidades(numero, bloco)")
+    .eq("id", cobrancaId)
+    .single();
+  if (error || !cob) throw new Error("cobranca_nao_encontrada");
+
+  const { data: mors } = await supabase
+    .from("unidade_moradores")
+    .select("user_id")
+    .eq("unidade_id", cob.unidade_id);
+
+  const userIds = (mors ?? []).map((m: any) => m.user_id);
+  if (userIds.length === 0) return 0;
+
+  const { data: profs } = await supabase
+    .from("profiles")
+    .select("id, nome_completo, telefone")
+    .in("id", userIds);
+
+  const restante =
+    Number(cob.valor) + Number(cob.multa) + Number(cob.juros) -
+    Number(cob.desconto) - Number(cob.valor_pago);
+  const u = (cob as any).unidades;
+  const unidadeLabel = u ? `${u.bloco ? u.bloco + "-" : ""}${u.numero}` : "sua unidade";
+  const venc = new Date(cob.vencimento).toLocaleDateString("pt-BR");
+  const valor = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(restante);
+
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  let count = 0;
+  for (const p of profs ?? []) {
+    const tel = (p.telefone ?? "").replace(/\D/g, "");
+    if (tel.length < 10) continue;
+    const telFinal = tel.length <= 11 ? "55" + tel : tel;
+    const msg = `Olá ${p.nome_completo ?? ""}! Lembrete da cobrança da ${unidadeLabel}: vencimento ${venc}, saldo devedor ${valor}. Acesse o app para pagar via PIX.`;
+    const { error: insErr } = await supabaseAdmin.from("notificacoes_whatsapp").insert({
+      condominio_id: cob.condominio_id,
+      unidade_id: cob.unidade_id,
+      destinatario_user_id: p.id,
+      destinatario_telefone: telFinal,
+      destinatario_nome: p.nome_completo,
+      mensagem: msg,
+      contexto: "cobranca",
+      contexto_id: cob.id,
+      status: "pendente",
+      link_wa: `https://wa.me/${telFinal}?text=${encodeURIComponent(msg)}`,
+    });
+    if (!insErr) count++;
+  }
+  return count;
+}
+
+/**
+ * Confirma que o utilizador gere o financeiro desta empresa.
+ *
+ * Usa `pode_gerir_financeiro` (sindico | admin | contador | financeiro) — a mesma
+ * regra de `podeGerirFinanceiro` no cliente. Antes verificava-se apenas
+ * `is_sindico OR is_contador`, o que recusava tudo a quem tem o perfil
+ * `financeiro` depois de a UI já lhe ter mostrado o módulo inteiro.
+ */
+async function checarGestorFinanceiro(supabase: any, userId: string, condominioId: string) {
+  const { data: pode } = await supabase.rpc("pode_gerir_financeiro", {
+    _user_id: userId,
+    _condominio_id: condominioId,
+  } as any);
+  if (!pode) throw new Error("forbidden");
+}
+
 export const enviarLembreteCobranca = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ cobranca_id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }): Promise<{ enfileirados: number }> => {
     const { supabase, userId } = context;
-    const { data: cob, error } = await supabase
+    const { data: cob } = await supabase
       .from("cobrancas")
-      .select("id, condominio_id, unidade_id, valor, multa, juros, desconto, valor_pago, vencimento, unidades(numero, bloco)")
+      .select("condominio_id")
       .eq("id", data.cobranca_id)
-      .single();
-    if (error || !cob) throw new Error("cobranca_nao_encontrada");
+      .maybeSingle();
+    if (!cob) throw new Error("cobranca_nao_encontrada");
+    await checarGestorFinanceiro(supabase, userId, cob.condominio_id);
 
-    const { data: isSind } = await supabase.rpc("is_sindico", { _user_id: userId, _condominio_id: cob.condominio_id } as any);
-    const { data: isCont } = await supabase.rpc("is_contador", { _user_id: userId, _condominio_id: cob.condominio_id } as any);
-    if (!isSind && !isCont) throw new Error("forbidden");
-
-    const { data: mors } = await supabase
-      .from("unidade_moradores")
-      .select("user_id")
-      .eq("unidade_id", cob.unidade_id);
-
-    const userIds = (mors ?? []).map((m: any) => m.user_id);
-    if (userIds.length === 0) return { enfileirados: 0 };
-
-    const { data: profs } = await supabase
-      .from("profiles")
-      .select("id, nome_completo, telefone")
-      .in("id", userIds);
-
-    const restante =
-      Number(cob.valor) + Number(cob.multa) + Number(cob.juros) -
-      Number(cob.desconto) - Number(cob.valor_pago);
-    const u = (cob as any).unidades;
-    const unidadeLabel = u ? `${u.bloco ? u.bloco + "-" : ""}${u.numero}` : "sua unidade";
-    const venc = new Date(cob.vencimento).toLocaleDateString("pt-BR");
-    const valor = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(restante);
-
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    let count = 0;
-    for (const p of profs ?? []) {
-      const tel = (p.telefone ?? "").replace(/\D/g, "");
-      if (tel.length < 10) continue;
-      const telFinal = tel.length <= 11 ? "55" + tel : tel;
-      const msg = `Olá ${p.nome_completo ?? ""}! Lembrete da cobrança da ${unidadeLabel}: vencimento ${venc}, saldo devedor ${valor}. Acesse o app para pagar via PIX.`;
-      const { error: insErr } = await supabaseAdmin.from("notificacoes_whatsapp").insert({
-        condominio_id: cob.condominio_id,
-        unidade_id: cob.unidade_id,
-        destinatario_user_id: p.id,
-        destinatario_telefone: telFinal,
-        destinatario_nome: p.nome_completo,
-        mensagem: msg,
-        contexto: "cobranca",
-        contexto_id: cob.id,
-        status: "pendente",
-        link_wa: `https://wa.me/${telFinal}?text=${encodeURIComponent(msg)}`,
-      });
-      if (!insErr) count++;
-    }
-    return { enfileirados: count };
+    return { enfileirados: await enfileirarLembrete(supabase, data.cobranca_id) };
   });
 
 export const enviarLembretesInadimplencia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ cobranca_ids: z.array(z.string().uuid()).min(1).max(200) }).parse(d))
-  .handler(async ({ data, context }): Promise<{ enfileirados: number }> => {
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        condominio_id: z.string().uuid(),
+        cobranca_ids: z.array(z.string().uuid()).min(1).max(200),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }): Promise<{ enfileirados: number; falhas: number }> => {
+    const { supabase, userId } = context;
+    await checarGestorFinanceiro(supabase, userId, data.condominio_id);
+
     let total = 0;
+    let falhas = 0;
     for (const id of data.cobranca_ids) {
       try {
-        const r = await (enviarLembreteCobranca as any)({ data: { cobranca_id: id }, context });
-        total += r?.enfileirados ?? 0;
-      } catch {}
+        total += await enfileirarLembrete(supabase, id);
+      } catch (e) {
+        // Uma cobrança inválida não deve abortar o lote, mas tem de ser contada
+        // — antes o `catch {}` devolvia "0 enfileirados" sem qualquer indicação.
+        falhas++;
+        console.error("[enviarLembretesInadimplencia] falhou para", id, e);
+      }
     }
-    return { enfileirados: total };
+    return { enfileirados: total, falhas };
   });
 
 // ===== Exportação de relatórios =====
@@ -468,15 +540,7 @@ export const exportarRelatorioFinanceiro = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => RelatorioInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: isSind } = await supabase.rpc("is_sindico", {
-      _user_id: userId,
-      _condominio_id: data.condominio_id,
-    } as any);
-    const { data: isCont } = await supabase.rpc("is_contador", {
-      _user_id: userId,
-      _condominio_id: data.condominio_id,
-    } as any);
-    if (!isSind && !isCont) throw new Error("forbidden");
+    await checarGestorFinanceiro(supabase, userId, data.condominio_id);
 
     const inicio = `${data.mes}-01`;
     const fim = proximoMes(data.mes);
@@ -586,7 +650,7 @@ export const reenviarNotificacaoWA = createServerFn({ method: "POST" })
       })
       .select()
       .single();
-    if (insErr) throw new Error(insErr.message);
+    if (insErr) throwSafe(insErr);
     return novo;
   });
 

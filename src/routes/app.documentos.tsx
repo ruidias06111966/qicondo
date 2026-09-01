@@ -19,7 +19,7 @@ import {
 } from "@/lib/documentos.functions";
 
 export const Route = createFileRoute("/app/documentos")({
-  head: () => ({ meta: [{ title: "Documentos — WHATSCOND" }] }),
+  head: () => ({ meta: [{ title: "Documentos — QiCond" }] }),
   component: DocumentosPage,
 });
 

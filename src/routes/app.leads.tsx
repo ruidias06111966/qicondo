@@ -51,11 +51,7 @@ function LeadsPage() {
   async function carregar() {
     setLoading(true);
     const res = await safeCall(
-      supabase
-        .from("leads")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(500),
+      supabase.from("leads").select("*").order("created_at", { ascending: false }).limit(500),
     );
     setLeads(((res as any)?.data as Lead[]) ?? []);
     setLoading(false);
@@ -66,9 +62,7 @@ function LeadsPage() {
   }, []);
 
   async function atualizarStatus(id: string, status: Lead["status"]) {
-    const res = await safeCall(
-      supabase.from("leads").update({ status }).eq("id", id),
-    );
+    const res = await safeCall(supabase.from("leads").update({ status }).eq("id", id));
     if (res) {
       toast.success("Status atualizado");
       setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
@@ -112,22 +106,24 @@ function LeadsPage() {
       </header>
 
       <div className="flex flex-wrap gap-2 mb-5">
-        {(["todos", "novo", "contatado", "agendado", "convertido", "descartado"] as const).map((s) => (
-          <button
-            key={s}
-            onClick={() => setFiltro(s)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-              filtro === s
-                ? "bg-primary text-primary-foreground"
-                : "bg-surface border border-border text-foreground hover:border-primary"
-            }`}
-          >
-            {s === "todos" ? "Todos" : STATUS_LABELS[s]}
-            <span className="ml-1.5 opacity-70">
-              ({s === "todos" ? leads.length : leads.filter((l) => l.status === s).length})
-            </span>
-          </button>
-        ))}
+        {(["todos", "novo", "contatado", "agendado", "convertido", "descartado"] as const).map(
+          (s) => (
+            <button
+              key={s}
+              onClick={() => setFiltro(s)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                filtro === s
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-surface border border-border text-foreground hover:border-primary"
+              }`}
+            >
+              {s === "todos" ? "Todos" : STATUS_LABELS[s]}
+              <span className="ml-1.5 opacity-70">
+                ({s === "todos" ? leads.length : leads.filter((l) => l.status === s).length})
+              </span>
+            </button>
+          ),
+        )}
       </div>
 
       {loading ? (
@@ -136,7 +132,9 @@ function LeadsPage() {
         </div>
       ) : visiveis.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-surface p-12 text-center text-muted-foreground">
-          Nenhum lead {filtro === "todos" ? "" : `com status "${STATUS_LABELS[filtro as Lead["status"]]}"`} ainda.
+          Nenhum lead{" "}
+          {filtro === "todos" ? "" : `com status "${STATUS_LABELS[filtro as Lead["status"]]}"`}{" "}
+          ainda.
         </div>
       ) : (
         <div className="space-y-3">
@@ -151,7 +149,9 @@ function LeadsPage() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-display font-extrabold text-lg">{lead.nome}</h3>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${STATUS_COLORS[lead.status]}`}>
+                      <span
+                        className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${STATUS_COLORS[lead.status]}`}
+                      >
                         {STATUS_LABELS[lead.status]}
                       </span>
                       {lead.quer_demo && (
@@ -184,7 +184,9 @@ function LeadsPage() {
                       className="h-9 rounded-lg border border-input bg-background px-2 text-xs font-medium"
                     >
                       {(Object.keys(STATUS_LABELS) as Lead["status"][]).map((s) => (
-                        <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                        <option key={s} value={s}>
+                          {STATUS_LABELS[s]}
+                        </option>
                       ))}
                     </select>
                   </div>

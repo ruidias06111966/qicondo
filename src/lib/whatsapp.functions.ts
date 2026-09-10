@@ -8,13 +8,20 @@ const mask = (s: string | null) => (s ? s.slice(0, 4) + "•••" + s.slice(-4
 
 export const obterConfigWA = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { condominio_id: string }) => z.object({ condominio_id: z.string().uuid() }).parse(d))
+  .inputValidator((d: { condominio_id: string }) =>
+    z.object({ condominio_id: z.string().uuid() }).parse(d),
+  )
   .handler(async ({ data, context }) => {
     const { data: r } = await context.supabase.rpc("is_sindico", {
-      _user_id: context.userId, _condominio_id: data.condominio_id,
+      _user_id: context.userId,
+      _condominio_id: data.condominio_id,
     });
     if (!r) throw new Error("forbidden");
-    const { data: cfg } = await supabaseAdmin.from("wa_config").select("*").eq("condominio_id", data.condominio_id).maybeSingle();
+    const { data: cfg } = await supabaseAdmin
+      .from("wa_config")
+      .select("*")
+      .eq("condominio_id", data.condominio_id)
+      .maybeSingle();
     if (!cfg) return null;
     return {
       ...cfg,
@@ -27,31 +34,40 @@ export const obterConfigWA = createServerFn({ method: "POST" })
 export const salvarConfigWA = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: any) =>
-    z.object({
-      condominio_id: z.string().uuid(),
-      ativo: z.boolean(),
-      phone_number_id: z.string().nullable(),
-      business_account_id: z.string().nullable(),
-      display_phone: z.string().nullable(),
-      webhook_verify_token: z.string().nullable(),
-      access_token: z.string().nullable(),
-      app_secret: z.string().nullable(),
-      saudacao: z.string().nullable(),
-      template_comunicado: z.string().nullable().optional(),
-    }).parse(d),
+    z
+      .object({
+        condominio_id: z.string().uuid(),
+        ativo: z.boolean(),
+        phone_number_id: z.string().nullable(),
+        business_account_id: z.string().nullable(),
+        display_phone: z.string().nullable(),
+        webhook_verify_token: z.string().nullable(),
+        access_token: z.string().nullable(),
+        app_secret: z.string().nullable(),
+        saudacao: z.string().nullable(),
+        template_comunicado: z.string().nullable().optional(),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { data: ok } = await context.supabase.rpc("is_sindico", {
-      _user_id: context.userId, _condominio_id: data.condominio_id,
+      _user_id: context.userId,
+      _condominio_id: data.condominio_id,
     });
     if (!ok) throw new Error("forbidden");
 
-    const { data: existing } = await supabaseAdmin.from("wa_config").select("access_token, app_secret").eq("condominio_id", data.condominio_id).maybeSingle();
+    const { data: existing } = await supabaseAdmin
+      .from("wa_config")
+      .select("access_token, app_secret")
+      .eq("condominio_id", data.condominio_id)
+      .maybeSingle();
     const payload: any = { ...data };
     if (data.access_token?.includes("•••")) payload.access_token = existing?.access_token ?? null;
     if (data.app_secret?.includes("•••")) payload.app_secret = existing?.app_secret ?? null;
 
-    const { error } = await supabaseAdmin.from("wa_config").upsert(payload, { onConflict: "condominio_id" });
+    const { error } = await supabaseAdmin
+      .from("wa_config")
+      .upsert(payload, { onConflict: "condominio_id" });
     if (error) throwSafe(error);
     return { ok: true };
   });

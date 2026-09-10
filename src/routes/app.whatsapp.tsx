@@ -2,7 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import { obterConfigWA, salvarConfigWA } from "@/lib/whatsapp.functions";
-import { Loader2, MessageCircle, Save, Copy, CheckCircle2, AlertCircle, Eye, EyeOff } from "lucide-react";
+import {
+  Loader2,
+  MessageCircle,
+  Save,
+  Copy,
+  CheckCircle2,
+  AlertCircle,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,7 +54,8 @@ const EMPTY: Form = {
   webhook_verify_token: "",
   access_token: "",
   app_secret: "",
-  saudacao: "Olá! 👋 Eu sou o assistente do seu condomínio. Como posso ajudar?\n\n1️⃣ 2ª via de boleto\n2️⃣ Status de reserva\n3️⃣ Abrir ocorrência",
+  saudacao:
+    "Olá! 👋 Eu sou o assistente do seu condomínio. Como posso ajudar?\n\n1️⃣ 2ª via de boleto\n2️⃣ Status de reserva\n3️⃣ Abrir ocorrência",
   template_comunicado: TEMPLATE_DEFAULT,
 };
 
@@ -63,9 +73,8 @@ function WhatsAppPage() {
   const [showToken, setShowToken] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
 
-  const webhookUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/api/public/wa-webhook`
-    : "";
+  const webhookUrl =
+    typeof window !== "undefined" ? `${window.location.origin}/api/public/wa-webhook` : "";
 
   useEffect(() => {
     if (!condominioId) return;
@@ -99,7 +108,9 @@ function WhatsAppPage() {
           <AlertCircle className="text-amber-500 shrink-0" />
           <div>
             <p className="font-semibold">Acesso restrito</p>
-            <p className="text-sm text-muted-foreground">Apenas síndicos podem configurar o WhatsApp.</p>
+            <p className="text-sm text-muted-foreground">
+              Apenas síndicos podem configurar o WhatsApp.
+            </p>
           </div>
         </div>
       </div>
@@ -163,11 +174,15 @@ function WhatsAppPage() {
           </div>
           <div>
             <h1 className="text-2xl font-display font-bold">WhatsApp</h1>
-            <p className="text-sm text-muted-foreground">Configure a integração oficial Meta Cloud API.</p>
+            <p className="text-sm text-muted-foreground">
+              Configure a integração oficial Meta Cloud API.
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`text-xs px-2 py-1 rounded-full ${form.ativo ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
+          <span
+            className={`text-xs px-2 py-1 rounded-full ${form.ativo ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}
+          >
             {form.ativo ? "Ativo" : "Inativo"}
           </span>
           <Switch checked={form.ativo} onCheckedChange={(v) => update("ativo", v)} />
@@ -177,14 +192,20 @@ function WhatsAppPage() {
       {/* Webhook */}
       <section className="rounded-xl border border-border bg-background p-5 space-y-4">
         <div>
-          <h2 className="font-semibold flex items-center gap-2"><CheckCircle2 size={18} className="text-primary" /> Webhook</h2>
-          <p className="text-xs text-muted-foreground">Use estes valores no painel da Meta &gt; Webhooks.</p>
+          <h2 className="font-semibold flex items-center gap-2">
+            <CheckCircle2 size={18} className="text-primary" /> Webhook
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Use estes valores no painel da Meta &gt; Webhooks.
+          </p>
         </div>
         <div>
           <Label className="text-xs">Callback URL</Label>
           <div className="flex gap-2 mt-1">
             <Input readOnly value={webhookUrl} className="font-mono text-xs" />
-            <Button type="button" variant="outline" size="icon" onClick={() => copy(webhookUrl)}><Copy size={14} /></Button>
+            <Button type="button" variant="outline" size="icon" onClick={() => copy(webhookUrl)}>
+              <Copy size={14} />
+            </Button>
           </div>
         </div>
         <div>
@@ -195,10 +216,25 @@ function WhatsAppPage() {
               onChange={(e) => update("webhook_verify_token", e.target.value)}
               className="font-mono text-xs"
             />
-            <Button type="button" variant="outline" size="icon" onClick={() => copy(form.webhook_verify_token)}><Copy size={14} /></Button>
-            <Button type="button" variant="outline" onClick={() => update("webhook_verify_token", genToken())}>Gerar</Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={() => copy(form.webhook_verify_token)}
+            >
+              <Copy size={14} />
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => update("webhook_verify_token", genToken())}
+            >
+              Gerar
+            </Button>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">Cole exatamente esse valor no campo "Verify token" da Meta.</p>
+          <p className="text-[11px] text-muted-foreground mt-1">
+            Cole exatamente esse valor no campo "Verify token" da Meta.
+          </p>
         </div>
       </section>
 
@@ -208,15 +244,30 @@ function WhatsAppPage() {
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="pnid">Phone Number ID *</Label>
-            <Input id="pnid" value={form.phone_number_id} onChange={(e) => update("phone_number_id", e.target.value)} placeholder="123456789012345" />
+            <Input
+              id="pnid"
+              value={form.phone_number_id}
+              onChange={(e) => update("phone_number_id", e.target.value)}
+              placeholder="123456789012345"
+            />
           </div>
           <div>
             <Label htmlFor="waba">Business Account ID</Label>
-            <Input id="waba" value={form.business_account_id} onChange={(e) => update("business_account_id", e.target.value)} placeholder="987654321098765" />
+            <Input
+              id="waba"
+              value={form.business_account_id}
+              onChange={(e) => update("business_account_id", e.target.value)}
+              placeholder="987654321098765"
+            />
           </div>
           <div>
             <Label htmlFor="disp">Telefone exibido</Label>
-            <Input id="disp" value={form.display_phone} onChange={(e) => update("display_phone", e.target.value)} placeholder="+55 11 90000-0000" />
+            <Input
+              id="disp"
+              value={form.display_phone}
+              onChange={(e) => update("display_phone", e.target.value)}
+              placeholder="+55 11 90000-0000"
+            />
           </div>
         </div>
 
@@ -231,11 +282,18 @@ function WhatsAppPage() {
               placeholder="EAAG…"
               className="font-mono text-xs"
             />
-            <Button type="button" variant="outline" size="icon" onClick={() => setShowToken((v) => !v)}>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={() => setShowToken((v) => !v)}
+            >
               {showToken ? <EyeOff size={14} /> : <Eye size={14} />}
             </Button>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">Token permanente do System User com permissão whatsapp_business_messaging.</p>
+          <p className="text-[11px] text-muted-foreground mt-1">
+            Token permanente do System User com permissão whatsapp_business_messaging.
+          </p>
         </div>
 
         <div>
@@ -249,18 +307,29 @@ function WhatsAppPage() {
               placeholder="App Secret do app Meta"
               className="font-mono text-xs"
             />
-            <Button type="button" variant="outline" size="icon" onClick={() => setShowSecret((v) => !v)}>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={() => setShowSecret((v) => !v)}
+            >
               {showSecret ? <EyeOff size={14} /> : <Eye size={14} />}
             </Button>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">Usado para validar a assinatura HMAC dos webhooks (recomendado).</p>
+          <p className="text-[11px] text-muted-foreground mt-1">
+            Usado para validar a assinatura HMAC dos webhooks (recomendado).
+          </p>
         </div>
       </section>
 
       {/* Bot */}
       <section className="rounded-xl border border-border bg-background p-5 space-y-3">
         <h2 className="font-semibold">Mensagem de boas-vindas</h2>
-        <Textarea rows={6} value={form.saudacao} onChange={(e) => update("saudacao", e.target.value)} />
+        <Textarea
+          rows={6}
+          value={form.saudacao}
+          onChange={(e) => update("saudacao", e.target.value)}
+        />
       </section>
 
       {/* Template comunicado */}
@@ -268,8 +337,8 @@ function WhatsAppPage() {
         <div>
           <h2 className="font-semibold">Template de comunicados</h2>
           <p className="text-xs text-muted-foreground">
-            Mensagem enviada automaticamente quando um documento (comunicado/informativo) é aprovado e publicado.
-            Placeholders disponíveis:{" "}
+            Mensagem enviada automaticamente quando um documento (comunicado/informativo) é aprovado
+            e publicado. Placeholders disponíveis:{" "}
             <code className="text-[11px] bg-muted px-1 py-0.5 rounded">{"{{condominio}}"}</code>{" "}
             <code className="text-[11px] bg-muted px-1 py-0.5 rounded">{"{{categoria}}"}</code>{" "}
             <code className="text-[11px] bg-muted px-1 py-0.5 rounded">{"{{titulo}}"}</code>{" "}
@@ -282,14 +351,23 @@ function WhatsAppPage() {
           onChange={(e) => update("template_comunicado", e.target.value)}
           className="font-mono text-xs"
         />
-        <Button type="button" variant="outline" size="sm" onClick={() => update("template_comunicado", TEMPLATE_DEFAULT)}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => update("template_comunicado", TEMPLATE_DEFAULT)}
+        >
           Restaurar padrão
         </Button>
       </section>
 
       <div className="flex justify-end gap-2 sticky bottom-4">
         <Button onClick={save} disabled={saving} className="shadow-lg">
-          {saving ? <Loader2 className="animate-spin mr-2" size={16} /> : <Save size={16} className="mr-2" />}
+          {saving ? (
+            <Loader2 className="animate-spin mr-2" size={16} />
+          ) : (
+            <Save size={16} className="mr-2" />
+          )}
           Salvar configuração
         </Button>
       </div>

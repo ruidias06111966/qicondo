@@ -4,13 +4,34 @@ import { useCondominioAtivo } from "@/auth/useCondominio";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { safeCall } from "@/lib/safe-call";
-import { FileText, Upload, Download, Trash2, Eye, EyeOff, CheckCircle2, Loader2, MessageCircle, Filter, Send, History, RefreshCw, X } from "lucide-react";
+import {
+  FileText,
+  Upload,
+  Download,
+  Trash2,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  Loader2,
+  MessageCircle,
+  Filter,
+  Send,
+  History,
+  RefreshCw,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useServerFn } from "@tanstack/react-start";
 import {
   enfileirarNotificacaoDocumento,
@@ -79,11 +100,13 @@ function DocumentosPage() {
   const carregar = async () => {
     if (!condominioId) return;
     setLoading(true);
-    const r = await safeCall(supabase
-      .from("documentos")
-      .select("*")
-      .eq("condominio_id", condominioId)
-      .order("created_at", { ascending: false }));
+    const r = await safeCall(
+      supabase
+        .from("documentos")
+        .select("*")
+        .eq("condominio_id", condominioId)
+        .order("created_at", { ascending: false }),
+    );
     if (r?.error) toast.error(r.error.message);
     setDocs((r?.data as Doc[]) ?? []);
     setLoading(false);
@@ -133,7 +156,10 @@ function DocumentosPage() {
     }
     toast.success("Documento enviado para auditoria");
     setOpen(false);
-    setTitulo(""); setDescricao(""); setCategoria("outros"); setArquivo(null);
+    setTitulo("");
+    setDescricao("");
+    setCategoria("outros");
+    setArquivo(null);
     carregar();
   }
 
@@ -141,7 +167,10 @@ function DocumentosPage() {
     const { data, error } = await supabase.storage
       .from("documentos-condo")
       .createSignedUrl(d.storage_path, 60);
-    if (error || !data) { toast.error("Não foi possível baixar"); return; }
+    if (error || !data) {
+      toast.error("Não foi possível baixar");
+      return;
+    }
     window.open(data.signedUrl, "_blank");
   }
 
@@ -154,22 +183,32 @@ function DocumentosPage() {
         aprovado_em: new Date().toISOString(),
       })
       .eq("id", d.id);
-    if (error) toast.error(error.message); else { toast.success(d.aprovado ? "Aprovação removida" : "Documento aprovado"); carregar(); }
+    if (error) toast.error(error.message);
+    else {
+      toast.success(d.aprovado ? "Aprovação removida" : "Documento aprovado");
+      carregar();
+    }
   }
 
   async function toggleVisibilidade(d: Doc, campo: "visivel_publico" | "disponivel_whatsapp") {
-    const patch = campo === "visivel_publico"
-      ? { visivel_publico: !d.visivel_publico }
-      : { disponivel_whatsapp: !d.disponivel_whatsapp };
+    const patch =
+      campo === "visivel_publico"
+        ? { visivel_publico: !d.visivel_publico }
+        : { disponivel_whatsapp: !d.disponivel_whatsapp };
     const { error } = await supabase.from("documentos").update(patch).eq("id", d.id);
-    if (error) toast.error(error.message); else carregar();
+    if (error) toast.error(error.message);
+    else carregar();
   }
 
   async function excluir(d: Doc) {
     if (!confirm(`Excluir "${d.titulo}"?`)) return;
     await supabase.storage.from("documentos-condo").remove([d.storage_path]);
     const { error } = await supabase.from("documentos").delete().eq("id", d.id);
-    if (error) toast.error(error.message); else { toast.success("Excluído"); carregar(); }
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Excluído");
+      carregar();
+    }
   }
 
   async function notificar(d: Doc) {
@@ -177,11 +216,14 @@ function DocumentosPage() {
       toast.error("Aprove e marque como público antes de notificar");
       return;
     }
-    if (!confirm(`Enviar notificação por WhatsApp a todos os moradores sobre "${d.titulo}"?`)) return;
+    if (!confirm(`Enviar notificação por WhatsApp a todos os moradores sobre "${d.titulo}"?`))
+      return;
     setNotificandoId(d.id);
     try {
       const r = await notificarFn({ data: { documento_id: d.id } });
-      toast.success(`Enfileirados: ${r.enfileirados} · Enviados agora: ${r.enviados} · Falhas: ${r.falhas}`);
+      toast.success(
+        `Enfileirados: ${r.enfileirados} · Enviados agora: ${r.enviados} · Falhas: ${r.falhas}`,
+      );
     } catch (e: any) {
       const msg = e?.message || "Falha ao notificar";
       toast.error(msg === "wa_nao_configurado" ? "Configure o WhatsApp em /app/whatsapp" : msg);
@@ -191,7 +233,11 @@ function DocumentosPage() {
   }
 
   async function abrirHistorico(d: Doc) {
-    if (historicoOpen === d.id) { setHistoricoOpen(null); setHistorico(null); return; }
+    if (historicoOpen === d.id) {
+      setHistoricoOpen(null);
+      setHistorico(null);
+      return;
+    }
     setHistoricoOpen(d.id);
     setHistorico(null);
     try {
@@ -227,7 +273,8 @@ function DocumentosPage() {
           <div>
             <h1 className="text-2xl font-display font-bold">Documentos oficiais</h1>
             <p className="text-sm text-muted-foreground">
-              Convenções, atas, contratos e comunicados. Marque como público para que moradores acessem.
+              Convenções, atas, contratos e comunicados. Marque como público para que moradores
+              acessem.
             </p>
           </div>
         </div>
@@ -244,14 +291,24 @@ function DocumentosPage() {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <Label>Título *</Label>
-              <Input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ata Assembleia 2026-03" />
+              <Input
+                value={titulo}
+                onChange={(e) => setTitulo(e.target.value)}
+                placeholder="Ata Assembleia 2026-03"
+              />
             </div>
             <div>
               <Label>Categoria</Label>
               <Select value={categoria} onValueChange={setCategoria}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  {CATEGORIAS.map((c) => <SelectItem key={c.v} value={c.v}>{c.l}</SelectItem>)}
+                  {CATEGORIAS.map((c) => (
+                    <SelectItem key={c.v} value={c.v}>
+                      {c.l}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -262,12 +319,22 @@ function DocumentosPage() {
           </div>
           <div>
             <Label>Arquivo (PDF, DOCX, imagens — até 25 MB)</Label>
-            <Input type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp" onChange={(e) => setArquivo(e.target.files?.[0] ?? null)} />
+            <Input
+              type="file"
+              accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp"
+              onChange={(e) => setArquivo(e.target.files?.[0] ?? null)}
+            />
           </div>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancelar
+            </Button>
             <Button onClick={enviar} disabled={enviando}>
-              {enviando ? <Loader2 size={16} className="animate-spin mr-2" /> : <Upload size={16} className="mr-2" />}
+              {enviando ? (
+                <Loader2 size={16} className="animate-spin mr-2" />
+              ) : (
+                <Upload size={16} className="mr-2" />
+              )}
               Enviar
             </Button>
           </div>
@@ -277,16 +344,24 @@ function DocumentosPage() {
       <div className="flex items-center gap-2">
         <Filter size={16} className="text-muted-foreground" />
         <Select value={filtro} onValueChange={setFiltro}>
-          <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-56">
+            <SelectValue />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todas as categorias</SelectItem>
-            {CATEGORIAS.map((c) => <SelectItem key={c.v} value={c.v}>{c.l}</SelectItem>)}
+            {CATEGORIAS.map((c) => (
+              <SelectItem key={c.v} value={c.v}>
+                {c.l}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
 
       {loading ? (
-        <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="animate-spin" /> Carregando…</div>
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Loader2 className="animate-spin" /> Carregando…
+        </div>
       ) : filtrados.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border p-12 text-center text-muted-foreground">
           Nenhum documento ainda.
@@ -294,7 +369,10 @@ function DocumentosPage() {
       ) : (
         <div className="grid gap-3">
           {filtrados.map((d) => (
-            <div key={d.id} className="rounded-xl border border-border bg-background overflow-hidden">
+            <div
+              key={d.id}
+              className="rounded-xl border border-border bg-background overflow-hidden"
+            >
               <div className="p-4 flex items-start justify-between gap-4 flex-wrap">
                 <div className="flex items-start gap-3 min-w-0 flex-1">
                   <div className="h-10 w-10 rounded-lg bg-muted text-muted-foreground flex items-center justify-center shrink-0">
@@ -307,15 +385,34 @@ function DocumentosPage() {
                         {CATEGORIAS.find((c) => c.v === d.categoria)?.l ?? d.categoria}
                       </span>
                       {d.aprovado ? (
-                        <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">Aprovado</span>
+                        <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
+                          Aprovado
+                        </span>
                       ) : (
-                        <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-500">Em auditoria</span>
+                        <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-500">
+                          Em auditoria
+                        </span>
                       )}
-                      {d.visivel_publico && <span className="text-[10px] uppercase px-2 py-0.5 rounded-full bg-primary/15 text-primary">Público</span>}
-                      {d.disponivel_whatsapp && <span className="text-[10px] uppercase px-2 py-0.5 rounded-full bg-green-500/15 text-green-700 dark:text-green-400">WhatsApp</span>}
+                      {d.visivel_publico && (
+                        <span className="text-[10px] uppercase px-2 py-0.5 rounded-full bg-primary/15 text-primary">
+                          Público
+                        </span>
+                      )}
+                      {d.disponivel_whatsapp && (
+                        <span className="text-[10px] uppercase px-2 py-0.5 rounded-full bg-green-500/15 text-green-700 dark:text-green-400">
+                          WhatsApp
+                        </span>
+                      )}
                     </div>
-                    {d.descricao && <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{d.descricao}</p>}
-                    <p className="text-xs text-muted-foreground mt-1">{fmtBytes(d.tamanho_bytes)} · {new Date(d.created_at).toLocaleDateString("pt-BR")}</p>
+                    {d.descricao && (
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                        {d.descricao}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {fmtBytes(d.tamanho_bytes)} ·{" "}
+                      {new Date(d.created_at).toLocaleDateString("pt-BR")}
+                    </p>
                   </div>
                 </div>
 
@@ -326,20 +423,40 @@ function DocumentosPage() {
                   {podeGerir && (
                     <>
                       <label className="flex items-center gap-2 text-xs px-2">
-                        <Switch checked={d.visivel_publico} onCheckedChange={() => toggleVisibilidade(d, "visivel_publico")} />
+                        <Switch
+                          checked={d.visivel_publico}
+                          onCheckedChange={() => toggleVisibilidade(d, "visivel_publico")}
+                        />
                         {d.visivel_publico ? <Eye size={12} /> : <EyeOff size={12} />} Público
                       </label>
                       <label className="flex items-center gap-2 text-xs px-2">
-                        <Switch checked={d.disponivel_whatsapp} onCheckedChange={() => toggleVisibilidade(d, "disponivel_whatsapp")} />
+                        <Switch
+                          checked={d.disponivel_whatsapp}
+                          onCheckedChange={() => toggleVisibilidade(d, "disponivel_whatsapp")}
+                        />
                         <MessageCircle size={12} /> Bot
                       </label>
-                      <Button variant={d.aprovado ? "outline" : "default"} size="sm" onClick={() => aprovar(d)}>
-                        <CheckCircle2 size={14} className="mr-1" /> {d.aprovado ? "Reprovar" : "Aprovar"}
+                      <Button
+                        variant={d.aprovado ? "outline" : "default"}
+                        size="sm"
+                        onClick={() => aprovar(d)}
+                      >
+                        <CheckCircle2 size={14} className="mr-1" />{" "}
+                        {d.aprovado ? "Reprovar" : "Aprovar"}
                       </Button>
                       {isSindico && d.aprovado && d.visivel_publico && (
                         <>
-                          <Button variant="secondary" size="sm" onClick={() => notificar(d)} disabled={notificandoId === d.id}>
-                            {notificandoId === d.id ? <Loader2 size={14} className="mr-1 animate-spin" /> : <Send size={14} className="mr-1" />}
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => notificar(d)}
+                            disabled={notificandoId === d.id}
+                          >
+                            {notificandoId === d.id ? (
+                              <Loader2 size={14} className="mr-1 animate-spin" />
+                            ) : (
+                              <Send size={14} className="mr-1" />
+                            )}
                             Notificar
                           </Button>
                           <Button variant="ghost" size="sm" onClick={() => abrirHistorico(d)}>
@@ -362,12 +479,18 @@ function DocumentosPage() {
                       <span className="font-semibold">Histórico de envios</span>
                       {historico ? (
                         <>
-                          <span className="text-emerald-600 dark:text-emerald-400">✓ {historico.enviados}</span>
-                          <span className="text-amber-600 dark:text-amber-400">⏳ {historico.pendentes}</span>
+                          <span className="text-emerald-600 dark:text-emerald-400">
+                            ✓ {historico.enviados}
+                          </span>
+                          <span className="text-amber-600 dark:text-amber-400">
+                            ⏳ {historico.pendentes}
+                          </span>
                           <span className="text-destructive">✗ {historico.falhas}</span>
                           <span className="text-muted-foreground">de {historico.total}</span>
                         </>
-                      ) : <Loader2 size={14} className="animate-spin" />}
+                      ) : (
+                        <Loader2 size={14} className="animate-spin" />
+                      )}
                     </div>
                     <div className="flex gap-2">
                       {historico && historico.falhas > 0 && (
@@ -375,7 +498,14 @@ function DocumentosPage() {
                           <RefreshCw size={12} className="mr-1" /> Reenviar falhas
                         </Button>
                       )}
-                      <Button size="sm" variant="ghost" onClick={() => { setHistoricoOpen(null); setHistorico(null); }}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setHistoricoOpen(null);
+                          setHistorico(null);
+                        }}
+                      >
                         <X size={14} />
                       </Button>
                     </div>
@@ -386,17 +516,38 @@ function DocumentosPage() {
                   {historico && historico.jobs.length > 0 && (
                     <div className="grid gap-1 max-h-72 overflow-y-auto">
                       {historico.jobs.map((j: any) => (
-                        <div key={j.id} className="flex items-center justify-between gap-3 text-xs py-1 px-2 rounded hover:bg-background">
+                        <div
+                          key={j.id}
+                          className="flex items-center justify-between gap-3 text-xs py-1 px-2 rounded hover:bg-background"
+                        >
                           <div className="min-w-0 flex-1">
-                            <p className="truncate"><span className="font-medium">{j.destinatario_nome ?? j.destinatario_telefone}</span> <span className="text-muted-foreground">· {j.destinatario_telefone}</span></p>
-                            {j.ultimo_erro && <p className="text-destructive truncate">{j.ultimo_erro}</p>}
+                            <p className="truncate">
+                              <span className="font-medium">
+                                {j.destinatario_nome ?? j.destinatario_telefone}
+                              </span>{" "}
+                              <span className="text-muted-foreground">
+                                · {j.destinatario_telefone}
+                              </span>
+                            </p>
+                            {j.ultimo_erro && (
+                              <p className="text-destructive truncate">{j.ultimo_erro}</p>
+                            )}
                           </div>
-                          <span className="text-muted-foreground whitespace-nowrap">{new Date(j.enviado_em ?? j.created_at).toLocaleString("pt-BR")}</span>
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase ${
-                            j.status === "enviado" ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-                            : j.status === "falha" || j.status === "desistido" ? "bg-destructive/15 text-destructive"
-                            : "bg-amber-500/15 text-amber-700 dark:text-amber-500"
-                          }`}>{j.status}{j.tentativas > 0 && ` ·${j.tentativas}`}</span>
+                          <span className="text-muted-foreground whitespace-nowrap">
+                            {new Date(j.enviado_em ?? j.created_at).toLocaleString("pt-BR")}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] uppercase ${
+                              j.status === "enviado"
+                                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                                : j.status === "falha" || j.status === "desistido"
+                                  ? "bg-destructive/15 text-destructive"
+                                  : "bg-amber-500/15 text-amber-700 dark:text-amber-500"
+                            }`}
+                          >
+                            {j.status}
+                            {j.tentativas > 0 && ` ·${j.tentativas}`}
+                          </span>
                         </div>
                       ))}
                     </div>

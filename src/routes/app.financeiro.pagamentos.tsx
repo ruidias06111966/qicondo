@@ -102,7 +102,8 @@ function PagamentosRecebidos({ condominioId }: { condominioId: string }) {
   return (
     <div>
       <p className="text-sm text-muted-foreground mb-3">
-        Total recebido: <strong className="text-foreground font-mono">{brl(total)}</strong> em {rows.length} pagamento(s)
+        Total recebido: <strong className="text-foreground font-mono">{brl(total)}</strong> em{" "}
+        {rows.length} pagamento(s)
       </p>
       <div className="bg-background border border-border rounded-2xl overflow-hidden">
         <table className="w-full text-sm">
@@ -212,9 +213,9 @@ function ConfigPagamento({ condominioId }: { condominioId: string }) {
       <div>
         <p className="font-semibold mb-1">Conta bancária do condomínio</p>
         <p className="text-sm text-muted-foreground">
-          Os boletos e PIX são recebidos diretamente na conta bancária do condomínio.
-          O QiCond apenas envia esses dados aos moradores pelo WhatsApp — não somos
-          intermediários financeiros e o dinheiro nunca passa pela plataforma.
+          Os boletos e PIX são recebidos diretamente na conta bancária do condomínio. O QiCond
+          apenas envia esses dados aos moradores pelo WhatsApp — não somos intermediários
+          financeiros e o dinheiro nunca passa pela plataforma.
         </p>
       </div>
 
@@ -314,11 +315,7 @@ function ConfigPagamento({ condominioId }: { condominioId: string }) {
           </Field>
         </div>
         <label className="flex items-center gap-2 text-sm mt-3">
-          <input
-            type="checkbox"
-            checked={ativo}
-            onChange={(e) => setAtivo(e.target.checked)}
-          />
+          <input type="checkbox" checked={ativo} onChange={(e) => setAtivo(e.target.checked)} />
           Cobranças ativas
         </label>
       </div>
@@ -383,9 +380,13 @@ function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
     if (tplLembrete.trim().length < 10) return toast.error("Modelo de lembrete muito curto");
     if (tplVencida.trim().length < 10) return toast.error("Modelo de cobrança vencida muito curto");
     if (faltLembrete.length > 0)
-      return toast.error(`Lembrete: faltam variáveis ${faltLembrete.map((p) => `{{${p}}}`).join(", ")}`);
+      return toast.error(
+        `Lembrete: faltam variáveis ${faltLembrete.map((p) => `{{${p}}}`).join(", ")}`,
+      );
     if (faltVencida.length > 0)
-      return toast.error(`Cobrança vencida: faltam variáveis ${faltVencida.map((p) => `{{${p}}}`).join(", ")}`);
+      return toast.error(
+        `Cobrança vencida: faltam variáveis ${faltVencida.map((p) => `{{${p}}}`).join(", ")}`,
+      );
     setSaving(true);
     const r = await safeCall(
       salvarConfigPagamento({
@@ -416,7 +417,9 @@ function AutomacaoWhatsApp({ condominioId }: { condominioId: string }) {
     const r = await safeCall(executarAutomacaoLembretes({ data: { condominio_id: condominioId } }));
     setRunning(false);
     if (r) {
-      toast.success(`Disparo concluído: ${r.enfileirados} mensagem(ns) para ${r.cobrancas} cobrança(s)`);
+      toast.success(
+        `Disparo concluído: ${r.enfileirados} mensagem(ns) para ${r.cobrancas} cobrança(s)`,
+      );
       emitChanged("wa:changed");
     }
   };

@@ -11,14 +11,10 @@ import {
 } from "@/lib/financeiro.functions";
 
 import { brl, dateBR, competenciaBR } from "@/lib/format";
-import {
-  Modal, Field, EmptyState, StatusBadge, safeCall,
-} from "@/components/financeiro/ui";
+import { Modal, Field, EmptyState, StatusBadge, safeCall } from "@/components/financeiro/ui";
 import { emitChanged } from "@/lib/safe-call";
 import { toast } from "sonner";
-import {
-  FileText, Plus, Loader2, X, CheckCircle2, MessageCircle,
-} from "lucide-react";
+import { FileText, Plus, Loader2, X, CheckCircle2, MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/app/financeiro/cobrancas")({
   head: () => ({ meta: [{ title: "Cobranças — Financeiro" }] }),
@@ -32,7 +28,6 @@ function CobrancasPage() {
   const [filter, setFilter] = useState<string>("todos");
   const [showLote, setShowLote] = useState(false);
   const [showPagar, setShowPagar] = useState<any>(null);
-  
 
   const reload = () => {
     if (!condominioId) return;
@@ -455,4 +450,3 @@ function ModalRegistrarPagamento({
     </Modal>
   );
 }
-

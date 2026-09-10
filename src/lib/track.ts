@@ -26,7 +26,6 @@ export function track(event: TrackEvent, params: Record<string, unknown> = {}) {
       window.dispatchEvent(new CustomEvent("qd:track", { detail: payload }));
     }
     if (import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
       console.debug("[track]", event, params);
     }
   } catch {

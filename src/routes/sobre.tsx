@@ -16,23 +16,41 @@ function SobrePage() {
   return (
     <SiteLayout>
       <section className="mx-auto max-w-4xl px-4 md:px-8 pt-16 pb-10 text-center">
-        <div className="inline-block text-xs font-bold uppercase tracking-wider text-primary mb-3">Sobre nós</div>
+        <div className="inline-block text-xs font-bold uppercase tracking-wider text-primary mb-3">
+          Sobre nós
+        </div>
         <h1 className="font-display font-extrabold text-4xl md:text-6xl tracking-tight">
           Tornando a vida do síndico <span className="text-gradient-brand">mais leve</span>
         </h1>
         <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
           Nascemos da frustração de ser síndico em um condomínio pequeno: planilhas perdidas,
-          moradores que esquecem de pagar, grupo de WhatsApp uma bagunça e nenhum sistema do
-          mercado que valesse o preço cobrado. Decidimos construir o que faltava.
+          moradores que esquecem de pagar, grupo de WhatsApp uma bagunça e nenhum sistema do mercado
+          que valesse o preço cobrado. Decidimos construir o que faltava.
         </p>
       </section>
 
       <section className="mx-auto max-w-5xl px-4 md:px-8 pb-16 grid md:grid-cols-2 gap-5">
         {[
-          { icon: Target, title: "Nossa missão", desc: "Levar gestão profissional para condomínios de qualquer tamanho, com preço justo e sem complicação." },
-          { icon: Heart,  title: "Nosso jeito", desc: "Construímos com simplicidade. Se o síndico precisa de manual, falhamos no design." },
-          { icon: Lightbulb, title: "Nossa visão", desc: "Que todo morador resolva sua vida no condomínio direto pelo WhatsApp, sem instalar nada." },
-          { icon: Users, title: "Nosso time", desc: "Engenheiros, designers e ex-síndicos espalhados pelo Brasil. 100% remoto." },
+          {
+            icon: Target,
+            title: "Nossa missão",
+            desc: "Levar gestão profissional para condomínios de qualquer tamanho, com preço justo e sem complicação.",
+          },
+          {
+            icon: Heart,
+            title: "Nosso jeito",
+            desc: "Construímos com simplicidade. Se o síndico precisa de manual, falhamos no design.",
+          },
+          {
+            icon: Lightbulb,
+            title: "Nossa visão",
+            desc: "Que todo morador resolva sua vida no condomínio direto pelo WhatsApp, sem instalar nada.",
+          },
+          {
+            icon: Users,
+            title: "Nosso time",
+            desc: "Engenheiros, designers e ex-síndicos espalhados pelo Brasil. 100% remoto.",
+          },
         ].map((b) => (
           <div key={b.title} className="rounded-2xl border border-border bg-surface p-6">
             <div className="h-11 w-11 rounded-xl bg-primary-soft text-primary flex items-center justify-center mb-4">
@@ -48,10 +66,22 @@ function SobrePage() {
         <div className="rounded-2xl border border-border bg-surface p-8">
           <h2 className="font-display font-extrabold text-2xl mb-4">Princípios</h2>
           <ul className="space-y-4 text-sm text-foreground leading-relaxed">
-            <li><strong>Transparência radical.</strong> Preço, dados e regras sempre visíveis. Sem letra miúda.</li>
-            <li><strong>Privacidade primeiro.</strong> Os dados do condomínio são do condomínio. Exportáveis a qualquer momento.</li>
-            <li><strong>WhatsApp oficial.</strong> Usamos a API homologada da Meta. Nada de gambiarra que pode banir o número.</li>
-            <li><strong>Suporte humano.</strong> Quando você precisar de gente, vai falar com gente — em português.</li>
+            <li>
+              <strong>Transparência radical.</strong> Preço, dados e regras sempre visíveis. Sem
+              letra miúda.
+            </li>
+            <li>
+              <strong>Privacidade primeiro.</strong> Os dados do condomínio são do condomínio.
+              Exportáveis a qualquer momento.
+            </li>
+            <li>
+              <strong>WhatsApp oficial.</strong> Usamos a API homologada da Meta. Nada de gambiarra
+              que pode banir o número.
+            </li>
+            <li>
+              <strong>Suporte humano.</strong> Quando você precisar de gente, vai falar com gente —
+              em português.
+            </li>
           </ul>
         </div>
       </section>

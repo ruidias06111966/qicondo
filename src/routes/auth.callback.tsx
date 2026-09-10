@@ -15,7 +15,10 @@ function CallbackPage() {
 
   useEffect(() => {
     if (loading) return;
-    if (!user) { navigate({ to: "/auth/login" }); return; }
+    if (!user) {
+      navigate({ to: "/auth/login" });
+      return;
+    }
     // O OAuth do Google não preserva query strings — o destino vem do sessionStorage.
     navigate({ to: destinoAposLogin(undefined, hasAnyRole) });
   }, [loading, user, hasAnyRole, navigate]);

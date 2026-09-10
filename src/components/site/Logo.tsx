@@ -1,7 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import logoMark from "@/assets/whatscond-logo.png";
 
-export function Logo({ size = "md", inverse = false }: { size?: "sm" | "md" | "lg"; inverse?: boolean }) {
+export function Logo({
+  size = "md",
+  inverse = false,
+}: {
+  size?: "sm" | "md" | "lg";
+  inverse?: boolean;
+}) {
   const dims = size === "sm" ? "h-8 w-8" : size === "lg" ? "h-11 w-11" : "h-9 w-9";
   const text = size === "sm" ? "text-base" : size === "lg" ? "text-2xl" : "text-xl";
   return (

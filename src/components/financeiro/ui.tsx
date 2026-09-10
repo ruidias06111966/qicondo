@@ -1,7 +1,13 @@
 import { X } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  TrendingUp, FileText, Wallet, AlertTriangle, Tag, CreditCard, MessageCircle,
+  TrendingUp,
+  FileText,
+  Wallet,
+  AlertTriangle,
+  Tag,
+  CreditCard,
+  MessageCircle,
 } from "lucide-react";
 
 export function Modal({
@@ -34,13 +40,7 @@ export function Modal({
   );
 }
 
-export function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
       <span className="block text-xs font-semibold text-muted-foreground uppercase mb-1.5">
@@ -127,10 +127,27 @@ const SUB: SubItem[] = [
   { to: "/app/financeiro", label: "Visão geral", icon: TrendingUp },
   { to: "/app/financeiro/cobrancas", label: "Cobranças", icon: FileText },
   { to: "/app/financeiro/despesas", label: "Despesas", icon: Wallet, restrito: true },
-  { to: "/app/financeiro/inadimplencia", label: "Inadimplência", icon: AlertTriangle, restrito: true },
+  {
+    to: "/app/financeiro/inadimplencia",
+    label: "Inadimplência",
+    icon: AlertTriangle,
+    restrito: true,
+  },
   { to: "/app/financeiro/categorias", label: "Categorias", icon: Tag, restrito: true },
-  { to: "/app/financeiro/pagamentos", label: "Pagamentos", icon: CreditCard, restrito: true, apenasAdmin: true },
-  { to: "/app/financeiro/whatsapp", label: "Mensagens WhatsApp", icon: MessageCircle, restrito: true, apenasAdmin: true },
+  {
+    to: "/app/financeiro/pagamentos",
+    label: "Pagamentos",
+    icon: CreditCard,
+    restrito: true,
+    apenasAdmin: true,
+  },
+  {
+    to: "/app/financeiro/whatsapp",
+    label: "Mensagens WhatsApp",
+    icon: MessageCircle,
+    restrito: true,
+    apenasAdmin: true,
+  },
 ];
 
 /**

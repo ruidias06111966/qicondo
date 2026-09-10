@@ -16,7 +16,16 @@ export const Route = createFileRoute("/app/financeiro/categorias")({
   component: CategoriasPage,
 });
 
-const CORES = ["#10B981", "#3B82F6", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899", "#14B8A6", "#F97316"];
+const CORES = [
+  "#10B981",
+  "#3B82F6",
+  "#F59E0B",
+  "#EF4444",
+  "#8B5CF6",
+  "#EC4899",
+  "#14B8A6",
+  "#F97316",
+];
 
 function CategoriasPage() {
   const { condominioId } = useCondominioAtivo();
@@ -32,8 +41,13 @@ function CategoriasPage() {
     const r = await safeCall(semearCategoriasPadrao({ data: { condominio_id: condominioId } }));
     setSeeding(false);
     if (r) {
-      toast.success(r.inseridas > 0 ? `${r.inseridas} categoria(s) padrão criada(s)` : "Já existem categorias padrão");
-      if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("categorias:changed"));
+      toast.success(
+        r.inseridas > 0
+          ? `${r.inseridas} categoria(s) padrão criada(s)`
+          : "Já existem categorias padrão",
+      );
+      if (typeof window !== "undefined")
+        window.dispatchEvent(new CustomEvent("categorias:changed"));
       reload();
     }
   };
@@ -90,12 +104,28 @@ function CategoriasPage() {
         </div>
       ) : safeRows.length === 0 ? (
         <div className="space-y-4">
-          <EmptyState icon={Tag} title="Nenhuma categoria" desc="Crie categorias para organizar receitas e despesas, ou use o botão acima para gerar um conjunto padrão." />
+          <EmptyState
+            icon={Tag}
+            title="Nenhuma categoria"
+            desc="Crie categorias para organizar receitas e despesas, ou use o botão acima para gerar um conjunto padrão."
+          />
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-5">
-          <Bloco titulo="Receitas" cor="emerald" itens={receitas} onDel={(id) => del(id)} deletingId={deletingId} />
-          <Bloco titulo="Despesas" cor="rose" itens={despesas} onDel={(id) => del(id)} deletingId={deletingId} />
+          <Bloco
+            titulo="Receitas"
+            cor="emerald"
+            itens={receitas}
+            onDel={(id) => del(id)}
+            deletingId={deletingId}
+          />
+          <Bloco
+            titulo="Despesas"
+            cor="rose"
+            itens={despesas}
+            onDel={(id) => del(id)}
+            deletingId={deletingId}
+          />
         </div>
       )}
 

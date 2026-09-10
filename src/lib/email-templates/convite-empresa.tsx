@@ -40,8 +40,8 @@ export const ConviteEmpresaEmail = ({
       <Container style={container}>
         <Heading style={h1}>Você foi convidado</Heading>
         <Text style={text}>
-          Olá, {nome}. Você recebeu um convite para acessar <strong>{empresa}</strong> no QiCond
-          com o perfil <strong>{perfil}</strong>.
+          Olá, {nome}. Você recebeu um convite para acessar <strong>{empresa}</strong> no QiCond com
+          o perfil <strong>{perfil}</strong>.
         </Text>
         <Text style={text}>
           Clique no botão abaixo para aceitar o convite e definir o seu acesso.

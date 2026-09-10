@@ -12,8 +12,9 @@ export const Route = createFileRoute("/api/public/hooks/lembretes-cobranca")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "")
-          ?? request.headers.get("x-cron-secret");
+        const token =
+          request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
+          request.headers.get("x-cron-secret");
         const expected = process.env.CRON_SECRET;
         if (!expected || !token || token !== expected) {
           return new Response("Unauthorized", { status: 401 });
@@ -54,7 +55,9 @@ export const Route = createFileRoute("/api/public/hooks/lembretes-cobranca")({
 
           const { data: cobs } = await sb
             .from("cobrancas")
-            .select("id, vencimento, valor, valor_pago, multa, juros, desconto, condominio_id, unidade_id, unidades(numero, bloco)")
+            .select(
+              "id, vencimento, valor, valor_pago, multa, juros, desconto, condominio_id, unidade_id, unidades(numero, bloco)",
+            )
             .eq("condominio_id", cfg.condominio_id)
             .in("vencimento", datasUnicas)
             .in("status", ["pendente", "vencida", "parcial"]);
@@ -76,15 +79,22 @@ export const Route = createFileRoute("/api/public/hooks/lembretes-cobranca")({
               .in("id", userIds);
 
             const restante =
-              Number(cob.valor) + Number(cob.multa) + Number(cob.juros) -
-              Number(cob.desconto) - Number(cob.valor_pago);
+              Number(cob.valor) +
+              Number(cob.multa) +
+              Number(cob.juros) -
+              Number(cob.desconto) -
+              Number(cob.valor_pago);
             const u = (cob as any).unidades;
             const unidadeLabel = u ? `${u.bloco ? u.bloco + "-" : ""}${u.numero}` : "sua unidade";
             const venc = new Date(cob.vencimento).toLocaleDateString("pt-BR");
-            const valor = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(restante);
+            const valor = new Intl.NumberFormat("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }).format(restante);
 
             totalCob++;
-            const inicioHoje = new Date(); inicioHoje.setHours(0, 0, 0, 0);
+            const inicioHoje = new Date();
+            inicioHoje.setHours(0, 0, 0, 0);
             const inicioHojeISO = inicioHoje.toISOString();
             for (const p of profs ?? []) {
               const tel = (p.telefone ?? "").replace(/\D/g, "");

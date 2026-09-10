@@ -30,7 +30,11 @@ export const Route = createFileRoute("/api/public/wa-webhook")({
       POST: async ({ request }) => {
         const raw = await request.text();
         let body: any = {};
-        try { body = JSON.parse(raw); } catch { return new Response("bad json", { status: 400 }); }
+        try {
+          body = JSON.parse(raw);
+        } catch {
+          return new Response("bad json", { status: 400 });
+        }
 
         try {
           for (const entry of body.entry ?? []) {
@@ -44,7 +48,10 @@ export const Route = createFileRoute("/api/public/wa-webhook")({
 
               // Fail-secure: exige app_secret e assinatura válida
               if (!cfg.app_secret) {
-                console.warn("[wa-webhook] app_secret não configurado — payload ignorado", cfg.condominio_id);
+                console.warn(
+                  "[wa-webhook] app_secret não configurado — payload ignorado",
+                  cfg.condominio_id,
+                );
                 continue;
               }
               const sig = request.headers.get("x-hub-signature-256");
@@ -56,7 +63,10 @@ export const Route = createFileRoute("/api/public/wa-webhook")({
               // Atualizações de status (sent/delivered/read/failed)
               for (const st of value.statuses ?? []) {
                 const map: Record<string, string> = {
-                  sent: "enviada", delivered: "entregue", read: "lida", failed: "falha",
+                  sent: "enviada",
+                  delivered: "entregue",
+                  read: "lida",
+                  failed: "falha",
                 };
                 const novo = map[st.status] ?? null;
                 if (!novo || !st.id) continue;
@@ -75,7 +85,11 @@ export const Route = createFileRoute("/api/public/wa-webhook")({
 
                 let texto: string | null = null;
                 if (msg.type === "text") texto = msg.text?.body ?? null;
-                else if (msg.type === "interactive") texto = msg.interactive?.button_reply?.title ?? msg.interactive?.list_reply?.title ?? null;
+                else if (msg.type === "interactive")
+                  texto =
+                    msg.interactive?.button_reply?.title ??
+                    msg.interactive?.list_reply?.title ??
+                    null;
                 else if (msg.type === "button") texto = msg.button?.text ?? null;
 
                 await registrarMensagem({

@@ -4,7 +4,10 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { enviarTextoWA, type WaConfig } from "./whatsapp.server";
 
 const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-const brl = (n: number) => `R$ ${Number(n || 0).toFixed(2).replace(".", ",")}`;
+const brl = (n: number) =>
+  `R$ ${Number(n || 0)
+    .toFixed(2)
+    .replace(".", ",")}`;
 const dt = (s: string | null | undefined) => (s ? new Date(s).toLocaleDateString("pt-BR") : "—");
 
 const MENU = `Olá! 👋 Sou o assistente do condomínio. Escolha uma opção:
@@ -104,7 +107,10 @@ export async function processarMensagemBot(
   if (txt === "5") return iniciarDocumentos(conversa, responder, setEstado);
 
   // Confirmação de visitante (resposta a notificação)
-  if (contexto?.tipo === "visitante" && (txt === "sim" || txt === "s" || txt === "não" || txt === "nao" || txt === "n")) {
+  if (
+    contexto?.tipo === "visitante" &&
+    (txt === "sim" || txt === "s" || txt === "não" || txt === "nao" || txt === "n")
+  ) {
     return confirmarVisitante(conversa, contexto.id, txt.startsWith("s"), responder);
   }
 
@@ -112,10 +118,16 @@ export async function processarMensagemBot(
   return responder(`Não entendi 🤔\n\n${MENU}`);
 }
 
-async function iniciarSegundaVia(c: Conversa, responder: (s: string) => Promise<void>, setEstado: any) {
+async function iniciarSegundaVia(
+  c: Conversa,
+  responder: (s: string) => Promise<void>,
+  setEstado: any,
+) {
   const { data: cobs } = await supabaseAdmin
     .from("cobrancas")
-    .select("id, competencia, vencimento, valor, multa, juros, desconto, status, mp_qr_code, mp_ticket_url")
+    .select(
+      "id, competencia, vencimento, valor, multa, juros, desconto, status, mp_qr_code, mp_ticket_url",
+    )
     .eq("unidade_id", c.unidade_id!)
     .in("status", ["pendente", "vencida", "parcial"])
     .order("vencimento", { ascending: true })
@@ -129,7 +141,11 @@ async function iniciarSegundaVia(c: Conversa, responder: (s: string) => Promise<
   const linhas = cobs.map((cb: any, i: number) => {
     const [y, m] = (cb.competencia || "").split("-");
     const comp = m ? `${meses[Number(m) - 1]}/${y}` : "—";
-    const total = Number(cb.valor || 0) + Number(cb.multa || 0) + Number(cb.juros || 0) - Number(cb.desconto || 0);
+    const total =
+      Number(cb.valor || 0) +
+      Number(cb.multa || 0) +
+      Number(cb.juros || 0) -
+      Number(cb.desconto || 0);
     return `${i + 1}) ${comp} — ${brl(total)} — vence ${dt(cb.vencimento)}`;
   });
 
@@ -139,7 +155,11 @@ async function iniciarSegundaVia(c: Conversa, responder: (s: string) => Promise<
   );
 }
 
-async function statusReservas(c: Conversa, responder: (s: string) => Promise<void>, limpar: () => Promise<any>) {
+async function statusReservas(
+  c: Conversa,
+  responder: (s: string) => Promise<void>,
+  limpar: () => Promise<any>,
+) {
   await limpar();
   const { data } = await supabaseAdmin
     .from("reservas")
@@ -159,12 +179,22 @@ async function statusReservas(c: Conversa, responder: (s: string) => Promise<voi
   return responder(`📅 Suas reservas:\n\n${linhas.join("\n")}`);
 }
 
-async function iniciarOcorrencia(c: Conversa, responder: (s: string) => Promise<void>, setEstado: any) {
+async function iniciarOcorrencia(
+  c: Conversa,
+  responder: (s: string) => Promise<void>,
+  setEstado: any,
+) {
   await setEstado("abrir_ocorrencia", "titulo", {});
-  return responder("Vamos abrir uma ocorrência. 📝\n\nQual é o título? (ex.: lâmpada queimada na garagem)\n\nResponda 0 para cancelar.");
+  return responder(
+    "Vamos abrir uma ocorrência. 📝\n\nQual é o título? (ex.: lâmpada queimada na garagem)\n\nResponda 0 para cancelar.",
+  );
 }
 
-async function iniciarDocumentos(c: Conversa, responder: (s: string) => Promise<void>, setEstado: any) {
+async function iniciarDocumentos(
+  c: Conversa,
+  responder: (s: string) => Promise<void>,
+  setEstado: any,
+) {
   const { data: docs } = await supabaseAdmin
     .from("documentos")
     .select("id, titulo, categoria")
@@ -179,7 +209,9 @@ async function iniciarDocumentos(c: Conversa, responder: (s: string) => Promise<
   }
   const linhas = docs.map((d: any, i: number) => `${i + 1}) [${d.categoria}] ${d.titulo}`);
   await setEstado("documentos", "escolher", { ids: docs.map((d: any) => d.id) });
-  return responder(`📂 Documentos disponíveis:\n\n${linhas.join("\n")}\n\nResponda com o número para receber o link, ou 0 para voltar.`);
+  return responder(
+    `📂 Documentos disponíveis:\n\n${linhas.join("\n")}\n\nResponda com o número para receber o link, ou 0 para voltar.`,
+  );
 }
 
 async function continuarFluxo(
@@ -204,11 +236,16 @@ async function continuarFluxo(
       .single();
     await limpar();
     if (!cb) return responder("Cobrança não encontrada.");
-    const total = Number(cb.valor || 0) + Number(cb.multa || 0) + Number(cb.juros || 0) - Number(cb.desconto || 0);
+    const total =
+      Number(cb.valor || 0) +
+      Number(cb.multa || 0) +
+      Number(cb.juros || 0) -
+      Number(cb.desconto || 0);
     let msg = `💰 Cobrança de ${cb.competencia} — Total ${brl(total)} — vence ${dt(cb.vencimento)}\n\n`;
     if (cb.mp_qr_code) msg += `PIX Copia e Cola:\n${cb.mp_qr_code}\n\n`;
     if (cb.mp_ticket_url) msg += `Boleto: ${cb.mp_ticket_url}\n`;
-    if (!cb.mp_qr_code && !cb.mp_ticket_url) msg += "O síndico ainda não emitiu cobrança bancária para este lançamento.";
+    if (!cb.mp_qr_code && !cb.mp_ticket_url)
+      msg += "O síndico ainda não emitiu cobrança bancária para este lançamento.";
     return responder(msg);
   }
 
@@ -235,7 +272,9 @@ async function continuarFluxo(
         .single();
       await limpar();
       if (error || !oc) return responder("Não consegui registrar agora. Tente pelo app.");
-      return responder(`✅ Ocorrência aberta! Protocolo: ${oc.id.slice(0, 8)}\n\nA gestão recebeu sua solicitação.`);
+      return responder(
+        `✅ Ocorrência aberta! Protocolo: ${oc.id.slice(0, 8)}\n\nA gestão recebeu sua solicitação.`,
+      );
     }
   }
 
@@ -260,7 +299,9 @@ async function continuarFluxo(
   }
 
   await limpar();
-  return responder(`Voltando ao menu.\n\n${"1️⃣ Boleto  2️⃣ Reservas  3️⃣ Ocorrência  4️⃣ Falar com síndico"}`);
+  return responder(
+    `Voltando ao menu.\n\n${"1️⃣ Boleto  2️⃣ Reservas  3️⃣ Ocorrência  4️⃣ Falar com síndico"}`,
+  );
 }
 
 async function confirmarVisitante(
@@ -270,7 +311,9 @@ async function confirmarVisitante(
   responder: (s: string) => Promise<void>,
 ) {
   const acao = autorizar ? "autorizar_visitante" : "recusar_visitante";
-  const args = autorizar ? { _visitante_id: visitanteId } : { _visitante_id: visitanteId, _motivo: "Recusado pelo morador via WhatsApp" };
+  const args = autorizar
+    ? { _visitante_id: visitanteId }
+    : { _visitante_id: visitanteId, _motivo: "Recusado pelo morador via WhatsApp" };
   const { error } = await supabaseAdmin.rpc(acao as any, args as any);
   if (error) return responder("Não consegui processar. Tente pelo app.");
   return responder(autorizar ? "✅ Visitante autorizado. Boa visita!" : "❌ Visitante recusado.");

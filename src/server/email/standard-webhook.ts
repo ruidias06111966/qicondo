@@ -92,7 +92,10 @@ export async function verificarAssinatura(opcoes: {
   const assinaturas = headers.get("webhook-signature");
 
   if (!id || !assinaturas) {
-    throw new WebhookError("missing_headers", "Cabeçalhos webhook-id ou webhook-signature em falta");
+    throw new WebhookError(
+      "missing_headers",
+      "Cabeçalhos webhook-id ou webhook-signature em falta",
+    );
   }
   if (!timestamp) {
     throw new WebhookError("missing_timestamp", "Cabeçalho webhook-timestamp em falta");

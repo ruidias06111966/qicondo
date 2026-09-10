@@ -27,13 +27,27 @@ function unidadeLabel(u: any) {
 
 export function gerarCSV(rel: Relatorio): string {
   const partes: string[] = [];
-  partes.push(`Relatório Financeiro;${rel.condominio?.nome ?? ""};${competenciaBR(rel.mes + "-01")}`);
+  partes.push(
+    `Relatório Financeiro;${rel.condominio?.nome ?? ""};${competenciaBR(rel.mes + "-01")}`,
+  );
   partes.push("");
 
   partes.push("== COBRANÇAS ==");
   partes.push(
     rowsToCSV(
-      ["Competência", "Vencimento", "Unidade", "Categoria", "Descrição", "Valor", "Pago", "Multa", "Juros", "Desconto", "Status"],
+      [
+        "Competência",
+        "Vencimento",
+        "Unidade",
+        "Categoria",
+        "Descrição",
+        "Valor",
+        "Pago",
+        "Multa",
+        "Juros",
+        "Desconto",
+        "Status",
+      ],
       rel.cobrancas.map((c) => [
         competenciaBR(c.competencia),
         dateBR(c.vencimento),

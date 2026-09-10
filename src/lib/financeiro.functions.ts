@@ -57,7 +57,10 @@ export const removerCategoria = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("categorias_financeiras").delete().eq("id", data.id);
+    const { error } = await context.supabase
+      .from("categorias_financeiras")
+      .delete()
+      .eq("id", data.id);
     if (error) throwSafe(error);
     return { ok: true };
   });
@@ -88,10 +91,12 @@ export const semearCategoriasPadrao = createServerFn({ method: "POST" })
       .select("nome, tipo")
       .eq("condominio_id", data.condominio_id);
     if (errSel) throwSafe(errSel);
-    const chaves = new Set((existentes ?? []).map((c) => `${c.tipo}|${(c.nome || "").toLowerCase()}`));
-    const novas = CATEGORIAS_PADRAO
-      .filter((c) => !chaves.has(`${c.tipo}|${c.nome.toLowerCase()}`))
-      .map((c) => ({ ...c, condominio_id: data.condominio_id }));
+    const chaves = new Set(
+      (existentes ?? []).map((c) => `${c.tipo}|${(c.nome || "").toLowerCase()}`),
+    );
+    const novas = CATEGORIAS_PADRAO.filter(
+      (c) => !chaves.has(`${c.tipo}|${c.nome.toLowerCase()}`),
+    ).map((c) => ({ ...c, condominio_id: data.condominio_id }));
     if (novas.length === 0) return { inseridas: 0 };
     const { error } = await supabase.from("categorias_financeiras").insert(novas);
     if (error) throwSafe(error);
@@ -198,7 +203,10 @@ const DespesaInput = z.object({
   descricao: z.string().min(1).max(500),
   valor: z.number().min(0),
   data: z.string(),
-  forma: z.enum(["pix", "boleto", "dinheiro", "transferencia", "cartao", "outro"]).optional().nullable(),
+  forma: z
+    .enum(["pix", "boleto", "dinheiro", "transferencia", "cartao", "outro"])
+    .optional()
+    .nullable(),
 });
 
 export const criarDespesa = createServerFn({ method: "POST" })
@@ -255,10 +263,30 @@ export const resumoFinanceiro = createServerFn({ method: "POST" })
     const fim = proximoMes(data.mes);
 
     const [rCob, rPag, rDesp, rVenc] = await Promise.all([
-      supabase.from("cobrancas").select("valor, valor_pago, multa, juros, desconto, status").eq("condominio_id", data.condominio_id).gte("competencia", inicio).lt("competencia", fim),
-      supabase.from("pagamentos").select("valor").eq("condominio_id", data.condominio_id).gte("pago_em", inicio).lt("pago_em", fim),
-      supabase.from("despesas").select("valor").eq("condominio_id", data.condominio_id).gte("data", inicio).lt("data", fim),
-      supabase.from("cobrancas").select("id, valor, valor_pago, multa, juros, desconto").eq("condominio_id", data.condominio_id).in("status", ["pendente", "vencida", "parcial"]).lt("vencimento", new Date().toISOString().slice(0, 10)),
+      supabase
+        .from("cobrancas")
+        .select("valor, valor_pago, multa, juros, desconto, status")
+        .eq("condominio_id", data.condominio_id)
+        .gte("competencia", inicio)
+        .lt("competencia", fim),
+      supabase
+        .from("pagamentos")
+        .select("valor")
+        .eq("condominio_id", data.condominio_id)
+        .gte("pago_em", inicio)
+        .lt("pago_em", fim),
+      supabase
+        .from("despesas")
+        .select("valor")
+        .eq("condominio_id", data.condominio_id)
+        .gte("data", inicio)
+        .lt("data", fim),
+      supabase
+        .from("cobrancas")
+        .select("id, valor, valor_pago, multa, juros, desconto")
+        .eq("condominio_id", data.condominio_id)
+        .in("status", ["pendente", "vencida", "parcial"])
+        .lt("vencimento", new Date().toISOString().slice(0, 10)),
     ]);
 
     // Sem isto, um erro de RLS/rede virava silenciosamente "R$ 0,00" no painel —
@@ -280,12 +308,28 @@ export const resumoFinanceiro = createServerFn({ method: "POST" })
     const totalRecebidoMes = (pag ?? []).reduce((s, p: any) => s + Number(p.valor), 0);
     const totalDespesas = (desp ?? []).reduce((s, d: any) => s + Number(d.valor), 0);
     const totalInadimplencia = (vencidas ?? []).reduce(
-      (s, c: any) => s + Math.max(0, Number(c.valor) + Number(c.multa) + Number(c.juros) - Number(c.desconto) - Number(c.valor_pago)),
+      (s, c: any) =>
+        s +
+        Math.max(
+          0,
+          Number(c.valor) +
+            Number(c.multa) +
+            Number(c.juros) -
+            Number(c.desconto) -
+            Number(c.valor_pago),
+        ),
       0,
     );
     const qtdInadimplentes = (vencidas ?? []).length;
 
-    return { totalCobrado, totalRecebidoMes, totalDespesas, totalInadimplencia, qtdInadimplentes, saldoMes: totalRecebidoMes - totalDespesas };
+    return {
+      totalCobrado,
+      totalRecebidoMes,
+      totalDespesas,
+      totalInadimplencia,
+      qtdInadimplentes,
+      saldoMes: totalRecebidoMes - totalDespesas,
+    };
   });
 
 // ===== Config Pagamento (conta bancária do condomínio) =====
@@ -412,13 +456,12 @@ function proximoMes(mes: string) {
  *
  * Assume que a permissão já foi verificada pelo chamador.
  */
-async function enfileirarLembrete(
-  supabase: any,
-  cobrancaId: string,
-): Promise<number> {
+async function enfileirarLembrete(supabase: any, cobrancaId: string): Promise<number> {
   const { data: cob, error } = await supabase
     .from("cobrancas")
-    .select("id, condominio_id, unidade_id, valor, multa, juros, desconto, valor_pago, vencimento, unidades(numero, bloco)")
+    .select(
+      "id, condominio_id, unidade_id, valor, multa, juros, desconto, valor_pago, vencimento, unidades(numero, bloco)",
+    )
     .eq("id", cobrancaId)
     .single();
   if (error || !cob) throw new Error("cobranca_nao_encontrada");
@@ -437,12 +480,17 @@ async function enfileirarLembrete(
     .in("id", userIds);
 
   const restante =
-    Number(cob.valor) + Number(cob.multa) + Number(cob.juros) -
-    Number(cob.desconto) - Number(cob.valor_pago);
+    Number(cob.valor) +
+    Number(cob.multa) +
+    Number(cob.juros) -
+    Number(cob.desconto) -
+    Number(cob.valor_pago);
   const u = (cob as any).unidades;
   const unidadeLabel = u ? `${u.bloco ? u.bloco + "-" : ""}${u.numero}` : "sua unidade";
   const venc = new Date(cob.vencimento).toLocaleDateString("pt-BR");
-  const valor = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(restante);
+  const valor = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
+    restante,
+  );
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   let count = 0;
@@ -549,7 +597,9 @@ export const exportarRelatorioFinanceiro = createServerFn({ method: "POST" })
       supabase.from("condominios").select("nome, cnpj").eq("id", data.condominio_id).maybeSingle(),
       supabase
         .from("cobrancas")
-        .select("competencia, vencimento, valor, valor_pago, multa, juros, desconto, status, descricao, unidades(numero, bloco), categorias_financeiras(nome)")
+        .select(
+          "competencia, vencimento, valor, valor_pago, multa, juros, desconto, status, descricao, unidades(numero, bloco), categorias_financeiras(nome)",
+        )
         .eq("condominio_id", data.condominio_id)
         .gte("competencia", inicio)
         .lt("competencia", fim)
@@ -594,8 +644,14 @@ export const listarNotificacoesWA = createServerFn({ method: "POST" })
     z
       .object({
         condominio_id: z.string().uuid(),
-        data_inicio: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-        data_fim: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+        data_inicio: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .optional(),
+        data_fim: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .optional(),
         status: z.enum(["pendente", "enviado", "falhou"]).optional(),
         contexto: z.enum(["encomenda", "visitante", "reserva", "cobranca"]).optional(),
       })
@@ -629,7 +685,8 @@ export const reenviarNotificacaoWA = createServerFn({ method: "POST" })
       .single();
     if (error || !orig) throw new Error("notificacao_nao_encontrada");
     const { data: isSind } = await supabase.rpc("is_sindico", {
-      _user_id: userId, _condominio_id: orig.condominio_id,
+      _user_id: userId,
+      _condominio_id: orig.condominio_id,
     } as any);
     if (!isSind) throw new Error("forbidden");
 
@@ -668,7 +725,9 @@ export const executarAutomacaoLembretes = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: cfg } = await supabaseAdmin
       .from("config_pagamento")
-      .select("wa_automacao_ativa, wa_dias_pre_vencimento, wa_dias_pos_vencimento, wa_template_lembrete, wa_template_vencida")
+      .select(
+        "wa_automacao_ativa, wa_dias_pre_vencimento, wa_dias_pos_vencimento, wa_template_lembrete, wa_template_vencida",
+      )
       .eq("condominio_id", data.condominio_id)
       .maybeSingle();
     if (!cfg || !cfg.wa_automacao_ativa) return { enfileirados: 0, cobrancas: 0 };
@@ -690,7 +749,9 @@ export const executarAutomacaoLembretes = createServerFn({ method: "POST" })
     const datasUnicas = Array.from(new Set(datasAlvo.map((x) => x.data)));
     const { data: cobs } = await supabase
       .from("cobrancas")
-      .select("id, vencimento, valor, valor_pago, multa, juros, desconto, condominio_id, unidade_id, unidades(numero, bloco)")
+      .select(
+        "id, vencimento, valor, valor_pago, multa, juros, desconto, condominio_id, unidade_id, unidades(numero, bloco)",
+      )
       .eq("condominio_id", data.condominio_id)
       .in("vencimento", datasUnicas)
       .in("status", ["pendente", "vencida", "parcial"]);
@@ -714,14 +775,21 @@ export const executarAutomacaoLembretes = createServerFn({ method: "POST" })
         .in("id", userIds);
 
       const restante =
-        Number(cob.valor) + Number(cob.multa) + Number(cob.juros) - Number(cob.desconto) - Number(cob.valor_pago);
+        Number(cob.valor) +
+        Number(cob.multa) +
+        Number(cob.juros) -
+        Number(cob.desconto) -
+        Number(cob.valor_pago);
       const u = (cob as any).unidades;
       const unidadeLabel = u ? `${u.bloco ? u.bloco + "-" : ""}${u.numero}` : "sua unidade";
       const venc = new Date(cob.vencimento).toLocaleDateString("pt-BR");
-      const valor = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(restante);
+      const valor = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
+        restante,
+      );
 
       cobCount++;
-      const inicioHoje = new Date(); inicioHoje.setHours(0, 0, 0, 0);
+      const inicioHoje = new Date();
+      inicioHoje.setHours(0, 0, 0, 0);
       const inicioHojeISO = inicioHoje.toISOString();
       for (const p of profs ?? []) {
         const tel = (p.telefone ?? "").replace(/\D/g, "");

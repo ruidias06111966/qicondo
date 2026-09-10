@@ -139,17 +139,11 @@ function InadimplenciaPage() {
                 Number(r.juros) -
                 Number(r.desconto) -
                 Number(r.valor_pago);
-              const dias = Math.floor(
-                (Date.now() - new Date(r.vencimento).getTime()) / 86400000,
-              );
+              const dias = Math.floor((Date.now() - new Date(r.vencimento).getTime()) / 86400000);
               return (
                 <tr key={r.id} className="hover:bg-muted/30">
                   <td className="px-4 py-3">
-                    <input
-                      type="checkbox"
-                      checked={sel.has(r.id)}
-                      onChange={() => toggle(r.id)}
-                    />
+                    <input type="checkbox" checked={sel.has(r.id)} onChange={() => toggle(r.id)} />
                   </td>
                   <td className="px-4 py-3 font-medium">
                     {r.unidades?.bloco ? `${r.unidades.bloco}-` : ""}
@@ -159,9 +153,7 @@ function InadimplenciaPage() {
                   <td className="px-4 py-3">
                     <span className="text-rose-600 font-semibold">{dias} dias</span>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-rose-600">
-                    {brl(restante)}
-                  </td>
+                  <td className="px-4 py-3 text-right font-mono text-rose-600">{brl(restante)}</td>
                 </tr>
               );
             })}

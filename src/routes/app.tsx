@@ -7,9 +7,23 @@ import { usePlatformAdmin } from "@/auth/usePlatformAdmin";
 import { ADMIN, FIN_VER, temAcesso } from "@/auth/permissoes";
 import type { Role } from "@/auth/useCondominio";
 import {
-  LayoutDashboard, Users, Building2, MessageCircle, LogOut, Loader2,
-  Calendar, Package, Wrench, Wallet, Settings, Menu, X, Inbox, Shield,
-  FileText, UserCheck
+  LayoutDashboard,
+  Users,
+  Building2,
+  MessageCircle,
+  LogOut,
+  Loader2,
+  Calendar,
+  Package,
+  Wrench,
+  Wallet,
+  Settings,
+  Menu,
+  X,
+  Inbox,
+  Shield,
+  FileText,
+  UserCheck,
 } from "lucide-react";
 
 export const Route = createFileRoute("/app")({
@@ -50,8 +64,14 @@ function AppLayout() {
 
   useEffect(() => {
     if (loading) return;
-    if (!user) { navigate({ to: "/auth/login" }); return; }
-    if (!hasAnyRole) { navigate({ to: "/onboarding" }); return; }
+    if (!user) {
+      navigate({ to: "/auth/login" });
+      return;
+    }
+    if (!hasAnyRole) {
+      navigate({ to: "/onboarding" });
+      return;
+    }
   }, [loading, user, hasAnyRole, navigate]);
 
   if (loading || !user || !hasAnyRole) {
@@ -62,13 +82,15 @@ function AppLayout() {
     );
   }
 
-  const isActive = (to: string, exact?: boolean) => exact ? path === to : path.startsWith(to);
+  const isActive = (to: string, exact?: boolean) => (exact ? path === to : path.startsWith(to));
 
   return (
     <div className="min-h-screen flex bg-muted/40">
       {/* Sidebar desktop */}
       <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-background">
-        <div className="h-16 flex items-center px-6 border-b border-border"><Logo /></div>
+        <div className="h-16 flex items-center px-6 border-b border-border">
+          <Logo />
+        </div>
         <nav className="flex-1 p-3 space-y-1">
           {navItems.map((item) => (
             <Link
@@ -80,7 +102,10 @@ function AppLayout() {
             </Link>
           ))}
           {isPlatformAdmin && (
-            <Link to="/admin" className="mt-4 flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium border border-dashed border-primary/40 text-primary hover:bg-primary/5">
+            <Link
+              to="/admin"
+              className="mt-4 flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium border border-dashed border-primary/40 text-primary hover:bg-primary/5"
+            >
               <Shield size={18} /> Admin Master
             </Link>
           )}
@@ -91,10 +116,16 @@ function AppLayout() {
               {(profile?.nome_completo || user.email || "?").charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate">{profile?.nome_completo || "Sem nome"}</p>
+              <p className="text-sm font-semibold truncate">
+                {profile?.nome_completo || "Sem nome"}
+              </p>
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
-            <button onClick={() => signOut().then(() => navigate({ to: "/" }))} className="p-2 rounded hover:bg-muted text-muted-foreground" title="Sair">
+            <button
+              onClick={() => signOut().then(() => navigate({ to: "/" }))}
+              className="p-2 rounded hover:bg-muted text-muted-foreground"
+              title="Sair"
+            >
               <LogOut size={16} />
             </button>
           </div>
@@ -104,16 +135,26 @@ function AppLayout() {
       {/* Mobile topbar */}
       <div className="lg:hidden fixed top-0 inset-x-0 h-14 bg-background border-b border-border flex items-center justify-between px-4 z-40">
         <Logo size="sm" />
-        <button onClick={() => setOpen(!open)} className="p-2">{open ? <X /> : <Menu />}</button>
+        <button onClick={() => setOpen(!open)} className="p-2">
+          {open ? <X /> : <Menu />}
+        </button>
       </div>
       {open && (
         <div className="lg:hidden fixed inset-0 top-14 bg-background z-30 p-4 space-y-1">
           {navItems.map((item) => (
-            <Link key={item.to} to={item.to} onClick={() => setOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${isActive(item.to, item.exact) ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
+            <Link
+              key={item.to}
+              to={item.to}
+              onClick={() => setOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${isActive(item.to, item.exact) ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+            >
               <item.icon size={18} /> {item.label}
             </Link>
           ))}
-          <button onClick={() => signOut().then(() => navigate({ to: "/" }))} className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10">
+          <button
+            onClick={() => signOut().then(() => navigate({ to: "/" }))}
+            className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10"
+          >
             <LogOut size={18} /> Sair
           </button>
         </div>

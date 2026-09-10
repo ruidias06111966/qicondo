@@ -65,12 +65,25 @@ export const listarUsuarios = createServerFn({ method: "POST" })
 
     const ids = Array.from(new Set((roles ?? []).map((r) => r.user_id)));
     const { data: profs } = ids.length
-      ? await supabase.from("profiles").select("id, nome_completo, telefone, avatar_url").in("id", ids)
+      ? await supabase
+          .from("profiles")
+          .select("id, nome_completo, telefone, avatar_url")
+          .in("id", ids)
       : { data: [] as any[] };
     const byId = new Map((profs ?? []).map((p: any) => [p.id, p]));
 
     // Agrega múltiplos roles do mesmo user
-    const agg = new Map<string, { user_id: string; roles: string[]; nome: string | null; telefone: string | null; avatar_url: string | null; created_at: string }>();
+    const agg = new Map<
+      string,
+      {
+        user_id: string;
+        roles: string[];
+        nome: string | null;
+        telefone: string | null;
+        avatar_url: string | null;
+        created_at: string;
+      }
+    >();
     for (const r of roles ?? []) {
       const p: any = byId.get(r.user_id);
       const cur = agg.get(r.user_id);
@@ -94,7 +107,9 @@ export const listarUsuarios = createServerFn({ method: "POST" })
       .limit(200);
 
     return {
-      utilizadores: Array.from(agg.values()).sort((a, b) => (a.nome ?? "").localeCompare(b.nome ?? "")),
+      utilizadores: Array.from(agg.values()).sort((a, b) =>
+        (a.nome ?? "").localeCompare(b.nome ?? ""),
+      ),
       convites: convites ?? [],
     };
   });
@@ -148,7 +163,9 @@ export const convidarUsuario = createServerFn({ method: "POST" })
     if (error) {
       // Mensagens amigáveis para o trigger de limite de plano
       if (/limite_plano_atingido/.test(error.message)) {
-        throw new Error("Limite de utilizadores do plano atingido. Faça upgrade para adicionar mais.");
+        throw new Error(
+          "Limite de utilizadores do plano atingido. Faça upgrade para adicionar mais.",
+        );
       }
       throwSafe(error);
     }
@@ -172,9 +189,7 @@ export const convidarUsuario = createServerFn({ method: "POST" })
         empresa: empresa?.nome ?? "sua empresa",
         perfil: ROTULOS_PERFIL[data.role],
         urlConvite,
-        expiraEm: row?.expira_em
-          ? new Date(row.expira_em).toLocaleDateString("pt-BR")
-          : undefined,
+        expiraEm: row?.expira_em ? new Date(row.expira_em).toLocaleDateString("pt-BR") : undefined,
       }),
     });
 

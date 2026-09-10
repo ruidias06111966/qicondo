@@ -1,9 +1,59 @@
-// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
-// or the app will break with duplicate plugins:
-//   - tanstackStart, viteReact, tailwindcss, tsConfigPaths, cloudflare (build-only),
-//     componentTagger (dev-only), VITE_* env injection, @ path alias, React/TanStack dedupe,
-//     error logger plugins, and sandbox detection (port/host/strictPort).
-// You can pass additional config via defineConfig({ vite: { ... } }) if needed.
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { defineConfig, loadEnv } from "vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { nitro } from "nitro/vite";
+import viteReact from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import tsConfigPaths from "vite-tsconfig-paths";
+import { fileURLToPath } from "node:url";
 
-export default defineConfig();
+const raiz = fileURLToPath(new URL(".", import.meta.url));
+
+export default defineConfig(({ mode, command }) => {
+  // O Vite substitui import.meta.env.VITE_* só no bundle do cliente. Como o
+  // mesmo código corre em SSR dentro do Worker, as variáveis são declaradas
+  // explicitamente para valerem nos dois lados.
+  const env = loadEnv(mode, process.cwd(), "VITE_");
+  const define = Object.fromEntries(
+    Object.entries(env).map(([chave, valor]) => [
+      `import.meta.env.${chave}`,
+      JSON.stringify(valor),
+    ]),
+  );
+
+  return {
+    define,
+    resolve: {
+      alias: { "@": `${raiz}src` },
+      // Duas cópias de React (ou do React Query) partilhariam o mesmo ecrã com
+      // contextos distintos e partiriam os hooks.
+      dedupe: [
+        "react",
+        "react-dom",
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
+        "@tanstack/react-query",
+        "@tanstack/query-core",
+      ],
+    },
+    optimizeDeps: {
+      include: ["react", "react-dom", "react-dom/client", "react/jsx-runtime"],
+    },
+    server: { host: "::", port: 8080 },
+    plugins: [
+      tailwindcss(),
+      tsConfigPaths({ projects: ["./tsconfig.json"] }),
+      tanstackStart({
+        // Falha o build se código de src/server (ou marcado server-only) for
+        // arrastado para o bundle do cliente: é onde vivem a service role key
+        // e os segredos de webhook.
+        importProtection: {
+          behavior: "error",
+          client: { files: ["**/server/**"], specifiers: ["server-only"] },
+        },
+      }),
+      // O Nitro só entra no build; em dev o servidor é o do próprio Vite.
+      ...(command === "build" ? [nitro({ preset: "cloudflare-module" })] : []),
+      viteReact(),
+    ],
+  };
+});

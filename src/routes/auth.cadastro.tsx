@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { entrarComOAuth } from "@/integrations/supabase/oauth";
 import { useAuth } from "@/auth/AuthProvider";
 import { cadastroSchema } from "@/auth/validators";
 import { caminhoInternoSeguro, destinoAposLogin, validarNext } from "@/auth/proximo-destino";
@@ -59,8 +59,8 @@ function CadastroPage() {
   }
 
   async function onGoogle() {
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/auth/callback" });
-    if (result.error) toast.error("Falha ao entrar com Google");
+    const { error } = await entrarComOAuth("google");
+    if (error) toast.error("Falha ao entrar com Google");
   }
 
   return (

@@ -18,16 +18,11 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "qicondominios"
-const ROOT_DOMAIN = "qicondominios.qidominios.tech"
+const SITE_NAME = "QiCond"
 
-// Sample data for preview mode ONLY (not used in actual email sending).
-// URLs are baked in at scaffold time from the project's real data.
-// The sample email uses a fixed placeholder (RFC 6761 .test TLD) so the Go backend
-// can always find-and-replace it with the actual recipient when sending test emails,
-// even if the project's domain has changed since the template was scaffolded.
-const SAMPLE_PROJECT_URL = "https://qicondominios.lovable.app"
-const SAMPLE_EMAIL = "user@example.test"
+// Dados de amostra, usados apenas na pré-visualização — nunca no envio real.
+const SAMPLE_PROJECT_URL = "https://qicondominios.qidominios.tech"
+const SAMPLE_EMAIL = "utilizador@example.test"
 const SAMPLE_DATA: Record<string, object> = {
   signup: {
     siteName: SITE_NAME,
@@ -60,22 +55,25 @@ const SAMPLE_DATA: Record<string, object> = {
   },
 }
 
-export const Route = createFileRoute("/lovable/email/auth/preview")({
+export const Route = createFileRoute("/api/email/preview")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apiKey = process.env.LOVABLE_API_KEY
+        // Rota de diagnóstico: renderiza um template com dados fictícios para se
+        // ver o resultado sem disparar um envio. Protegida pelo mesmo segredo das
+        // restantes rotas internas.
+        const expected = process.env.CRON_SECRET
 
-        if (!apiKey) {
+        if (!expected) {
           return Response.json(
             { error: 'Server configuration error' },
             { status: 500 }
           )
         }
 
-        // Verify the caller is authorized with LOVABLE_API_KEY
-        const authHeader = request.headers.get('Authorization')
-        if (!authHeader || authHeader !== `Bearer ${apiKey}`) {
+        const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
+          ?? request.headers.get('x-cron-secret')
+        if (!token || token !== expected) {
           return Response.json({ error: 'Unauthorized' }, { status: 401 })
         }
 

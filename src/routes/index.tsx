@@ -41,7 +41,7 @@ import {
   buildWaUrl,
 } from "@/lib/wa-link";
 
-const SITE_URL = "https://qicond.lovable.app";
+const SITE_URL = "https://qicondominios.qidominios.tech";
 const WHATSAPP_DEFAULT_MSG =
   "Olá! Vim pelo site do QiCond e quero saber mais sobre a gestão de condomínio pelo WhatsApp.";
 

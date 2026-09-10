@@ -131,15 +131,29 @@ Os convites guardam apenas o hash SHA-256 do token. O token em claro aparece uma
 link mesmo depois de o e-mail ser enfileirado: se o envio falhar, não há como o
 recuperar depois.
 
-## Deploy (Cloudflare Workers)
+## Deploy
+
+O alvo não está fixado no código. O Nitro detecta a plataforma pelo ambiente e o
+Cloudflare é apenas o destino por omissão, quando nenhuma é reconhecida:
+
+| Onde corre o build | Saída |
+| --- | --- |
+| Local e CI | `.output/` — Worker do Cloudflare |
+| Vercel (`VERCEL=1`) | `.vercel/output/` — formato da Vercel |
+
+Isto é deliberado: o repositório está ligado à Vercel, que faz deploy de cada
+push, e fixar `preset: "cloudflare-module"` faria esse deploy receber um Worker
+que não sabe servir. Para forçar um alvo, passar `preset` em vez de
+`defaultPreset` em `vite.config.ts`.
+
+### Cloudflare Workers
 
 ```bash
 bun run build
 bunx wrangler deploy
 ```
 
-O build gera `.output/`, já com a configuração do Worker. Os segredos entram uma
-vez, por ambiente:
+Os segredos entram uma vez, por ambiente:
 
 ```bash
 bunx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
@@ -151,7 +165,10 @@ bunx wrangler secret put SITE_URL
 
 As `VITE_*` são diferentes: entram em tempo de build, não em runtime. Têm de
 estar no ambiente que corre `bun run build`, senão o bundle sai sem as
-credenciais do Supabase.
+credenciais do Supabase. Numa plataforma que faz o build por si (a Vercel, por
+exemplo), isso significa declará-las lá também — e os segredos de runtime
+(`SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `SEND_EMAIL_HOOK_SECRET`,
+`CRON_SECRET`, `SITE_URL`) no painel dessa plataforma, não via `wrangler`.
 
 ## Migrações
 

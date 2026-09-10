@@ -52,7 +52,13 @@ export default defineConfig(({ mode, command }) => {
         },
       }),
       // O Nitro só entra no build; em dev o servidor é o do próprio Vite.
-      ...(command === "build" ? [nitro({ preset: "cloudflare-module" })] : []),
+      //
+      // `defaultPreset` e não `preset`: é um fallback, não uma imposição. O Nitro
+      // autodetecta a plataforma pelo ambiente (VERCEL, NETLIFY, …) e só recorre
+      // ao Cloudflare quando não reconhece nenhuma — que é o caso em local e no
+      // CI. Forçar `preset` aqui faz o build entregar um Worker a plataformas que
+      // não o sabem servir, e o deploy falha.
+      ...(command === "build" ? [nitro({ defaultPreset: "cloudflare-module" })] : []),
       viteReact(),
     ],
   };

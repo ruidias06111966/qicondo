@@ -40,6 +40,7 @@ function UsuariosPage() {
   const [convites, setConvites] = useState<any[]>([]);
   const [openInvite, setOpenInvite] = useState(false);
   const [linkConvite, setLinkConvite] = useState<string | null>(null);
+  const [emailEnviado, setEmailEnviado] = useState(false);
 
   const recarregar = async () => {
     if (!condominioId) return;
@@ -224,19 +225,23 @@ function UsuariosPage() {
           onClose={() => {
             setOpenInvite(false);
             setLinkConvite(null);
+            setEmailEnviado(false);
           }}
           onCriar={async (payload) => {
             const r = await safeCall(
               convidarUsuario({ data: { condominio_id: condominioId, ...payload } }),
             );
             if (r) {
-              const link = `${window.location.origin}/auth/convite/${r.token}`;
-              setLinkConvite(link);
-              toast.success("Convite criado");
+              setLinkConvite(r.urlConvite);
+              setEmailEnviado(r.emailEnfileirado);
+              toast.success(
+                r.emailEnfileirado ? "Convite enviado por e-mail" : "Convite criado",
+              );
               recarregar();
             }
           }}
           link={linkConvite}
+          emailEnviado={emailEnviado}
         />
       )}
     </div>
@@ -272,10 +277,12 @@ function ModalConvidar({
   onClose,
   onCriar,
   link,
+  emailEnviado,
 }: {
   onClose: () => void;
   onCriar: (p: { nome: string; email: string; role: string }) => Promise<void>;
   link: string | null;
+  emailEnviado: boolean;
 }) {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -302,7 +309,9 @@ function ModalConvidar({
         {link ? (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Convite gerado. Partilhe este link com o utilizador (válido 7 dias):
+              {emailEnviado
+                ? "Convite enviado por e-mail. Se não chegar, partilhe este link (válido 7 dias):"
+                : "Não foi possível enviar o e-mail. Partilhe este link com o utilizador (válido 7 dias):"}
             </p>
             <div className="flex gap-2">
               <input readOnly value={link} className="flex-1 text-xs px-3 py-2 rounded-md border border-input bg-muted" />

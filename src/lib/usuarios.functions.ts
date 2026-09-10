@@ -1,7 +1,10 @@
+import * as React from "react";
 import { throwSafe } from "@/lib/safe-error";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { ConviteEmpresaEmail } from "@/lib/email-templates/convite-empresa";
+import { enfileirarEmail } from "@/server/email/fila";
 
 const ROLES = [
   "admin",
@@ -18,6 +21,25 @@ const ROLES = [
   "morador",
 ] as const;
 const RoleEnum = z.enum(ROLES);
+
+/** Rótulos legíveis dos perfis, para não expor o valor cru do enum ao utilizador. */
+const ROTULOS_PERFIL: Record<(typeof ROLES)[number], string> = {
+  admin: "Administrador",
+  sindico: "Administrador",
+  financeiro: "Financeiro",
+  gestor: "Gestor",
+  vendedor: "Vendedor",
+  comercial: "Comercial",
+  contador: "Contador",
+  consulta: "Consulta",
+  porteiro: "Porteiro",
+  morador: "Morador",
+};
+
+/** Base pública usada nos links enviados por e-mail. */
+function urlBase(): string {
+  return (process.env.SITE_URL ?? "https://qicondominios.qidominios.tech").replace(/\/$/, "");
+}
 
 async function ensureAdmin(supabase: any, userId: string, condominioId: string) {
   const { data } = await supabase.rpc("is_sindico", {
@@ -131,7 +153,34 @@ export const convidarUsuario = createServerFn({ method: "POST" })
       throwSafe(error);
     }
 
-    return { convite: row, token };
+    // O link tem de sair daqui: o token em claro não é recuperável depois desta
+    // resposta, só o hash fica persistido.
+    const urlConvite = `${urlBase()}/auth/convite/${token}`;
+
+    const { data: empresa } = await supabase
+      .from("condominios")
+      .select("nome")
+      .eq("id", data.condominio_id)
+      .single();
+
+    const messageId = await enfileirarEmail({
+      para: data.email,
+      assunto: `Convite para acessar ${empresa?.nome ?? "sua empresa"} no QiCond`,
+      label: "convite-empresa",
+      elemento: React.createElement(ConviteEmpresaEmail, {
+        nome: data.nome,
+        empresa: empresa?.nome ?? "sua empresa",
+        perfil: ROTULOS_PERFIL[data.role],
+        urlConvite,
+        expiraEm: row?.expira_em
+          ? new Date(row.expira_em).toLocaleDateString("pt-BR")
+          : undefined,
+      }),
+    });
+
+    // `token` e `urlConvite` continuam a voltar mesmo com o e-mail enfileirado:
+    // se o envio falhar, o administrador ainda consegue passar o link à mão.
+    return { convite: row, token, urlConvite, emailEnfileirado: messageId !== null };
   });
 
 // ===== Revogar convite =====

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/track";
+import { URL_SITE } from "@/lib/site";
 import { toast } from "sonner";
 import {
   MessageCircle,
@@ -36,7 +37,7 @@ import {
 
 import { formatarTelefone, erroTelefone, telefoneE164BR, buildWaUrl } from "@/lib/wa-link";
 
-const SITE_URL = "https://qicondominios.qidominios.tech";
+const SITE_URL = URL_SITE;
 const WHATSAPP_DEFAULT_MSG =
   "Olá! Vim pelo site do QiCond e quero saber mais sobre a gestão de condomínio pelo WhatsApp.";
 

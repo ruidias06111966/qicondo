@@ -21,7 +21,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 const SITE_NAME = "QiCond";
 
 // Dados de amostra, usados apenas na pré-visualização — nunca no envio real.
-const SAMPLE_PROJECT_URL = "https://qicondominios.qidominios.tech";
+const SAMPLE_PROJECT_URL = "https://qicond.qidominios.com.br";
 const SAMPLE_EMAIL = "utilizador@example.test";
 const SAMPLE_DATA: Record<string, object> = {
   signup: {

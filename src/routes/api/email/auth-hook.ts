@@ -22,6 +22,7 @@ import { RecoveryEmail } from "@/lib/email-templates/recovery";
 import { EmailChangeEmail } from "@/lib/email-templates/email-change";
 import { ReauthenticationEmail } from "@/lib/email-templates/reauthentication";
 import { WebhookError, verificarAssinatura } from "@/server/email/standard-webhook";
+import { NOME_SISTEMA, REMETENTE, URL_SITE } from "@/lib/site";
 
 const ASSUNTOS: Record<string, string> = {
   signup: "Confirme o seu e-mail",
@@ -41,10 +42,6 @@ const TEMPLATES: Record<string, React.ComponentType<any>> = {
   email_change: EmailChangeEmail,
   reauthentication: ReauthenticationEmail,
 };
-
-const NOME_SITE = "QiCond";
-const DOMINIO_REMETENTE = "notify.qicondominios.qidominios.tech";
-const URL_SITE = "https://qicondominios.qidominios.tech";
 
 /** Estrutura enviada pelo Supabase Auth no Send Email Hook. */
 type PayloadHook = {
@@ -133,7 +130,7 @@ export const Route = createFileRoute("/api/email/auth-hook")({
         }
 
         const elemento = React.createElement(Template, {
-          siteName: NOME_SITE,
+          siteName: NOME_SISTEMA,
           siteUrl: URL_SITE,
           recipient: destinatario,
           confirmationUrl: montarUrlConfirmacao(supabaseUrl, dados),
@@ -164,7 +161,7 @@ export const Route = createFileRoute("/api/email/auth-hook")({
           payload: {
             message_id: messageId,
             to: destinatario,
-            from: `${NOME_SITE} <noreply@${DOMINIO_REMETENTE}>`,
+            from: REMETENTE,
             subject: ASSUNTOS[tipo] ?? "Notificação",
             html,
             text,

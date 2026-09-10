@@ -16,6 +16,25 @@ a fronteira real é o RLS do Postgres, não a interface.
 | Hospedagem | Cloudflare Workers por omissão; Vercel quando é ela a fazer o build |
 | Gestor de pacotes | Bun |
 
+## Domínio e identidade
+
+Convenção partilhada por todos os sistemas: cada um ocupa um subdomínio de
+`qidominios.com.br` com o seu próprio nome, e envia e-mail a partir de `notify.`
+desse mesmo host.
+
+| | |
+| --- | --- |
+| Aplicação | `qicond.qidominios.com.br` |
+| Remetente | `notify.qicond.qidominios.com.br` |
+
+Tudo isto vive em `src/lib/site.ts`, que é o único sítio do código a conhecer o
+domínio. Num sistema novo mudam-se lá `NOME_SISTEMA` e `SUBDOMINIO` e mais nada.
+O remetente tem subdomínio próprio de propósito: mantém a reputação de envio de
+cada sistema separada, para que um problema de entrega num não arraste os outros.
+
+`SITE_URL` sobrepõe-se ao domínio canónico em pré-visualizações e testes, e é
+lido apenas no servidor (`src/server/site.server.ts`).
+
 ## Começar
 
 ```bash
@@ -103,20 +122,28 @@ Rotas:
 3. **Fila** — registar os segredos que o agendamento usa, uma vez por ambiente:
 
    ```sql
-   SELECT vault.create_secret('https://<dominio>', 'app_base_url');
+   SELECT vault.create_secret('https://qicond.qidominios.com.br', 'app_base_url');
    SELECT vault.create_secret('<service_role_key>', 'email_queue_service_role_key');
+   SELECT vault.create_secret('<CRON_SECRET>', 'cron_secret');
    ```
 
    Ficam no vault, e não no comando do cron, porque `cron.job.command` é legível
-   por qualquer role com acesso ao schema `cron`. O agendamento em si é criado
-   pela migração `20260910120000_cron_fila_email.sql`.
+   por qualquer role com acesso ao schema `cron`. Os agendamentos são criados
+   pelas migrações `20260910120000_cron_fila_email.sql` (fila de e-mail) e
+   `20260910130000_cron_wa_drain.sql` (fila de WhatsApp); `app_base_url` é
+   partilhado pelos dois.
 
 Verificar se está a correr:
 
 ```sql
-SELECT jobname, schedule, active FROM cron.job WHERE jobname = 'process-email-queue';
+SELECT jobname, schedule, active FROM cron.job
+ WHERE jobname IN ('process-email-queue', 'wa-drain-every-minute');
 SELECT status, count(*) FROM public.email_send_log GROUP BY status;
 SELECT * FROM pgmq.q_auth_emails_dlq ORDER BY enqueued_at DESC LIMIT 10;
+
+-- Últimas invocações HTTP disparadas pelos agendamentos, com o código devolvido
+SELECT id, status_code, error_msg, created FROM net._http_response
+ ORDER BY created DESC LIMIT 20;
 ```
 
 ## Autenticação

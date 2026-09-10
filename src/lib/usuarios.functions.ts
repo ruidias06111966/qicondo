@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { ConviteEmpresaEmail } from "@/lib/email-templates/convite-empresa";
 import { enfileirarEmail } from "@/server/email/fila";
+import { urlBase } from "@/server/site.server";
 
 const ROLES = [
   "admin",
@@ -35,11 +36,6 @@ const ROTULOS_PERFIL: Record<(typeof ROLES)[number], string> = {
   porteiro: "Porteiro",
   morador: "Morador",
 };
-
-/** Base pública usada nos links enviados por e-mail. */
-function urlBase(): string {
-  return (process.env.SITE_URL ?? "https://qicondominios.qidominios.tech").replace(/\/$/, "");
-}
 
 async function ensureAdmin(supabase: any, userId: string, condominioId: string) {
   const { data } = await supabase.rpc("is_sindico", {

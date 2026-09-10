@@ -13,9 +13,7 @@
 import * as React from "react";
 import { render } from "@react-email/render";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-
-const NOME_SITE = "QiCond";
-const DOMINIO_REMETENTE = "notify.qicondominios.qidominios.tech";
+import { REMETENTE } from "@/lib/site";
 
 export type EmailTransacional = {
   para: string;
@@ -53,7 +51,7 @@ export async function enfileirarEmail(email: EmailTransacional): Promise<string 
       payload: {
         message_id: messageId,
         to: email.para,
-        from: `${NOME_SITE} <noreply@${DOMINIO_REMETENTE}>`,
+        from: REMETENTE,
         subject: email.assunto,
         html,
         text,

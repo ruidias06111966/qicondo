@@ -13,7 +13,7 @@ a fronteira real é o RLS do Postgres, não a interface.
 | Base de dados | Supabase (Postgres, Auth, Storage, RLS) |
 | Filas | PGMQ + pg_cron, dentro do próprio Postgres |
 | E-mail | Resend, com templates React Email |
-| Hospedagem | Cloudflare Workers |
+| Hospedagem | Cloudflare Workers por omissão; Vercel quando é ela a fazer o build |
 | Gestor de pacotes | Bun |
 
 ## Começar

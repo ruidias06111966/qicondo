@@ -27,10 +27,22 @@ const DEFAULT: Prefs = {
 };
 
 const ITENS: { key: keyof Prefs; titulo: string; desc: string }[] = [
-  { key: "receber_comunicados", titulo: "Comunicados e informativos", desc: "Atas, convenção, avisos do síndico." },
-  { key: "receber_cobrancas", titulo: "Cobranças e boletos", desc: "Lembretes de vencimento e 2ª via." },
+  {
+    key: "receber_comunicados",
+    titulo: "Comunicados e informativos",
+    desc: "Atas, convenção, avisos do síndico.",
+  },
+  {
+    key: "receber_cobrancas",
+    titulo: "Cobranças e boletos",
+    desc: "Lembretes de vencimento e 2ª via.",
+  },
   { key: "receber_visitantes", titulo: "Visitantes", desc: "Avisos de chegada e autorização." },
-  { key: "receber_encomendas", titulo: "Encomendas", desc: "Aviso quando há encomendas para retirada." },
+  {
+    key: "receber_encomendas",
+    titulo: "Encomendas",
+    desc: "Aviso quando há encomendas para retirada.",
+  },
 ];
 
 function PreferenciasPage() {
@@ -89,7 +101,9 @@ function PreferenciasPage() {
         </div>
         <div>
           <h1 className="text-2xl font-display font-bold">Notificações por WhatsApp</h1>
-          <p className="text-sm text-muted-foreground">Escolha o que deseja receber. Você pode mudar a qualquer momento.</p>
+          <p className="text-sm text-muted-foreground">
+            Escolha o que deseja receber. Você pode mudar a qualquer momento.
+          </p>
         </div>
       </header>
 
@@ -110,7 +124,11 @@ function PreferenciasPage() {
 
       <div className="flex justify-end">
         <Button onClick={salvar} disabled={saving}>
-          {saving ? <Loader2 className="animate-spin mr-2" size={16} /> : <Save size={16} className="mr-2" />}
+          {saving ? (
+            <Loader2 className="animate-spin mr-2" size={16} />
+          ) : (
+            <Save size={16} className="mr-2" />
+          )}
           Salvar preferências
         </Button>
       </div>

@@ -30,7 +30,15 @@ const ROLE_LABEL: Record<string, string> = {
   porteiro: "Porteiro",
   morador: "Morador",
 };
-const ROLES_CONVIDAR = ["admin", "financeiro", "gestor", "vendedor", "comercial", "contador", "consulta"] as const;
+const ROLES_CONVIDAR = [
+  "admin",
+  "financeiro",
+  "gestor",
+  "vendedor",
+  "comercial",
+  "contador",
+  "consulta",
+] as const;
 
 function UsuariosPage() {
   const { condominioId, isAdmin } = useCondominioAtivo();
@@ -40,6 +48,7 @@ function UsuariosPage() {
   const [convites, setConvites] = useState<any[]>([]);
   const [openInvite, setOpenInvite] = useState(false);
   const [linkConvite, setLinkConvite] = useState<string | null>(null);
+  const [emailEnviado, setEmailEnviado] = useState(false);
 
   const recarregar = async () => {
     if (!condominioId) return;
@@ -65,7 +74,9 @@ function UsuariosPage() {
         <div className="rounded-2xl border border-border bg-background p-6 text-center">
           <Shield className="mx-auto mb-3 text-muted-foreground" />
           <h2 className="font-display text-xl font-bold mb-1">Acesso restrito</h2>
-          <p className="text-sm text-muted-foreground">Apenas administradores podem gerir a equipa.</p>
+          <p className="text-sm text-muted-foreground">
+            Apenas administradores podem gerir a equipa.
+          </p>
         </div>
       </div>
     );
@@ -100,7 +111,9 @@ function UsuariosPage() {
               <h2 className="font-semibold">Ativos ({utilizadores.length})</h2>
             </div>
             {utilizadores.length === 0 ? (
-              <div className="p-10 text-center text-sm text-muted-foreground">Nenhum utilizador.</div>
+              <div className="p-10 text-center text-sm text-muted-foreground">
+                Nenhum utilizador.
+              </div>
             ) : (
               <div className="divide-y divide-border">
                 {utilizadores.map((u) => (
@@ -114,7 +127,10 @@ function UsuariosPage() {
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
                       {u.roles.map((r: string) => (
-                        <span key={r} className="text-xs px-2 py-1 rounded-full bg-muted font-medium">
+                        <span
+                          key={r}
+                          className="text-xs px-2 py-1 rounded-full bg-muted font-medium"
+                        >
                           {ROLE_LABEL[r] ?? r}
                         </span>
                       ))}
@@ -143,9 +159,12 @@ function UsuariosPage() {
                       {u.user_id !== user?.id && (
                         <button
                           onClick={async () => {
-                            if (!confirm(`Remover ${u.nome || "este utilizador"} da empresa?`)) return;
+                            if (!confirm(`Remover ${u.nome || "este utilizador"} da empresa?`))
+                              return;
                             const r = await safeCall(
-                              removerUsuario({ data: { condominio_id: condominioId, user_id: u.user_id } }),
+                              removerUsuario({
+                                data: { condominio_id: condominioId, user_id: u.user_id },
+                              }),
                             );
                             if (r) {
                               toast.success("Utilizador removido");
@@ -187,8 +206,8 @@ function UsuariosPage() {
                         c.status === "pendente"
                           ? "bg-amber-100 text-amber-700"
                           : c.status === "aceito"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-muted text-muted-foreground"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-muted text-muted-foreground"
                       }`}
                     >
                       {c.status}
@@ -224,19 +243,21 @@ function UsuariosPage() {
           onClose={() => {
             setOpenInvite(false);
             setLinkConvite(null);
+            setEmailEnviado(false);
           }}
           onCriar={async (payload) => {
             const r = await safeCall(
               convidarUsuario({ data: { condominio_id: condominioId, ...payload } }),
             );
             if (r) {
-              const link = `${window.location.origin}/auth/convite/${r.token}`;
-              setLinkConvite(link);
-              toast.success("Convite criado");
+              setLinkConvite(r.urlConvite);
+              setEmailEnviado(r.emailEnfileirado);
+              toast.success(r.emailEnfileirado ? "Convite enviado por e-mail" : "Convite criado");
               recarregar();
             }
           }}
           link={linkConvite}
+          emailEnviado={emailEnviado}
         />
       )}
     </div>
@@ -272,10 +293,12 @@ function ModalConvidar({
   onClose,
   onCriar,
   link,
+  emailEnviado,
 }: {
   onClose: () => void;
   onCriar: (p: { nome: string; email: string; role: string }) => Promise<void>;
   link: string | null;
+  emailEnviado: boolean;
 }) {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -302,10 +325,16 @@ function ModalConvidar({
         {link ? (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Convite gerado. Partilhe este link com o utilizador (válido 7 dias):
+              {emailEnviado
+                ? "Convite enviado por e-mail. Se não chegar, partilhe este link (válido 7 dias):"
+                : "Não foi possível enviar o e-mail. Partilhe este link com o utilizador (válido 7 dias):"}
             </p>
             <div className="flex gap-2">
-              <input readOnly value={link} className="flex-1 text-xs px-3 py-2 rounded-md border border-input bg-muted" />
+              <input
+                readOnly
+                value={link}
+                className="flex-1 text-xs px-3 py-2 rounded-md border border-input bg-muted"
+              />
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(link);

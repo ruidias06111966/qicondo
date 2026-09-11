@@ -22,6 +22,19 @@ export const timeBR = (s: string | Date | null | undefined) => {
 export const competenciaBR = (s: string | null | undefined) => {
   if (!s) return "—";
   const [y, m] = s.split("-");
-  const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+  const meses = [
+    "Jan",
+    "Fev",
+    "Mar",
+    "Abr",
+    "Mai",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Set",
+    "Out",
+    "Nov",
+    "Dez",
+  ];
   return `${meses[Number(m) - 1]}/${y}`;
 };

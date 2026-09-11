@@ -1,7 +1,11 @@
+import * as React from "react";
 import { throwSafe } from "@/lib/safe-error";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { ConviteEmpresaEmail } from "@/lib/email-templates/convite-empresa";
+import { enfileirarEmail } from "@/server/email/fila";
+import { urlBase } from "@/server/site.server";
 
 const ROLES = [
   "admin",
@@ -18,6 +22,20 @@ const ROLES = [
   "morador",
 ] as const;
 const RoleEnum = z.enum(ROLES);
+
+/** Rótulos legíveis dos perfis, para não expor o valor cru do enum ao utilizador. */
+const ROTULOS_PERFIL: Record<(typeof ROLES)[number], string> = {
+  admin: "Administrador",
+  sindico: "Administrador",
+  financeiro: "Financeiro",
+  gestor: "Gestor",
+  vendedor: "Vendedor",
+  comercial: "Comercial",
+  contador: "Contador",
+  consulta: "Consulta",
+  porteiro: "Porteiro",
+  morador: "Morador",
+};
 
 async function ensureAdmin(supabase: any, userId: string, condominioId: string) {
   const { data } = await supabase.rpc("is_sindico", {
@@ -43,12 +61,25 @@ export const listarUsuarios = createServerFn({ method: "POST" })
 
     const ids = Array.from(new Set((roles ?? []).map((r) => r.user_id)));
     const { data: profs } = ids.length
-      ? await supabase.from("profiles").select("id, nome_completo, telefone, avatar_url").in("id", ids)
+      ? await supabase
+          .from("profiles")
+          .select("id, nome_completo, telefone, avatar_url")
+          .in("id", ids)
       : { data: [] as any[] };
     const byId = new Map((profs ?? []).map((p: any) => [p.id, p]));
 
     // Agrega múltiplos roles do mesmo user
-    const agg = new Map<string, { user_id: string; roles: string[]; nome: string | null; telefone: string | null; avatar_url: string | null; created_at: string }>();
+    const agg = new Map<
+      string,
+      {
+        user_id: string;
+        roles: string[];
+        nome: string | null;
+        telefone: string | null;
+        avatar_url: string | null;
+        created_at: string;
+      }
+    >();
     for (const r of roles ?? []) {
       const p: any = byId.get(r.user_id);
       const cur = agg.get(r.user_id);
@@ -72,7 +103,9 @@ export const listarUsuarios = createServerFn({ method: "POST" })
       .limit(200);
 
     return {
-      utilizadores: Array.from(agg.values()).sort((a, b) => (a.nome ?? "").localeCompare(b.nome ?? "")),
+      utilizadores: Array.from(agg.values()).sort((a, b) =>
+        (a.nome ?? "").localeCompare(b.nome ?? ""),
+      ),
       convites: convites ?? [],
     };
   });
@@ -126,12 +159,39 @@ export const convidarUsuario = createServerFn({ method: "POST" })
     if (error) {
       // Mensagens amigáveis para o trigger de limite de plano
       if (/limite_plano_atingido/.test(error.message)) {
-        throw new Error("Limite de utilizadores do plano atingido. Faça upgrade para adicionar mais.");
+        throw new Error(
+          "Limite de utilizadores do plano atingido. Faça upgrade para adicionar mais.",
+        );
       }
       throwSafe(error);
     }
 
-    return { convite: row, token };
+    // O link tem de sair daqui: o token em claro não é recuperável depois desta
+    // resposta, só o hash fica persistido.
+    const urlConvite = `${urlBase()}/auth/convite/${token}`;
+
+    const { data: empresa } = await supabase
+      .from("condominios")
+      .select("nome")
+      .eq("id", data.condominio_id)
+      .single();
+
+    const messageId = await enfileirarEmail({
+      para: data.email,
+      assunto: `Convite para acessar ${empresa?.nome ?? "sua empresa"} no QiCond`,
+      label: "convite-empresa",
+      elemento: React.createElement(ConviteEmpresaEmail, {
+        nome: data.nome,
+        empresa: empresa?.nome ?? "sua empresa",
+        perfil: ROTULOS_PERFIL[data.role],
+        urlConvite,
+        expiraEm: row?.expira_em ? new Date(row.expira_em).toLocaleDateString("pt-BR") : undefined,
+      }),
+    });
+
+    // `token` e `urlConvite` continuam a voltar mesmo com o e-mail enfileirado:
+    // se o envio falhar, o administrador ainda consegue passar o link à mão.
+    return { convite: row, token, urlConvite, emailEnfileirado: messageId !== null };
   });
 
 // ===== Revogar convite =====

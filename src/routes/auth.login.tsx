@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { entrarComOAuth } from "@/integrations/supabase/oauth";
 import { useAuth } from "@/auth/AuthProvider";
 import { loginSchema } from "@/auth/validators";
 import { caminhoInternoSeguro, destinoAposLogin, validarNext } from "@/auth/proximo-destino";
@@ -47,15 +47,19 @@ function LoginPage() {
     });
     setSubmitting(false);
     if (error) {
-      toast.error(error.message === "Invalid login credentials" ? "E-mail ou senha incorretos" : error.message);
+      toast.error(
+        error.message === "Invalid login credentials"
+          ? "E-mail ou senha incorretos"
+          : error.message,
+      );
       return;
     }
     toast.success("Bem-vindo de volta!");
   }
 
   async function onGoogle() {
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/auth/callback" });
-    if (result.error) toast.error("Falha ao entrar com Google");
+    const { error } = await entrarComOAuth("google");
+    if (error) toast.error("Falha ao entrar com Google");
   }
 
   return (
@@ -64,10 +68,13 @@ function LoginPage() {
         <Logo inverse />
         <div>
           <h2 className="font-display text-4xl font-extrabold leading-tight">
-            Tudo do seu condomínio.<br />Direto no WhatsApp.
+            Tudo do seu condomínio.
+            <br />
+            Direto no WhatsApp.
           </h2>
           <p className="mt-4 text-primary-foreground/80 max-w-md">
-            Entre para ver cobranças, reservas, encomendas e a prestação de contas — sem instalar app.
+            Entre para ver cobranças, reservas, encomendas e a prestação de contas — sem instalar
+            app.
           </p>
         </div>
         <p className="text-sm text-primary-foreground/70">© QiCond</p>
@@ -75,7 +82,9 @@ function LoginPage() {
 
       <div className="flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-sm">
-          <div className="lg:hidden mb-8"><Logo /></div>
+          <div className="lg:hidden mb-8">
+            <Logo />
+          </div>
           <h1 className="font-display text-3xl font-extrabold">Entrar</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Não tem conta?{" "}
@@ -93,7 +102,24 @@ function LoginPage() {
             onClick={onGoogle}
             className="mt-8 w-full flex items-center justify-center gap-3 rounded-lg border border-border bg-surface px-4 py-3 text-sm font-semibold hover:bg-muted transition-colors"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              />
+            </svg>
             Continuar com Google
           </button>
 
@@ -103,7 +129,9 @@ function LoginPage() {
 
           <form onSubmit={onSubmit} className="space-y-4">
             <div>
-              <label className="text-xs font-semibold text-muted-foreground" htmlFor="email">E-MAIL</label>
+              <label className="text-xs font-semibold text-muted-foreground" htmlFor="email">
+                E-MAIL
+              </label>
               <input
                 id="email"
                 type="email"
@@ -116,8 +144,12 @@ function LoginPage() {
             </div>
             <div>
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-muted-foreground" htmlFor="senha">SENHA</label>
-                <Link to="/auth/esqueci-senha" className="text-xs text-primary hover:underline">Esqueci a senha</Link>
+                <label className="text-xs font-semibold text-muted-foreground" htmlFor="senha">
+                  SENHA
+                </label>
+                <Link to="/auth/esqueci-senha" className="text-xs text-primary hover:underline">
+                  Esqueci a senha
+                </Link>
               </div>
               <input
                 id="senha"
@@ -140,7 +172,9 @@ function LoginPage() {
           </form>
 
           <p className="mt-8 text-center text-xs text-muted-foreground">
-            <Link to="/" className="hover:underline">← Voltar ao site</Link>
+            <Link to="/" className="hover:underline">
+              ← Voltar ao site
+            </Link>
           </p>
         </div>
       </div>

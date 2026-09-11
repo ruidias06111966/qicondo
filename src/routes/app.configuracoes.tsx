@@ -1,5 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Building2, MessageCircle, Users, FileText, Wallet, Settings, Bell, UserCheck } from "lucide-react";
+import {
+  Building2,
+  MessageCircle,
+  Users,
+  FileText,
+  Wallet,
+  Settings,
+  Bell,
+  UserCheck,
+} from "lucide-react";
 import { useCondominioAtivo, type Role } from "@/auth/useCondominio";
 import { ADMIN, FIN_VER, temAcesso } from "@/auth/permissoes";
 
@@ -11,14 +20,59 @@ export const Route = createFileRoute("/app/configuracoes")({
 type Item = { to: string; icon: typeof Building2; title: string; desc: string; roles?: Role[] };
 
 const ITEMS: Item[] = [
-  { to: "/app/condominio", icon: Building2, title: "Dados da empresa", desc: "Nome, CNPJ, endereço e código público.", roles: ADMIN },
-  { to: "/app/usuarios", icon: Users, title: "Equipa e convites", desc: "Convide a equipa (Administrador, Financeiro, Gestor, Vendedor, Comercial, Contador, Consulta) e altere perfis.", roles: ADMIN },
-  { to: "/app/moradores", icon: Users, title: "Moradores e unidades", desc: "Vincule moradores às unidades e acompanhe o limite do plano.", roles: ADMIN },
-  { to: "/app/visitantes", icon: UserCheck, title: "Visitantes", desc: "Controlo de entradas, autorizações e pré-cadastro." },
-  { to: "/app/documentos", icon: FileText, title: "Documentos oficiais", desc: "Atas, convenções, regimentos." },
-  { to: "/app/whatsapp", icon: MessageCircle, title: "WhatsApp Bot", desc: "Integração Meta Cloud API.", roles: ADMIN },
-  { to: "/app/financeiro", icon: Wallet, title: "Financeiro", desc: "Cobranças, pagamentos, CNAB.", roles: FIN_VER },
-  { to: "/app/preferencias-notificacao", icon: Bell, title: "Preferências de notificação", desc: "Escolha o que recebe pelo WhatsApp." },
+  {
+    to: "/app/condominio",
+    icon: Building2,
+    title: "Dados da empresa",
+    desc: "Nome, CNPJ, endereço e código público.",
+    roles: ADMIN,
+  },
+  {
+    to: "/app/usuarios",
+    icon: Users,
+    title: "Equipa e convites",
+    desc: "Convide a equipa (Administrador, Financeiro, Gestor, Vendedor, Comercial, Contador, Consulta) e altere perfis.",
+    roles: ADMIN,
+  },
+  {
+    to: "/app/moradores",
+    icon: Users,
+    title: "Moradores e unidades",
+    desc: "Vincule moradores às unidades e acompanhe o limite do plano.",
+    roles: ADMIN,
+  },
+  {
+    to: "/app/visitantes",
+    icon: UserCheck,
+    title: "Visitantes",
+    desc: "Controlo de entradas, autorizações e pré-cadastro.",
+  },
+  {
+    to: "/app/documentos",
+    icon: FileText,
+    title: "Documentos oficiais",
+    desc: "Atas, convenções, regimentos.",
+  },
+  {
+    to: "/app/whatsapp",
+    icon: MessageCircle,
+    title: "WhatsApp Bot",
+    desc: "Integração Meta Cloud API.",
+    roles: ADMIN,
+  },
+  {
+    to: "/app/financeiro",
+    icon: Wallet,
+    title: "Financeiro",
+    desc: "Cobranças, pagamentos, CNAB.",
+    roles: FIN_VER,
+  },
+  {
+    to: "/app/preferencias-notificacao",
+    icon: Bell,
+    title: "Preferências de notificação",
+    desc: "Escolha o que recebe pelo WhatsApp.",
+  },
 ];
 
 function ConfigPage() {
@@ -28,16 +82,24 @@ function ConfigPage() {
   return (
     <div className="p-6 max-w-5xl space-y-6">
       <header className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center"><Settings /></div>
+        <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+          <Settings />
+        </div>
         <div>
           <h1 className="text-2xl font-display font-bold">Configurações</h1>
-          <p className="text-sm text-muted-foreground">Acesso rápido a todas as áreas administrativas.</p>
+          <p className="text-sm text-muted-foreground">
+            Acesso rápido a todas as áreas administrativas.
+          </p>
         </div>
       </header>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((it) => (
-          <Link key={it.to} to={it.to} className="group rounded-xl border border-border bg-background p-5 hover:border-primary transition-colors">
+          <Link
+            key={it.to}
+            to={it.to}
+            className="group rounded-xl border border-border bg-background p-5 hover:border-primary transition-colors"
+          >
             <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-3">
               <it.icon size={18} />
             </div>

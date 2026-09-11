@@ -44,7 +44,10 @@ const BUSINESS_RULES: Record<string, string> = {
 };
 
 /** Devolve a mensagem segura para o cliente. */
-export function safeErrorMessage(err: unknown, fallback = "Operação falhou. Tente novamente."): string {
+export function safeErrorMessage(
+  err: unknown,
+  fallback = "Operação falhou. Tente novamente.",
+): string {
   const raw = String((err as any)?.message ?? err ?? "").trim();
   if (!raw) return fallback;
 
@@ -56,7 +59,8 @@ export function safeErrorMessage(err: unknown, fallback = "Operação falhou. Te
   // Erros HTTP/postgres conhecidos -> mensagem amigável
   if (/duplicate key|unique constraint/i.test(raw)) return "Já existe um registo com estes dados.";
   if (/foreign key/i.test(raw)) return "Operação inválida: existem dados associados.";
-  if (/permission denied|row-level security|RLS/i.test(raw)) return "Não tem permissão para esta ação.";
+  if (/permission denied|row-level security|RLS/i.test(raw))
+    return "Não tem permissão para esta ação.";
   if (/not.?null|null value/i.test(raw)) return "Faltam campos obrigatórios.";
 
   // Caso geral — não expor detalhes do Postgres
@@ -67,7 +71,6 @@ export function safeErrorMessage(err: unknown, fallback = "Operação falhou. Te
  * Lança um Error com mensagem segura, mantendo o original no log do servidor.
  */
 export function throwSafe(err: unknown, fallback?: string): never {
-  // eslint-disable-next-line no-console
   console.error("[server-error]", err);
   throw new Error(safeErrorMessage(err, fallback));
 }

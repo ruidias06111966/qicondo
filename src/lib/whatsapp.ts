@@ -33,18 +33,22 @@ export async function registrarNotificacaoWA(params: {
   const tel = normalizarTelefone(params.destinatarioTelefone);
   if (!tel) return null;
   const link = linkWhatsApp(tel, params.mensagem);
-  const { data, error } = await supabase.from("notificacoes_whatsapp").insert({
-    condominio_id: params.condominioId,
-    unidade_id: params.unidadeId ?? null,
-    destinatario_user_id: params.destinatarioUserId ?? null,
-    destinatario_telefone: tel,
-    destinatario_nome: params.destinatarioNome ?? null,
-    mensagem: params.mensagem,
-    contexto: params.contexto,
-    contexto_id: params.contextoId,
-    status: "pendente",
-    link_wa: link,
-  }).select("id").single();
+  const { data, error } = await supabase
+    .from("notificacoes_whatsapp")
+    .insert({
+      condominio_id: params.condominioId,
+      unidade_id: params.unidadeId ?? null,
+      destinatario_user_id: params.destinatarioUserId ?? null,
+      destinatario_telefone: tel,
+      destinatario_nome: params.destinatarioNome ?? null,
+      mensagem: params.mensagem,
+      contexto: params.contexto,
+      contexto_id: params.contextoId,
+      status: "pendente",
+      link_wa: link,
+    })
+    .select("id")
+    .single();
   if (error) {
     console.error("Erro ao registrar notificação WA", error);
     return null;

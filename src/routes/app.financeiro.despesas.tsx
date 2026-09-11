@@ -59,7 +59,10 @@ function DespesasPage() {
           className="px-3 py-2 rounded-lg border border-border bg-background text-sm"
         />
         {mes && (
-          <button onClick={() => setMes("")} className="text-sm text-muted-foreground hover:text-foreground">
+          <button
+            onClick={() => setMes("")}
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
             Limpar filtro
           </button>
         )}

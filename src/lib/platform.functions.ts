@@ -5,8 +5,16 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const PLANOS = ["basico", "profissional", "enterprise"] as const;
 const ROLES = [
-  "admin", "sindico", "financeiro", "gestor", "vendedor",
-  "comercial", "contador", "consulta", "porteiro", "morador",
+  "admin",
+  "sindico",
+  "financeiro",
+  "gestor",
+  "vendedor",
+  "comercial",
+  "contador",
+  "consulta",
+  "porteiro",
+  "morador",
 ] as const;
 
 async function ensurePlatformAdmin(supabase: any, userId: string) {
@@ -109,7 +117,10 @@ export const detalheEmpresa = createServerFn({ method: "POST" })
     const { supabase } = context;
 
     const { data: empresa, error: e1 } = await supabase
-      .from("condominios").select("*").eq("id", data.condominio_id).maybeSingle();
+      .from("condominios")
+      .select("*")
+      .eq("id", data.condominio_id)
+      .maybeSingle();
     if (e1) throwSafe(e1);
     if (!empresa) throw new Error("Empresa não encontrada");
 
@@ -119,7 +130,10 @@ export const detalheEmpresa = createServerFn({ method: "POST" })
       .eq("condominio_id", data.condominio_id);
     const ids = Array.from(new Set((roles ?? []).map((r) => r.user_id)));
     const { data: profs } = ids.length
-      ? await supabase.from("profiles").select("id, nome_completo, telefone, avatar_url").in("id", ids)
+      ? await supabase
+          .from("profiles")
+          .select("id, nome_completo, telefone, avatar_url")
+          .in("id", ids)
       : { data: [] as any[] };
     const byId = new Map((profs ?? []).map((p: any) => [p.id, p]));
 
@@ -128,18 +142,23 @@ export const detalheEmpresa = createServerFn({ method: "POST" })
       const cur = agg.get(r.user_id);
       const p: any = byId.get(r.user_id);
       if (cur) cur.roles.push(r.role);
-      else agg.set(r.user_id, {
-        user_id: r.user_id, roles: [r.role],
-        nome: p?.nome_completo ?? null, telefone: p?.telefone ?? null,
-        avatar_url: p?.avatar_url ?? null, created_at: r.created_at,
-      });
+      else
+        agg.set(r.user_id, {
+          user_id: r.user_id,
+          roles: [r.role],
+          nome: p?.nome_completo ?? null,
+          telefone: p?.telefone ?? null,
+          avatar_url: p?.avatar_url ?? null,
+          created_at: r.created_at,
+        });
     }
 
     const { data: convites } = await supabase
       .from("convites")
       .select("id, email, nome, role, status, expira_em, created_at")
       .eq("condominio_id", data.condominio_id)
-      .order("created_at", { ascending: false }).limit(200);
+      .order("created_at", { ascending: false })
+      .limit(200);
 
     return {
       empresa,
@@ -152,13 +171,15 @@ export const detalheEmpresa = createServerFn({ method: "POST" })
 export const atualizarAssinatura = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({
-      condominio_id: z.string().uuid(),
-      plano: z.enum(PLANOS).optional(),
-      assinatura_inicio: z.string().optional().nullable(),
-      assinatura_fim: z.string().optional().nullable(),
-      valor_mensal: z.number().nonnegative().optional().nullable(),
-    }).parse(d),
+    z
+      .object({
+        condominio_id: z.string().uuid(),
+        plano: z.enum(PLANOS).optional(),
+        assinatura_inicio: z.string().optional().nullable(),
+        assinatura_fim: z.string().optional().nullable(),
+        valor_mensal: z.number().nonnegative().optional().nullable(),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     await ensurePlatformAdmin(context.supabase, context.userId);
@@ -167,9 +188,19 @@ export const atualizarAssinatura = createServerFn({ method: "POST" })
     if (data.assinatura_inicio !== undefined) patch.assinatura_inicio = data.assinatura_inicio;
     if (data.assinatura_fim !== undefined) patch.assinatura_fim = data.assinatura_fim;
     if (data.valor_mensal !== undefined) patch.valor_mensal = data.valor_mensal;
-    const { error } = await context.supabase.from("condominios").update(patch).eq("id", data.condominio_id);
+    const { error } = await context.supabase
+      .from("condominios")
+      .update(patch)
+      .eq("id", data.condominio_id);
     if (error) throwSafe(error);
-    await logAdmin(context.supabase, context.userId, "assinatura_atualizada", "condominios", data.condominio_id, patch);
+    await logAdmin(
+      context.supabase,
+      context.userId,
+      "assinatura_atualizada",
+      "condominios",
+      data.condominio_id,
+      patch,
+    );
     return { ok: true };
   });
 
@@ -177,80 +208,137 @@ export const atualizarAssinatura = createServerFn({ method: "POST" })
 export const definirSuspensao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({
-      condominio_id: z.string().uuid(),
-      suspenso: z.boolean(),
-      motivo: z.string().max(500).optional().nullable(),
-    }).parse(d),
+    z
+      .object({
+        condominio_id: z.string().uuid(),
+        suspenso: z.boolean(),
+        motivo: z.string().max(500).optional().nullable(),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     await ensurePlatformAdmin(context.supabase, context.userId);
-    const { error } = await context.supabase.from("condominios").update({
-      suspenso: data.suspenso,
-      motivo_suspensao: data.suspenso ? data.motivo ?? null : null,
-    }).eq("id", data.condominio_id);
+    const { error } = await context.supabase
+      .from("condominios")
+      .update({
+        suspenso: data.suspenso,
+        motivo_suspensao: data.suspenso ? (data.motivo ?? null) : null,
+      })
+      .eq("id", data.condominio_id);
     if (error) throwSafe(error);
-    await logAdmin(context.supabase, context.userId,
+    await logAdmin(
+      context.supabase,
+      context.userId,
       data.suspenso ? "empresa_suspensa" : "empresa_reativada",
-      "condominios", data.condominio_id, { motivo: data.motivo });
+      "condominios",
+      data.condominio_id,
+      { motivo: data.motivo },
+    );
     return { ok: true };
   });
 
 // ===== Apagar empresa =====
 export const apagarEmpresa = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({
-    condominio_id: z.string().uuid(),
-    confirmar_nome: z.string(),
-  }).parse(d))
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        condominio_id: z.string().uuid(),
+        confirmar_nome: z.string(),
+      })
+      .parse(d),
+  )
   .handler(async ({ data, context }) => {
     await ensurePlatformAdmin(context.supabase, context.userId);
     const { data: emp } = await context.supabase
-      .from("condominios").select("nome").eq("id", data.condominio_id).maybeSingle();
+      .from("condominios")
+      .select("nome")
+      .eq("id", data.condominio_id)
+      .maybeSingle();
     if (!emp) throw new Error("Empresa não encontrada");
     if (emp.nome.trim() !== data.confirmar_nome.trim()) {
       throw new Error("Nome de confirmação não bate certo");
     }
-    const { error } = await context.supabase.from("condominios").delete().eq("id", data.condominio_id);
+    const { error } = await context.supabase
+      .from("condominios")
+      .delete()
+      .eq("id", data.condominio_id);
     if (error) throwSafe(error);
-    await logAdmin(context.supabase, context.userId, "empresa_apagada", "condominios", data.condominio_id, { nome: emp.nome });
+    await logAdmin(
+      context.supabase,
+      context.userId,
+      "empresa_apagada",
+      "condominios",
+      data.condominio_id,
+      { nome: emp.nome },
+    );
     return { ok: true };
   });
 
 // ===== Alterar role de utilizador em empresa =====
 export const alterarRoleEmpresa = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({
-    condominio_id: z.string().uuid(),
-    user_id: z.string().uuid(),
-    role_antigo: z.enum(ROLES),
-    role_novo: z.enum(ROLES),
-  }).parse(d))
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        condominio_id: z.string().uuid(),
+        user_id: z.string().uuid(),
+        role_antigo: z.enum(ROLES),
+        role_novo: z.enum(ROLES),
+      })
+      .parse(d),
+  )
   .handler(async ({ data, context }) => {
     await ensurePlatformAdmin(context.supabase, context.userId);
-    const { error: e1 } = await context.supabase.from("user_roles").delete()
+    const { error: e1 } = await context.supabase
+      .from("user_roles")
+      .delete()
       .eq("condominio_id", data.condominio_id)
       .eq("user_id", data.user_id)
       .eq("role", data.role_antigo);
     if (e1) throwSafe(e1);
     const { error: e2 } = await context.supabase.from("user_roles").insert({
-      condominio_id: data.condominio_id, user_id: data.user_id, role: data.role_novo,
+      condominio_id: data.condominio_id,
+      user_id: data.user_id,
+      role: data.role_novo,
     });
     if (e2) throwSafe(e2);
-    await logAdmin(context.supabase, context.userId, "role_alterada", "user_roles", data.user_id, data);
+    await logAdmin(
+      context.supabase,
+      context.userId,
+      "role_alterada",
+      "user_roles",
+      data.user_id,
+      data,
+    );
     return { ok: true };
   });
 
 export const removerUtilizadorEmpresa = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({
-    condominio_id: z.string().uuid(), user_id: z.string().uuid(),
-  }).parse(d))
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        condominio_id: z.string().uuid(),
+        user_id: z.string().uuid(),
+      })
+      .parse(d),
+  )
   .handler(async ({ data, context }) => {
     await ensurePlatformAdmin(context.supabase, context.userId);
-    const { error } = await context.supabase.from("user_roles").delete()
-      .eq("condominio_id", data.condominio_id).eq("user_id", data.user_id);
+    const { error } = await context.supabase
+      .from("user_roles")
+      .delete()
+      .eq("condominio_id", data.condominio_id)
+      .eq("user_id", data.user_id);
     if (error) throwSafe(error);
-    await logAdmin(context.supabase, context.userId, "utilizador_removido", "user_roles", data.user_id, { condominio_id: data.condominio_id });
+    await logAdmin(
+      context.supabase,
+      context.userId,
+      "utilizador_removido",
+      "user_roles",
+      data.user_id,
+      { condominio_id: data.condominio_id },
+    );
     return { ok: true };
   });

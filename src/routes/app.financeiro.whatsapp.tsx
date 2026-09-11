@@ -85,16 +85,27 @@ function HistoricoWA() {
     <div>
       <div className="bg-background border border-border rounded-2xl p-4 mb-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <Field label="De">
-          <input type="date" value={ini} onChange={(e) => setIni(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          <input
+            type="date"
+            value={ini}
+            onChange={(e) => setIni(e.target.value)}
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+          />
         </Field>
         <Field label="Até">
-          <input type="date" value={fim} onChange={(e) => setFim(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          <input
+            type="date"
+            value={fim}
+            onChange={(e) => setFim(e.target.value)}
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+          />
         </Field>
         <Field label="Status">
-          <select value={status} onChange={(e) => setStatus(e.target.value as Status)}
-            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm">
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as Status)}
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+          >
             <option value="">Todos</option>
             <option value="pendente">Pendente</option>
             <option value="enviado">Enviado</option>
@@ -102,8 +113,11 @@ function HistoricoWA() {
           </select>
         </Field>
         <Field label="Contexto">
-          <select value={contexto} onChange={(e) => setContexto(e.target.value as Contexto)}
-            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm">
+          <select
+            value={contexto}
+            onChange={(e) => setContexto(e.target.value as Contexto)}
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+          >
             <option value="">Todos</option>
             <option value="cobranca">Cobrança</option>
             <option value="encomenda">Encomenda</option>
@@ -125,8 +139,11 @@ function HistoricoWA() {
           <Loader2 className="animate-spin text-muted-foreground" />
         </div>
       ) : rows.length === 0 ? (
-        <EmptyState icon={MessageCircle} title="Nenhuma mensagem encontrada"
-          desc="Ajuste os filtros ou aguarde o disparo da automação." />
+        <EmptyState
+          icon={MessageCircle}
+          title="Nenhuma mensagem encontrada"
+          desc="Ajuste os filtros ou aguarde o disparo da automação."
+        />
       ) : (
         <div className="bg-background border border-border rounded-2xl overflow-hidden">
           <table className="w-full text-sm">
@@ -146,26 +163,43 @@ function HistoricoWA() {
                   <td className="px-4 py-3 whitespace-nowrap">{dateTimeBR(r.created_at)}</td>
                   <td className="px-4 py-3">
                     <div className="font-medium">{r.destinatario_nome ?? "—"}</div>
-                    <div className="text-xs text-muted-foreground font-mono">{r.destinatario_telefone}</div>
+                    <div className="text-xs text-muted-foreground font-mono">
+                      {r.destinatario_telefone}
+                    </div>
                   </td>
                   <td className="px-4 py-3 capitalize">{r.contexto ?? "—"}</td>
                   <td className="px-4 py-3 max-w-md">
-                    <p className="line-clamp-2 text-xs text-muted-foreground whitespace-pre-wrap">{r.mensagem}</p>
+                    <p className="line-clamp-2 text-xs text-muted-foreground whitespace-pre-wrap">
+                      {r.mensagem}
+                    </p>
                     {r.erro && <p className="text-xs text-rose-600 mt-1">⚠ {r.erro}</p>}
                   </td>
-                  <td className="px-4 py-3"><StatusPill s={r.status} /></td>
+                  <td className="px-4 py-3">
+                    <StatusPill s={r.status} />
+                  </td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
                     <div className="inline-flex gap-1">
                       {r.link_wa && (
-                        <a href={r.link_wa} target="_blank" rel="noreferrer"
-                          className="inline-flex items-center gap-1 px-2 py-1 rounded border border-border text-xs hover:bg-muted">
+                        <a
+                          href={r.link_wa}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded border border-border text-xs hover:bg-muted"
+                        >
                           <ExternalLink size={12} /> Abrir
                         </a>
                       )}
                       {r.status === "falhou" && (
-                        <button onClick={() => reenviar(r.id)} disabled={reenviando === r.id}
-                          className="inline-flex items-center gap-1 px-2 py-1 rounded bg-primary text-primary-foreground text-xs disabled:opacity-60">
-                          {reenviando === r.id ? <Loader2 size={12} className="animate-spin" /> : <RotateCcw size={12} />}
+                        <button
+                          onClick={() => reenviar(r.id)}
+                          disabled={reenviando === r.id}
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded bg-primary text-primary-foreground text-xs disabled:opacity-60"
+                        >
+                          {reenviando === r.id ? (
+                            <Loader2 size={12} className="animate-spin" />
+                          ) : (
+                            <RotateCcw size={12} />
+                          )}
                           Reenviar
                         </button>
                       )}
@@ -181,11 +215,23 @@ function HistoricoWA() {
   );
 }
 
-function Stat({ label, value, tone }: { label: string; value: number; tone?: "amber" | "emerald" | "rose" }) {
+function Stat({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone?: "amber" | "emerald" | "rose";
+}) {
   const cls =
-    tone === "amber" ? "text-amber-600" :
-    tone === "emerald" ? "text-emerald-600" :
-    tone === "rose" ? "text-rose-600" : "text-foreground";
+    tone === "amber"
+      ? "text-amber-600"
+      : tone === "emerald"
+        ? "text-emerald-600"
+        : tone === "rose"
+          ? "text-rose-600"
+          : "text-foreground";
   return (
     <div className="bg-background border border-border rounded-2xl p-4">
       <p className="text-xs uppercase font-semibold text-muted-foreground">{label}</p>
@@ -201,7 +247,9 @@ function StatusPill({ s }: { s: string }) {
     falhou: "bg-rose-100 text-rose-700",
   };
   return (
-    <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase ${map[s] ?? "bg-muted"}`}>
+    <span
+      className={`px-2 py-1 rounded-full text-xs font-semibold uppercase ${map[s] ?? "bg-muted"}`}
+    >
       {s}
     </span>
   );

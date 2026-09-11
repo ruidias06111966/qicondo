@@ -15,7 +15,8 @@ export const enfileirarNotificacaoDocumento = createServerFn({ method: "POST" })
     const { data: doc } = await supabaseAdmin
       .from("documentos")
       .select("id, condominio_id, aprovado, visivel_publico")
-      .eq("id", data.documento_id).maybeSingle();
+      .eq("id", data.documento_id)
+      .maybeSingle();
     if (!doc) throw new Error("documento_nao_encontrado");
     if (!doc.aprovado || !doc.visivel_publico) throw new Error("documento_nao_publicavel");
 
@@ -38,20 +39,27 @@ export const historicoNotificacoesDocumento = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const { data: doc } = await supabaseAdmin
-      .from("documentos").select("condominio_id").eq("id", data.documento_id).maybeSingle();
+      .from("documentos")
+      .select("condominio_id")
+      .eq("id", data.documento_id)
+      .maybeSingle();
     if (!doc) throw new Error("documento_nao_encontrado");
     await checarSindico(context.supabase, context.userId, doc.condominio_id);
 
     const { data: jobs } = await supabaseAdmin
       .from("wa_notif_jobs")
-      .select("id, destinatario_nome, destinatario_telefone, status, tentativas, ultimo_erro, enviado_em, created_at, proxima_tentativa")
+      .select(
+        "id, destinatario_nome, destinatario_telefone, status, tentativas, ultimo_erro, enviado_em, created_at, proxima_tentativa",
+      )
       .eq("documento_id", data.documento_id)
       .order("created_at", { ascending: false });
 
     const total = jobs?.length ?? 0;
     const enviados = jobs?.filter((j) => j.status === "enviado").length ?? 0;
-    const falhas = jobs?.filter((j) => j.status === "falha" || j.status === "desistido").length ?? 0;
-    const pendentes = jobs?.filter((j) => j.status === "pendente" || j.status === "enviando").length ?? 0;
+    const falhas =
+      jobs?.filter((j) => j.status === "falha" || j.status === "desistido").length ?? 0;
+    const pendentes =
+      jobs?.filter((j) => j.status === "pendente" || j.status === "enviando").length ?? 0;
     return { total, enviados, falhas, pendentes, jobs: jobs ?? [] };
   });
 
@@ -63,11 +71,15 @@ export const reenviarFalhasDocumento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const { data: doc } = await supabaseAdmin
-      .from("documentos").select("condominio_id").eq("id", data.documento_id).maybeSingle();
+      .from("documentos")
+      .select("condominio_id")
+      .eq("id", data.documento_id)
+      .maybeSingle();
     if (!doc) throw new Error("documento_nao_encontrado");
     await checarSindico(context.supabase, context.userId, doc.condominio_id);
 
-    await supabaseAdmin.from("wa_notif_jobs")
+    await supabaseAdmin
+      .from("wa_notif_jobs")
       .update({
         status: "pendente",
         tentativas: 0,

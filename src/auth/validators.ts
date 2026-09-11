@@ -1,10 +1,6 @@
 import { z } from "zod";
 
-export const emailSchema = z
-  .string()
-  .trim()
-  .email({ message: "E-mail inválido" })
-  .max(255);
+export const emailSchema = z.string().trim().email({ message: "E-mail inválido" }).max(255);
 
 export const senhaSchema = z
   .string()
@@ -30,12 +26,7 @@ export const cadastroSchema = z.object({
 
 export const condominioSchema = z.object({
   nome: z.string().trim().min(3, "Nome do condomínio").max(120),
-  cnpj: z
-    .string()
-    .trim()
-    .max(20)
-    .optional()
-    .or(z.literal("")),
+  cnpj: z.string().trim().max(20).optional().or(z.literal("")),
   endereco: z.string().trim().max(255).optional().or(z.literal("")),
   cidade: z.string().trim().max(80).optional().or(z.literal("")),
   estado: z.string().trim().max(2).optional().or(z.literal("")),

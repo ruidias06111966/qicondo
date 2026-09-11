@@ -40,7 +40,11 @@ export async function getConfig(condominioId: string): Promise<WaConfig | null> 
   return (data as any) ?? null;
 }
 
-export function verifySignature(appSecret: string, rawBody: string, signature: string | null): boolean {
+export function verifySignature(
+  appSecret: string,
+  rawBody: string,
+  signature: string | null,
+): boolean {
   if (!signature || !signature.startsWith("sha256=")) return false;
   const expected = createHmac("sha256", appSecret).update(rawBody).digest("hex");
   const got = signature.slice("sha256=".length);
@@ -132,7 +136,8 @@ export async function registrarMensagem(params: {
       status: params.status ?? (params.direcao === "entrada" ? "recebida" : "pendente"),
       contexto: params.contexto ?? null,
       contexto_id: params.contextoId ?? null,
-      enviado_em: params.direcao === "saida" && params.status === "enviada" ? new Date().toISOString() : null,
+      enviado_em:
+        params.direcao === "saida" && params.status === "enviada" ? new Date().toISOString() : null,
     })
     .select("*")
     .single();

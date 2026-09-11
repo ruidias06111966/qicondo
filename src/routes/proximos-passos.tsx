@@ -121,10 +121,7 @@ function ProximosPassosPage() {
   }, [done]);
 
   const total = CHECKLIST.length;
-  const concluidos = useMemo(
-    () => CHECKLIST.filter((c) => done[c.id]).length,
-    [done],
-  );
+  const concluidos = useMemo(() => CHECKLIST.filter((c) => done[c.id]).length, [done]);
   const progresso = Math.round((concluidos / total) * 100);
 
   function toggle(id: string) {
@@ -151,9 +148,8 @@ function ProximosPassosPage() {
           Pronto para <span className="text-gradient-brand">decolar</span> com o QiCond
         </h1>
         <p className="mt-5 text-muted-foreground max-w-2xl mx-auto">
-          Recebemos o seu contato. Enquanto a nossa equipe responde, prepare o seu
-          condomínio com este checklist e use uma das mensagens prontas para iniciar a
-          conversa no WhatsApp.
+          Recebemos o seu contato. Enquanto a nossa equipe responde, prepare o seu condomínio com
+          este checklist e use uma das mensagens prontas para iniciar a conversa no WhatsApp.
         </p>
       </section>
 
@@ -237,8 +233,8 @@ function ProximosPassosPage() {
               <h3 className="font-display font-extrabold text-lg">Mensagens prontas</h3>
             </div>
             <p className="text-xs text-muted-foreground">
-              Toque em <strong>Abrir WhatsApp</strong> para enviar com a mensagem já preenchida,
-              ou copie o texto para usar onde preferir.
+              Toque em <strong>Abrir WhatsApp</strong> para enviar com a mensagem já preenchida, ou
+              copie o texto para usar onde preferir.
             </p>
           </div>
 

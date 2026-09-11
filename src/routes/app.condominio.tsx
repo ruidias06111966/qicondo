@@ -16,11 +16,26 @@ export const Route = createFileRoute("/app/condominio")({
 });
 
 type Form = {
-  nome: string; cnpj: string; endereco: string; cidade: string;
-  estado: string; cep: string; whatsapp_numero: string; codigo_publico: string;
+  nome: string;
+  cnpj: string;
+  endereco: string;
+  cidade: string;
+  estado: string;
+  cep: string;
+  whatsapp_numero: string;
+  codigo_publico: string;
 };
 
-const EMPTY: Form = { nome: "", cnpj: "", endereco: "", cidade: "", estado: "", cep: "", whatsapp_numero: "", codigo_publico: "" };
+const EMPTY: Form = {
+  nome: "",
+  cnpj: "",
+  endereco: "",
+  cidade: "",
+  estado: "",
+  cep: "",
+  whatsapp_numero: "",
+  codigo_publico: "",
+};
 
 function CondominioPage() {
   const { condominioId, isSindico } = useCondominioAtivo();
@@ -34,14 +49,22 @@ function CondominioPage() {
     if (!condominioId) return;
     setLoading(true);
     (async () => {
-      const r = await safeCall(supabase.from("condominios").select("*").eq("id", condominioId).maybeSingle());
+      const r = await safeCall(
+        supabase.from("condominios").select("*").eq("id", condominioId).maybeSingle(),
+      );
       if (r?.error) toast.error(r.error.message);
       const data = r?.data;
-      if (data) setF({
-        nome: data.nome ?? "", cnpj: data.cnpj ?? "", endereco: data.endereco ?? "",
-        cidade: data.cidade ?? "", estado: data.estado ?? "", cep: data.cep ?? "",
-        whatsapp_numero: data.whatsapp_numero ?? "", codigo_publico: data.codigo_publico ?? "",
-      });
+      if (data)
+        setF({
+          nome: data.nome ?? "",
+          cnpj: data.cnpj ?? "",
+          endereco: data.endereco ?? "",
+          cidade: data.cidade ?? "",
+          estado: data.estado ?? "",
+          cep: data.cep ?? "",
+          whatsapp_numero: data.whatsapp_numero ?? "",
+          codigo_publico: data.codigo_publico ?? "",
+        });
       setLoading(false);
     })();
   }, [condominioId]);
@@ -58,7 +81,9 @@ function CondominioPage() {
       if (r) {
         setF((p) => ({
           ...p,
-          endereco: r.logradouro ? `${r.logradouro}${r.bairro ? " — " + r.bairro : ""}` : p.endereco,
+          endereco: r.logradouro
+            ? `${r.logradouro}${r.bairro ? " — " + r.bairro : ""}`
+            : p.endereco,
           cidade: r.localidade || p.cidade,
           estado: r.uf || p.estado,
         }));
@@ -75,20 +100,30 @@ function CondominioPage() {
 
   async function salvar() {
     if (!condominioId) return;
-    if (!f.nome || f.nome.trim().length < 3) { toast.error("Nome obrigatório"); return; }
-    if (f.cnpj && !isValidCNPJ(f.cnpj)) { toast.error("CNPJ inválido"); return; }
+    if (!f.nome || f.nome.trim().length < 3) {
+      toast.error("Nome obrigatório");
+      return;
+    }
+    if (f.cnpj && !isValidCNPJ(f.cnpj)) {
+      toast.error("CNPJ inválido");
+      return;
+    }
     setSaving(true);
-    const { error } = await supabase.from("condominios").update({
-      nome: f.nome.trim(),
-      cnpj: f.cnpj || null,
-      endereco: f.endereco || null,
-      cidade: f.cidade || null,
-      estado: f.estado || null,
-      cep: f.cep || null,
-      whatsapp_numero: f.whatsapp_numero || null,
-    }).eq("id", condominioId);
+    const { error } = await supabase
+      .from("condominios")
+      .update({
+        nome: f.nome.trim(),
+        cnpj: f.cnpj || null,
+        endereco: f.endereco || null,
+        cidade: f.cidade || null,
+        estado: f.estado || null,
+        cep: f.cep || null,
+        whatsapp_numero: f.whatsapp_numero || null,
+      })
+      .eq("id", condominioId);
     setSaving(false);
-    if (error) toast.error(error.message); else toast.success("Salvo");
+    if (error) toast.error(error.message);
+    else toast.success("Salvo");
   }
 
   if (!isSindico) {
@@ -98,22 +133,33 @@ function CondominioPage() {
           <AlertCircle className="text-amber-500 shrink-0" />
           <div>
             <p className="font-semibold">Acesso restrito</p>
-            <p className="text-sm text-muted-foreground">Apenas administradores podem editar dados da empresa.</p>
+            <p className="text-sm text-muted-foreground">
+              Apenas administradores podem editar dados da empresa.
+            </p>
           </div>
         </div>
       </div>
     );
   }
 
-  if (loading) return <div className="p-6 flex items-center gap-2 text-muted-foreground"><Loader2 className="animate-spin" /> Carregando…</div>;
+  if (loading)
+    return (
+      <div className="p-6 flex items-center gap-2 text-muted-foreground">
+        <Loader2 className="animate-spin" /> Carregando…
+      </div>
+    );
 
   return (
     <div className="p-6 max-w-4xl space-y-6">
       <header className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center"><Building2 /></div>
+        <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+          <Building2 />
+        </div>
         <div>
           <h1 className="text-2xl font-display font-bold">Dados da empresa</h1>
-          <p className="text-sm text-muted-foreground">Edite informações cadastrais e compartilhe o código de acesso.</p>
+          <p className="text-sm text-muted-foreground">
+            Edite informações cadastrais e compartilhe o código de acesso.
+          </p>
         </div>
       </header>
 
@@ -125,20 +171,39 @@ function CondominioPage() {
           </div>
           <div>
             <Label>CNPJ</Label>
-            <Input value={f.cnpj} onChange={(e) => handleCnpj(e.target.value)} placeholder="00.000.000/0000-00" />
+            <Input
+              value={f.cnpj}
+              onChange={(e) => handleCnpj(e.target.value)}
+              placeholder="00.000.000/0000-00"
+            />
             {cnpjErr && <p className="text-xs text-destructive mt-1">{cnpjErr}</p>}
           </div>
           <div>
             <Label>WhatsApp da empresa</Label>
-            <Input value={f.whatsapp_numero} onChange={(e) => upd("whatsapp_numero", e.target.value)} placeholder="+55 11 90000-0000" />
+            <Input
+              value={f.whatsapp_numero}
+              onChange={(e) => upd("whatsapp_numero", e.target.value)}
+              placeholder="+55 11 90000-0000"
+            />
           </div>
           <div>
-            <Label>CEP {cepBusy && <Loader2 size={12} className="inline animate-spin ml-1" />}</Label>
-            <Input value={f.cep} onChange={(e) => handleCep(e.target.value)} placeholder="00000-000" maxLength={9} />
+            <Label>
+              CEP {cepBusy && <Loader2 size={12} className="inline animate-spin ml-1" />}
+            </Label>
+            <Input
+              value={f.cep}
+              onChange={(e) => handleCep(e.target.value)}
+              placeholder="00000-000"
+              maxLength={9}
+            />
           </div>
           <div>
             <Label>UF</Label>
-            <Input value={f.estado} onChange={(e) => upd("estado", e.target.value.toUpperCase().slice(0, 2))} maxLength={2} />
+            <Input
+              value={f.estado}
+              onChange={(e) => upd("estado", e.target.value.toUpperCase().slice(0, 2))}
+              maxLength={2}
+            />
           </div>
           <div className="sm:col-span-2">
             <Label>Endereço</Label>
@@ -151,17 +216,30 @@ function CondominioPage() {
         </div>
         <div className="flex justify-end">
           <Button onClick={salvar} disabled={saving}>
-            {saving ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Save size={16} className="mr-2" />} Salvar alterações
+            {saving ? (
+              <Loader2 size={16} className="mr-2 animate-spin" />
+            ) : (
+              <Save size={16} className="mr-2" />
+            )}{" "}
+            Salvar alterações
           </Button>
         </div>
       </section>
 
       <section className="rounded-xl border border-border bg-background p-5">
         <h2 className="font-semibold">Código público</h2>
-        <p className="text-sm text-muted-foreground mt-1">Compartilhe este código para que moradores se cadastrem.</p>
+        <p className="text-sm text-muted-foreground mt-1">
+          Compartilhe este código para que moradores se cadastrem.
+        </p>
         <div className="mt-3 flex gap-2 max-w-md">
           <Input readOnly value={f.codigo_publico} className="font-mono uppercase" />
-          <Button variant="outline" onClick={() => { navigator.clipboard.writeText(f.codigo_publico); toast.success("Copiado"); }}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              navigator.clipboard.writeText(f.codigo_publico);
+              toast.success("Copiado");
+            }}
+          >
             <Copy size={14} />
           </Button>
         </div>

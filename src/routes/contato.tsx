@@ -15,12 +15,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import {
-  formatarTelefone,
-  erroTelefone,
-  telefoneE164BR,
-  buildWaUrl,
-} from "@/lib/wa-link";
+import { formatarTelefone, erroTelefone, telefoneE164BR, buildWaUrl } from "@/lib/wa-link";
 
 const CONTACT_EMAIL = "qidomino@gmail.com";
 
@@ -55,7 +50,10 @@ const schema = z.object({
   telefone: z
     .string()
     .trim()
-    .refine((v) => erroTelefone(v) === null, (v) => ({ message: erroTelefone(v) ?? "Telefone inválido" })),
+    .refine(
+      (v) => erroTelefone(v) === null,
+      (v) => ({ message: erroTelefone(v) ?? "Telefone inválido" }),
+    ),
   perfil: z.enum(PERFIS, { message: "Selecione um perfil" }),
   condominio: z.string().trim().min(2, "Informe o nome do condomínio").max(120),
   unidades: z.enum(UNIDADES, { message: "Selecione a faixa" }),
@@ -209,7 +207,9 @@ function ContatoPage() {
                   Email
                 </div>
                 <div className="text-sm font-semibold mt-0.5">{CONTACT_EMAIL}</div>
-                <div className="text-xs text-muted-foreground mt-1">Para propostas e dúvidas comerciais</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Para propostas e dúvidas comerciais
+                </div>
               </div>
             </div>
           </a>
@@ -224,7 +224,9 @@ function ContatoPage() {
                   Onde estamos
                 </div>
                 <div className="text-sm font-semibold mt-0.5">100% remoto · time no Brasil</div>
-                <div className="text-xs text-muted-foreground mt-1">Atendimento seg. a sex., 9h–18h</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Atendimento seg. a sex., 9h–18h
+                </div>
               </div>
             </div>
           </div>
@@ -255,7 +257,10 @@ function ContatoPage() {
               <h3 className="font-display font-extrabold text-2xl mb-2">Pedido recebido!</h3>
               <p className="text-sm text-muted-foreground max-w-md mx-auto">
                 Abrimos uma conversa no WhatsApp com os seus dados. Se preferir, escreva também para{" "}
-                <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary font-semibold hover:underline">
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="text-primary font-semibold hover:underline"
+                >
                   {CONTACT_EMAIL}
                 </a>
                 . Respondemos em até 1 dia útil.
@@ -269,7 +274,8 @@ function ContatoPage() {
                   Prepare o seu condomínio com o checklist
                 </div>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Reunimos o que você precisa ter em mãos e mensagens prontas para iniciar a conversa no WhatsApp.
+                  Reunimos o que você precisa ter em mãos e mensagens prontas para iniciar a
+                  conversa no WhatsApp.
                 </p>
                 <Link
                   to="/proximos-passos"
@@ -295,7 +301,13 @@ function ContatoPage() {
               </p>
 
               <div className="grid sm:grid-cols-2 gap-4">
-                <Field name="nome" label="Nome completo" placeholder="João Silva" error={errors.nome} required />
+                <Field
+                  name="nome"
+                  label="Nome completo"
+                  placeholder="João Silva"
+                  error={errors.nome}
+                  required
+                />
                 <Field
                   name="email"
                   label="Email"
@@ -359,10 +371,14 @@ function ContatoPage() {
                   className={`w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 ${errors.mensagem ? "border-destructive bg-destructive/5 focus:border-destructive focus:ring-destructive/20" : "border-input focus:border-primary"}`}
                   aria-invalid={!!errors.mensagem}
                 />
-                {errors.mensagem && <p className="mt-1 text-xs text-destructive">{errors.mensagem}</p>}
+                {errors.mensagem && (
+                  <p className="mt-1 text-xs text-destructive">{errors.mensagem}</p>
+                )}
               </div>
 
-              <label className={`mt-4 flex items-start gap-2.5 text-xs cursor-pointer rounded-lg p-2 ${errors.consentimento ? "bg-destructive/5 border border-destructive text-destructive" : "text-muted-foreground"}`}>
+              <label
+                className={`mt-4 flex items-start gap-2.5 text-xs cursor-pointer rounded-lg p-2 ${errors.consentimento ? "bg-destructive/5 border border-destructive text-destructive" : "text-muted-foreground"}`}
+              >
                 <input
                   type="checkbox"
                   name="consentimento"

@@ -46,6 +46,9 @@ import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthRedefinirSenhaRouteImport } from './routes/auth.redefinir-senha'
 import { Route as AdminEmpresasIndexRouteImport } from './routes/admin.empresas.index'
 import { Route as AdminEmpresasIdRouteImport } from './routes/admin.empresas.$id'
+import { Route as ApiEmailAuthHookRouteImport } from './routes/api/email/auth-hook'
+import { Route as ApiEmailPreviewRouteImport } from './routes/api/email/preview'
+import { Route as ApiEmailQueueProcessRouteImport } from './routes/api/email/queue-process'
 import { Route as ApiPublicWaDrainRouteImport } from './routes/api/public/wa-drain'
 import { Route as ApiPublicWaWebhookRouteImport } from './routes/api.public.wa-webhook'
 import { Route as AppFinanceiroIndexRouteImport } from './routes/app.financeiro.index'
@@ -57,9 +60,6 @@ import { Route as AppFinanceiroPagamentosRouteImport } from './routes/app.financ
 import { Route as AppFinanceiroWhatsappRouteImport } from './routes/app.financeiro.whatsapp'
 import { Route as AuthConviteTokenRouteImport } from './routes/auth.convite.$token'
 import { Route as ApiPublicHooksLembretesCobrancaRouteImport } from './routes/api/public/hooks/lembretes-cobranca'
-import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
-import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
-import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -247,6 +247,21 @@ const AdminEmpresasIdRoute = AdminEmpresasIdRouteImport.update({
   path: '/empresas/$id',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiEmailAuthHookRoute = ApiEmailAuthHookRouteImport.update({
+  id: '/api/email/auth-hook',
+  path: '/api/email/auth-hook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEmailPreviewRoute = ApiEmailPreviewRouteImport.update({
+  id: '/api/email/preview',
+  path: '/api/email/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEmailQueueProcessRoute = ApiEmailQueueProcessRouteImport.update({
+  id: '/api/email/queue-process',
+  path: '/api/email/queue-process',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWaDrainRoute = ApiPublicWaDrainRouteImport.update({
   id: '/api/public/wa-drain',
   path: '/api/public/wa-drain',
@@ -304,22 +319,6 @@ const ApiPublicHooksLembretesCobrancaRoute =
     path: '/api/public/hooks/lembretes-cobranca',
     getParentRoute: () => rootRouteImport,
   } as any)
-const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
-  id: '/lovable/email/auth/preview',
-  path: '/lovable/email/auth/preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
-  id: '/lovable/email/auth/webhook',
-  path: '/lovable/email/auth/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LovableEmailQueueProcessRoute =
-  LovableEmailQueueProcessRouteImport.update({
-    id: '/lovable/email/queue/process',
-    path: '/lovable/email/queue/process',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -358,6 +357,9 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/admin/empresas/$id': typeof AdminEmpresasIdRoute
+  '/api/email/auth-hook': typeof ApiEmailAuthHookRoute
+  '/api/email/preview': typeof ApiEmailPreviewRoute
+  '/api/email/queue-process': typeof ApiEmailQueueProcessRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
   '/app/financeiro/categorias': typeof AppFinanceiroCategoriasRoute
@@ -370,9 +372,6 @@ export interface FileRoutesByFullPath {
   '/admin/empresas/': typeof AdminEmpresasIndexRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
-  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
-  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
-  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -408,6 +407,9 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/admin/empresas/$id': typeof AdminEmpresasIdRoute
+  '/api/email/auth-hook': typeof ApiEmailAuthHookRoute
+  '/api/email/preview': typeof ApiEmailPreviewRoute
+  '/api/email/queue-process': typeof ApiEmailQueueProcessRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
   '/app/financeiro/categorias': typeof AppFinanceiroCategoriasRoute
@@ -420,9 +422,6 @@ export interface FileRoutesByTo {
   '/admin/empresas': typeof AdminEmpresasIndexRoute
   '/app/financeiro': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
-  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
-  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
-  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -462,6 +461,9 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/admin/empresas/$id': typeof AdminEmpresasIdRoute
+  '/api/email/auth-hook': typeof ApiEmailAuthHookRoute
+  '/api/email/preview': typeof ApiEmailPreviewRoute
+  '/api/email/queue-process': typeof ApiEmailQueueProcessRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
   '/app/financeiro/categorias': typeof AppFinanceiroCategoriasRoute
@@ -474,9 +476,6 @@ export interface FileRoutesById {
   '/admin/empresas/': typeof AdminEmpresasIndexRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
-  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
-  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
-  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -517,6 +516,9 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/admin/empresas/$id'
+    | '/api/email/auth-hook'
+    | '/api/email/preview'
+    | '/api/email/queue-process'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
     | '/app/financeiro/categorias'
@@ -529,9 +531,6 @@ export interface FileRouteTypes {
     | '/admin/empresas/'
     | '/app/financeiro/'
     | '/api/public/hooks/lembretes-cobranca'
-    | '/lovable/email/auth/preview'
-    | '/lovable/email/auth/webhook'
-    | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -567,6 +566,9 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/admin/empresas/$id'
+    | '/api/email/auth-hook'
+    | '/api/email/preview'
+    | '/api/email/queue-process'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
     | '/app/financeiro/categorias'
@@ -579,9 +581,6 @@ export interface FileRouteTypes {
     | '/admin/empresas'
     | '/app/financeiro'
     | '/api/public/hooks/lembretes-cobranca'
-    | '/lovable/email/auth/preview'
-    | '/lovable/email/auth/webhook'
-    | '/lovable/email/queue/process'
   id:
     | '__root__'
     | '/'
@@ -620,6 +619,9 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/admin/empresas/$id'
+    | '/api/email/auth-hook'
+    | '/api/email/preview'
+    | '/api/email/queue-process'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
     | '/app/financeiro/categorias'
@@ -632,9 +634,6 @@ export interface FileRouteTypes {
     | '/admin/empresas/'
     | '/app/financeiro/'
     | '/api/public/hooks/lembretes-cobranca'
-    | '/lovable/email/auth/preview'
-    | '/lovable/email/auth/webhook'
-    | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -658,13 +657,13 @@ export interface RootRouteChildren {
   AuthEsqueciSenhaRoute: typeof AuthEsqueciSenhaRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRedefinirSenhaRoute: typeof AuthRedefinirSenhaRoute
+  ApiEmailAuthHookRoute: typeof ApiEmailAuthHookRoute
+  ApiEmailPreviewRoute: typeof ApiEmailPreviewRoute
+  ApiEmailQueueProcessRoute: typeof ApiEmailQueueProcessRoute
   ApiPublicWaDrainRoute: typeof ApiPublicWaDrainRoute
   ApiPublicWaWebhookRoute: typeof ApiPublicWaWebhookRoute
   AuthConviteTokenRoute: typeof AuthConviteTokenRoute
   ApiPublicHooksLembretesCobrancaRoute: typeof ApiPublicHooksLembretesCobrancaRoute
-  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
-  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
-  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -928,6 +927,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEmpresasIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/email/auth-hook': {
+      id: '/api/email/auth-hook'
+      path: '/api/email/auth-hook'
+      fullPath: '/api/email/auth-hook'
+      preLoaderRoute: typeof ApiEmailAuthHookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/email/preview': {
+      id: '/api/email/preview'
+      path: '/api/email/preview'
+      fullPath: '/api/email/preview'
+      preLoaderRoute: typeof ApiEmailPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/email/queue-process': {
+      id: '/api/email/queue-process'
+      path: '/api/email/queue-process'
+      fullPath: '/api/email/queue-process'
+      preLoaderRoute: typeof ApiEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/wa-drain': {
       id: '/api/public/wa-drain'
       path: '/api/public/wa-drain'
@@ -1003,27 +1023,6 @@ declare module '@tanstack/react-router' {
       path: '/api/public/hooks/lembretes-cobranca'
       fullPath: '/api/public/hooks/lembretes-cobranca'
       preLoaderRoute: typeof ApiPublicHooksLembretesCobrancaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lovable/email/auth/preview': {
-      id: '/lovable/email/auth/preview'
-      path: '/lovable/email/auth/preview'
-      fullPath: '/lovable/email/auth/preview'
-      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lovable/email/auth/webhook': {
-      id: '/lovable/email/auth/webhook'
-      path: '/lovable/email/auth/webhook'
-      fullPath: '/lovable/email/auth/webhook'
-      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lovable/email/queue/process': {
-      id: '/lovable/email/queue/process'
-      path: '/lovable/email/queue/process'
-      fullPath: '/lovable/email/queue/process'
-      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -1124,13 +1123,13 @@ const rootRouteChildren: RootRouteChildren = {
   AuthEsqueciSenhaRoute: AuthEsqueciSenhaRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRedefinirSenhaRoute: AuthRedefinirSenhaRoute,
+  ApiEmailAuthHookRoute: ApiEmailAuthHookRoute,
+  ApiEmailPreviewRoute: ApiEmailPreviewRoute,
+  ApiEmailQueueProcessRoute: ApiEmailQueueProcessRoute,
   ApiPublicWaDrainRoute: ApiPublicWaDrainRoute,
   ApiPublicWaWebhookRoute: ApiPublicWaWebhookRoute,
   AuthConviteTokenRoute: AuthConviteTokenRoute,
   ApiPublicHooksLembretesCobrancaRoute: ApiPublicHooksLembretesCobrancaRoute,
-  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
-  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
-  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

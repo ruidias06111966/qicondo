@@ -40,8 +40,8 @@ function AceitarConvitePage() {
       const msg = error?.message?.includes("expirad")
         ? "Convite expirado."
         : error?.message?.includes("nao_encontrad") || error?.message?.includes("not found")
-        ? "Convite inválido ou já utilizado."
-        : error?.message || "Não foi possível aceitar o convite.";
+          ? "Convite inválido ou já utilizado."
+          : error?.message || "Não foi possível aceitar o convite.";
       setErro(msg);
       setStatus("erro");
       return;
@@ -73,7 +73,8 @@ function AceitarConvitePage() {
             <>
               <h1 className="font-display text-2xl font-extrabold">Você foi convidado!</h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Para aceitar o convite, primeiro entre ou crie a sua conta. Voltaremos a esta página automaticamente.
+                Para aceitar o convite, primeiro entre ou crie a sua conta. Voltaremos a esta página
+                automaticamente.
               </p>
               <div className="mt-6 flex flex-col gap-2">
                 <Link
@@ -105,7 +106,9 @@ function AceitarConvitePage() {
           {status === "erro" && (
             <>
               <XCircle className="mx-auto text-destructive" size={36} />
-              <h1 className="font-display text-2xl font-extrabold mt-3">Não foi possível aceitar</h1>
+              <h1 className="font-display text-2xl font-extrabold mt-3">
+                Não foi possível aceitar
+              </h1>
               <p className="mt-2 text-sm text-muted-foreground">{erro}</p>
               <Link to="/app" className="btn-primary justify-center mt-6 inline-flex">
                 Ir para o painel

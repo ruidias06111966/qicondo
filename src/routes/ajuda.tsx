@@ -6,29 +6,77 @@ export const Route = createFileRoute("/ajuda")({
   head: () => ({
     meta: [
       { title: "Central de ajuda — QiCond" },
-      { name: "description", content: "Tutoriais, perguntas frequentes e guias para você usar o QiCond." },
+      {
+        name: "description",
+        content: "Tutoriais, perguntas frequentes e guias para você usar o QiCond.",
+      },
     ],
   }),
   component: AjudaPage,
 });
 
 const sections = [
-  { icon: BookOpen, title: "Primeiros passos", count: 8, articles: ["Como criar minha conta", "Cadastrar o condomínio", "Importar moradores via planilha", "Configurar a primeira cobrança"] },
-  { icon: MessageCircle, title: "WhatsApp", count: 12, articles: ["Como conectar meu número", "Templates de mensagem", "Comandos disponíveis para morador", "Limites do WhatsApp Business"] },
-  { icon: CreditCard, title: "Financeiro", count: 15, articles: ["Configurar PIX", "Gerar boleto registrado", "Cálculo de multa e juros", "Conciliação bancária via OFX"] },
-  { icon: Settings, title: "Configurações", count: 6, articles: ["Trocar de plano", "Adicionar segundo síndico", "Configurar painel do contador", "Exportar todos os dados"] },
+  {
+    icon: BookOpen,
+    title: "Primeiros passos",
+    count: 8,
+    articles: [
+      "Como criar minha conta",
+      "Cadastrar o condomínio",
+      "Importar moradores via planilha",
+      "Configurar a primeira cobrança",
+    ],
+  },
+  {
+    icon: MessageCircle,
+    title: "WhatsApp",
+    count: 12,
+    articles: [
+      "Como conectar meu número",
+      "Templates de mensagem",
+      "Comandos disponíveis para morador",
+      "Limites do WhatsApp Business",
+    ],
+  },
+  {
+    icon: CreditCard,
+    title: "Financeiro",
+    count: 15,
+    articles: [
+      "Configurar PIX",
+      "Gerar boleto registrado",
+      "Cálculo de multa e juros",
+      "Conciliação bancária via OFX",
+    ],
+  },
+  {
+    icon: Settings,
+    title: "Configurações",
+    count: 6,
+    articles: [
+      "Trocar de plano",
+      "Adicionar segundo síndico",
+      "Configurar painel do contador",
+      "Exportar todos os dados",
+    ],
+  },
 ];
 
 function AjudaPage() {
   return (
     <SiteLayout>
       <section className="mx-auto max-w-4xl px-4 md:px-8 pt-16 pb-10 text-center">
-        <div className="inline-block text-xs font-bold uppercase tracking-wider text-primary mb-3">Central de ajuda</div>
+        <div className="inline-block text-xs font-bold uppercase tracking-wider text-primary mb-3">
+          Central de ajuda
+        </div>
         <h1 className="font-display font-extrabold text-4xl md:text-5xl tracking-tight">
           Como podemos <span className="text-gradient-brand">ajudar?</span>
         </h1>
         <div className="mt-8 relative max-w-xl mx-auto">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search
+            size={18}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
           <input
             type="search"
             placeholder="Busque tutoriais, dúvidas e termos..."
@@ -52,7 +100,10 @@ function AjudaPage() {
             <ul className="space-y-2">
               {s.articles.map((a) => (
                 <li key={a}>
-                  <Link to="/ajuda" className="text-sm text-foreground hover:text-primary transition-colors block py-1">
+                  <Link
+                    to="/ajuda"
+                    className="text-sm text-foreground hover:text-primary transition-colors block py-1"
+                  >
                     → {a}
                   </Link>
                 </li>
@@ -65,8 +116,13 @@ function AjudaPage() {
       <section className="mx-auto max-w-3xl px-4 md:px-8 pb-20">
         <div className="rounded-2xl border border-border bg-surface p-8 text-center">
           <h2 className="font-display font-extrabold text-2xl mb-2">Não achou o que procura?</h2>
-          <p className="text-sm text-muted-foreground mb-5">Nossa equipe responde em até 1 dia útil.</p>
-          <Link to="/contato" className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-[var(--color-primary-deep)] transition-colors">
+          <p className="text-sm text-muted-foreground mb-5">
+            Nossa equipe responde em até 1 dia útil.
+          </p>
+          <Link
+            to="/contato"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-[var(--color-primary-deep)] transition-colors"
+          >
             Falar com suporte
           </Link>
         </div>

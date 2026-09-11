@@ -5,8 +5,20 @@ import { useAuth } from "@/auth/AuthProvider";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import { brl, dateBR, dateTimeBR, timeBR } from "@/lib/format";
 import {
-  Calendar, Plus, Loader2, ChevronLeft, ChevronRight, Check, X,
-  Clock, Users, MapPin, AlertTriangle, Settings2, Ban, Trash2
+  Calendar,
+  Plus,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  X,
+  Clock,
+  Users,
+  MapPin,
+  AlertTriangle,
+  Settings2,
+  Ban,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { safeCall } from "@/lib/safe-call";
@@ -97,12 +109,27 @@ function ReservasPage() {
   const carregar = async () => {
     if (!condominioId) return;
     setLoading(true);
-    const r0 = await safeCall(Promise.all([
-      supabase.from("areas_comuns").select("*").eq("condominio_id", condominioId).order("ordem").order("nome"),
-      supabase.from("reservas").select("*").eq("condominio_id", condominioId).order("inicio", { ascending: false }),
-      supabase.from("area_bloqueios").select("*").eq("condominio_id", condominioId),
-      supabase.from("unidades").select("id, numero, bloco").eq("condominio_id", condominioId).order("numero"),
-    ]));
+    const r0 = await safeCall(
+      Promise.all([
+        supabase
+          .from("areas_comuns")
+          .select("*")
+          .eq("condominio_id", condominioId)
+          .order("ordem")
+          .order("nome"),
+        supabase
+          .from("reservas")
+          .select("*")
+          .eq("condominio_id", condominioId)
+          .order("inicio", { ascending: false }),
+        supabase.from("area_bloqueios").select("*").eq("condominio_id", condominioId),
+        supabase
+          .from("unidades")
+          .select("id, numero, bloco")
+          .eq("condominio_id", condominioId)
+          .order("numero"),
+      ]),
+    );
     if (r0) {
       const [a, r, b, u] = r0;
       if (a.data) setAreas(a.data as Area[]);
@@ -111,18 +138,18 @@ function ReservasPage() {
       if (u.data) setUnidades(u.data as Unidade[]);
 
       if (user && !podeGerenciar) {
-        const r1 = await safeCall(supabase
-          .from("unidade_moradores")
-          .select("unidade_id, unidades(id, numero, bloco)")
-          .eq("user_id", user.id));
+        const r1 = await safeCall(
+          supabase
+            .from("unidade_moradores")
+            .select("unidade_id, unidades(id, numero, bloco)")
+            .eq("user_id", user.id),
+        );
         if (r1?.data) {
-          const mu = r1.data
-            .map((d: any) => d.unidades)
-            .filter(Boolean) as Unidade[];
+          const mu = r1.data.map((d: any) => d.unidades).filter(Boolean) as Unidade[];
           setMinhasUnidades(mu);
         }
       } else {
-        setMinhasUnidades(u.data as Unidade[] ?? []);
+        setMinhasUnidades((u.data as Unidade[]) ?? []);
       }
     }
     setLoading(false);
@@ -135,12 +162,9 @@ function ReservasPage() {
 
   const minhasReservas = useMemo(
     () => reservas.filter((r) => r.solicitante_id === user?.id),
-    [reservas, user?.id]
+    [reservas, user?.id],
   );
-  const pendentes = useMemo(
-    () => reservas.filter((r) => r.status === "pendente"),
-    [reservas]
-  );
+  const pendentes = useMemo(() => reservas.filter((r) => r.status === "pendente"), [reservas]);
 
   if (!condominioId) {
     return (
@@ -181,12 +205,21 @@ function ReservasPage() {
 
       <div className="border-b border-border mb-6 overflow-x-auto">
         <nav className="flex gap-6 min-w-max">
-          {([
-            ["calendario", "Calendário"],
-            ["minhas", `Minhas reservas${minhasReservas.length ? ` (${minhasReservas.length})` : ""}`],
-            ...(podeGerenciar ? ([["pendentes", `Pendentes${pendentes.length ? ` (${pendentes.length})` : ""}`]] as [Tab, string][]) : []),
-            ["areas", "Áreas"],
-          ] as [Tab, string][]).map(([k, label]) => (
+          {(
+            [
+              ["calendario", "Calendário"],
+              [
+                "minhas",
+                `Minhas reservas${minhasReservas.length ? ` (${minhasReservas.length})` : ""}`,
+              ],
+              ...(podeGerenciar
+                ? ([
+                    ["pendentes", `Pendentes${pendentes.length ? ` (${pendentes.length})` : ""}`],
+                  ] as [Tab, string][])
+                : []),
+              ["areas", "Áreas"],
+            ] as [Tab, string][]
+          ).map(([k, label]) => (
             <button
               key={k}
               onClick={() => setTab(k)}
@@ -217,20 +250,32 @@ function ReservasPage() {
               onAprovar={async (id) => {
                 const { error } = await supabase.rpc("aprovar_reserva", { _reserva_id: id });
                 if (error) toast.error(ERROS[error.message] ?? error.message);
-                else { toast.success("Reserva aprovada"); void carregar(); }
+                else {
+                  toast.success("Reserva aprovada");
+                  void carregar();
+                }
               }}
               onRecusar={async (id) => {
                 const motivo = window.prompt("Motivo da recusa:");
                 if (!motivo) return;
-                const { error } = await supabase.rpc("recusar_reserva", { _reserva_id: id, _motivo: motivo });
+                const { error } = await supabase.rpc("recusar_reserva", {
+                  _reserva_id: id,
+                  _motivo: motivo,
+                });
                 if (error) toast.error(ERROS[error.message] ?? error.message);
-                else { toast.success("Reserva recusada"); void carregar(); }
+                else {
+                  toast.success("Reserva recusada");
+                  void carregar();
+                }
               }}
               onCancelar={async (id) => {
                 if (!confirm("Cancelar esta reserva?")) return;
                 const { error } = await supabase.rpc("cancelar_reserva", { _reserva_id: id });
                 if (error) toast.error(ERROS[error.message] ?? error.message);
-                else { toast.success("Reserva cancelada"); void carregar(); }
+                else {
+                  toast.success("Reserva cancelada");
+                  void carregar();
+                }
               }}
             />
           )}
@@ -244,7 +289,10 @@ function ReservasPage() {
                 if (!confirm("Cancelar esta reserva?")) return;
                 const { error } = await supabase.rpc("cancelar_reserva", { _reserva_id: id });
                 if (error) toast.error(ERROS[error.message] ?? error.message);
-                else { toast.success("Reserva cancelada"); void carregar(); }
+                else {
+                  toast.success("Reserva cancelada");
+                  void carregar();
+                }
               }}
             />
           )}
@@ -258,14 +306,23 @@ function ReservasPage() {
               onAprovar={async (id) => {
                 const { error } = await supabase.rpc("aprovar_reserva", { _reserva_id: id });
                 if (error) toast.error(ERROS[error.message] ?? error.message);
-                else { toast.success("Reserva aprovada"); void carregar(); }
+                else {
+                  toast.success("Reserva aprovada");
+                  void carregar();
+                }
               }}
               onRecusar={async (id) => {
                 const motivo = window.prompt("Motivo da recusa:");
                 if (!motivo) return;
-                const { error } = await supabase.rpc("recusar_reserva", { _reserva_id: id, _motivo: motivo });
+                const { error } = await supabase.rpc("recusar_reserva", {
+                  _reserva_id: id,
+                  _motivo: motivo,
+                });
                 if (error) toast.error(ERROS[error.message] ?? error.message);
-                else { toast.success("Reserva recusada"); void carregar(); }
+                else {
+                  toast.success("Reserva recusada");
+                  void carregar();
+                }
               }}
             />
           )}
@@ -286,7 +343,10 @@ function ReservasPage() {
           areas={areas.filter((a) => a.ativo)}
           unidades={minhasUnidades.length ? minhasUnidades : unidades}
           onClose={() => setShowNova(false)}
-          onCriada={() => { setShowNova(false); void carregar(); }}
+          onCriada={() => {
+            setShowNova(false);
+            void carregar();
+          }}
         />
       )}
       {showArea && podeGerenciar && (
@@ -294,7 +354,10 @@ function ReservasPage() {
           condominioId={condominioId}
           area={showArea.id ? showArea : null}
           onClose={() => setShowArea(null)}
-          onSalvo={() => { setShowArea(null); void carregar(); }}
+          onSalvo={() => {
+            setShowArea(null);
+            void carregar();
+          }}
         />
       )}
       {showBloqueio && podeGerenciar && (
@@ -302,7 +365,10 @@ function ReservasPage() {
           areas={areas}
           condominioId={condominioId}
           onClose={() => setShowBloqueio(false)}
-          onSalvo={() => { setShowBloqueio(false); void carregar(); }}
+          onSalvo={() => {
+            setShowBloqueio(false);
+            void carregar();
+          }}
         />
       )}
     </div>
@@ -311,13 +377,26 @@ function ReservasPage() {
 
 /* ========== Calendário mensal ========== */
 function CalendarioView({
-  areas, reservas, bloqueios, podeGerenciar, onAprovar, onRecusar, onCancelar,
+  areas,
+  reservas,
+  bloqueios,
+  podeGerenciar,
+  onAprovar,
+  onRecusar,
+  onCancelar,
 }: {
-  areas: Area[]; reservas: Reserva[]; bloqueios: Bloqueio[]; podeGerenciar: boolean;
-  onAprovar: (id: string) => void; onRecusar: (id: string) => void; onCancelar: (id: string) => void;
+  areas: Area[];
+  reservas: Reserva[];
+  bloqueios: Bloqueio[];
+  podeGerenciar: boolean;
+  onAprovar: (id: string) => void;
+  onRecusar: (id: string) => void;
+  onCancelar: (id: string) => void;
 }) {
   const [ref, setRef] = useState(() => {
-    const d = new Date(); d.setDate(1); return d;
+    const d = new Date();
+    d.setDate(1);
+    return d;
   });
   const [filtroArea, setFiltroArea] = useState<string>("");
 
@@ -330,8 +409,10 @@ function CalendarioView({
   for (let d = 1; d <= diasNoMes; d++) dias.push(new Date(ano, mes, d));
 
   const reservasFiltradas = reservas.filter(
-    (r) => r.status !== "cancelada" && r.status !== "recusada" &&
-    (!filtroArea || r.area_id === filtroArea)
+    (r) =>
+      r.status !== "cancelada" &&
+      r.status !== "recusada" &&
+      (!filtroArea || r.area_id === filtroArea),
   );
 
   const reservasPorDia = (data: Date) => {
@@ -340,7 +421,12 @@ function CalendarioView({
   };
   const bloqueiosPorDia = (data: Date) => {
     const ymd = data.toISOString().slice(0, 10);
-    return bloqueios.filter((b) => b.inicio.slice(0, 10) <= ymd && b.fim.slice(0, 10) >= ymd && (!filtroArea || b.area_id === filtroArea));
+    return bloqueios.filter(
+      (b) =>
+        b.inicio.slice(0, 10) <= ymd &&
+        b.fim.slice(0, 10) >= ymd &&
+        (!filtroArea || b.area_id === filtroArea),
+    );
   };
 
   const areaCor = (id: string) => areas.find((a) => a.id === id)?.cor ?? "#10B981";
@@ -352,12 +438,31 @@ function CalendarioView({
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-2">
-          <button onClick={() => setRef(new Date(ano, mes - 1, 1))} className="p-2 rounded hover:bg-muted"><ChevronLeft size={18} /></button>
+          <button
+            onClick={() => setRef(new Date(ano, mes - 1, 1))}
+            className="p-2 rounded hover:bg-muted"
+          >
+            <ChevronLeft size={18} />
+          </button>
           <span className="font-semibold capitalize min-w-[180px] text-center">
             {ref.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
           </span>
-          <button onClick={() => setRef(new Date(ano, mes + 1, 1))} className="p-2 rounded hover:bg-muted"><ChevronRight size={18} /></button>
-          <button onClick={() => { const d = new Date(); d.setDate(1); setRef(d); }} className="px-3 py-1 text-xs rounded border border-border hover:bg-muted ml-2">Hoje</button>
+          <button
+            onClick={() => setRef(new Date(ano, mes + 1, 1))}
+            className="p-2 rounded hover:bg-muted"
+          >
+            <ChevronRight size={18} />
+          </button>
+          <button
+            onClick={() => {
+              const d = new Date();
+              d.setDate(1);
+              setRef(d);
+            }}
+            className="px-3 py-1 text-xs rounded border border-border hover:bg-muted ml-2"
+          >
+            Hoje
+          </button>
         </div>
         <select
           value={filtroArea}
@@ -365,13 +470,19 @@ function CalendarioView({
           className="px-3 py-2 text-sm border border-border rounded-lg bg-background"
         >
           <option value="">Todas as áreas</option>
-          {areas.map((a) => <option key={a.id} value={a.id}>{a.nome}</option>)}
+          {areas.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.nome}
+            </option>
+          ))}
         </select>
       </div>
 
       <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden border border-border">
-        {["D","S","T","Q","Q","S","S"].map((d, i) => (
-          <div key={i} className="bg-muted text-xs font-semibold text-center py-2">{d}</div>
+        {["D", "S", "T", "Q", "Q", "S", "S"].map((d, i) => (
+          <div key={i} className="bg-muted text-xs font-semibold text-center py-2">
+            {d}
+          </div>
         ))}
         {dias.map((d, i) => {
           if (!d) return <div key={i} className="bg-background min-h-[90px]" />;
@@ -384,21 +495,36 @@ function CalendarioView({
               onClick={() => setDiaAberto(d)}
               className="bg-background min-h-[90px] p-1.5 text-left hover:bg-muted/40 transition-colors flex flex-col"
             >
-              <span className={`text-xs font-medium ${hoje ? "bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center" : ""}`}>
+              <span
+                className={`text-xs font-medium ${hoje ? "bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center" : ""}`}
+              >
                 {d.getDate()}
               </span>
               <div className="flex-1 mt-1 space-y-0.5 overflow-hidden">
                 {bls.slice(0, 1).map((b) => (
-                  <div key={b.id} className="text-[10px] px-1 py-0.5 rounded bg-destructive/15 text-destructive truncate" title={b.motivo}>
+                  <div
+                    key={b.id}
+                    className="text-[10px] px-1 py-0.5 rounded bg-destructive/15 text-destructive truncate"
+                    title={b.motivo}
+                  >
                     🚫 {b.motivo}
                   </div>
                 ))}
                 {evs.slice(0, 2).map((r) => (
-                  <div key={r.id} className="text-[10px] px-1 py-0.5 rounded truncate text-white" style={{ background: areaCor(r.area_id), opacity: r.status === "pendente" ? 0.6 : 1 }}>
+                  <div
+                    key={r.id}
+                    className="text-[10px] px-1 py-0.5 rounded truncate text-white"
+                    style={{
+                      background: areaCor(r.area_id),
+                      opacity: r.status === "pendente" ? 0.6 : 1,
+                    }}
+                  >
                     {timeBR(r.inicio)} {areaNome(r.area_id)}
                   </div>
                 ))}
-                {evs.length > 2 && <div className="text-[10px] text-muted-foreground">+{evs.length - 2}</div>}
+                {evs.length > 2 && (
+                  <div className="text-[10px] text-muted-foreground">+{evs.length - 2}</div>
+                )}
               </div>
             </button>
           );
@@ -406,28 +532,50 @@ function CalendarioView({
       </div>
 
       {diaAberto && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setDiaAberto(null)}>
-          <div className="bg-background rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => setDiaAberto(null)}
+        >
+          <div
+            className="bg-background rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-5 border-b border-border flex items-center justify-between sticky top-0 bg-background">
               <h3 className="font-bold text-lg">{dateBR(diaAberto)}</h3>
-              <button onClick={() => setDiaAberto(null)} className="p-1 rounded hover:bg-muted"><X size={18} /></button>
+              <button onClick={() => setDiaAberto(null)} className="p-1 rounded hover:bg-muted">
+                <X size={18} />
+              </button>
             </div>
             <div className="p-5 space-y-3">
               {bloqueiosPorDia(diaAberto).map((b) => (
-                <div key={b.id} className="border border-destructive/40 bg-destructive/5 rounded-lg p-3">
-                  <p className="font-semibold text-sm flex items-center gap-2"><Ban size={14} /> {b.motivo}</p>
+                <div
+                  key={b.id}
+                  className="border border-destructive/40 bg-destructive/5 rounded-lg p-3"
+                >
+                  <p className="font-semibold text-sm flex items-center gap-2">
+                    <Ban size={14} /> {b.motivo}
+                  </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {areaNome(b.area_id)} · {dateTimeBR(b.inicio)} → {dateTimeBR(b.fim)}
                   </p>
                 </div>
               ))}
-              {reservasPorDia(diaAberto).length === 0 && bloqueiosPorDia(diaAberto).length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-8">Nenhuma reserva neste dia.</p>
-              )}
+              {reservasPorDia(diaAberto).length === 0 &&
+                bloqueiosPorDia(diaAberto).length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    Nenhuma reserva neste dia.
+                  </p>
+                )}
               {reservasPorDia(diaAberto).map((r) => (
-                <ReservaCard key={r.id} r={r} area={areas.find((a) => a.id === r.area_id)}
+                <ReservaCard
+                  key={r.id}
+                  r={r}
+                  area={areas.find((a) => a.id === r.area_id)}
                   podeGerenciar={podeGerenciar}
-                  onAprovar={onAprovar} onRecusar={onRecusar} onCancelar={onCancelar} />
+                  onAprovar={onAprovar}
+                  onRecusar={onRecusar}
+                  onCancelar={onCancelar}
+                />
               ))}
             </div>
           </div>
@@ -439,11 +587,23 @@ function CalendarioView({
 
 /* ========== Lista de reservas ========== */
 function ListaReservas({
-  reservas, areas, unidades, vazio, modoAprovacao, onAprovar, onRecusar, onCancelar,
+  reservas,
+  areas,
+  unidades,
+  vazio,
+  modoAprovacao,
+  onAprovar,
+  onRecusar,
+  onCancelar,
 }: {
-  reservas: Reserva[]; areas: Area[]; unidades: Unidade[]; vazio: string;
+  reservas: Reserva[];
+  areas: Area[];
+  unidades: Unidade[];
+  vazio: string;
   modoAprovacao?: boolean;
-  onAprovar?: (id: string) => void; onRecusar?: (id: string) => void; onCancelar?: (id: string) => void;
+  onAprovar?: (id: string) => void;
+  onRecusar?: (id: string) => void;
+  onCancelar?: (id: string) => void;
 }) {
   if (reservas.length === 0) {
     return <p className="text-center text-muted-foreground py-12">{vazio}</p>;
@@ -457,7 +617,9 @@ function ListaReservas({
           area={areas.find((a) => a.id === r.area_id)}
           unidade={unidades.find((u) => u.id === r.unidade_id)}
           podeGerenciar={!!modoAprovacao}
-          onAprovar={onAprovar} onRecusar={onRecusar} onCancelar={onCancelar}
+          onAprovar={onAprovar}
+          onRecusar={onRecusar}
+          onCancelar={onCancelar}
         />
       ))}
     </div>
@@ -465,10 +627,21 @@ function ListaReservas({
 }
 
 function ReservaCard({
-  r, area, unidade, podeGerenciar, onAprovar, onRecusar, onCancelar,
+  r,
+  area,
+  unidade,
+  podeGerenciar,
+  onAprovar,
+  onRecusar,
+  onCancelar,
 }: {
-  r: Reserva; area?: Area; unidade?: Unidade; podeGerenciar: boolean;
-  onAprovar?: (id: string) => void; onRecusar?: (id: string) => void; onCancelar?: (id: string) => void;
+  r: Reserva;
+  area?: Area;
+  unidade?: Unidade;
+  podeGerenciar: boolean;
+  onAprovar?: (id: string) => void;
+  onRecusar?: (id: string) => void;
+  onCancelar?: (id: string) => void;
 }) {
   const statusBadge = {
     pendente: "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400",
@@ -485,32 +658,56 @@ function ReservaCard({
           <div className="flex items-center gap-2 flex-wrap">
             <span className="w-3 h-3 rounded-full" style={{ background: area?.cor ?? "#10B981" }} />
             <h4 className="font-semibold">{area?.nome ?? "Área"}</h4>
-            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusBadge}`}>{r.status}</span>
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusBadge}`}>
+              {r.status}
+            </span>
           </div>
           <div className="mt-2 grid sm:grid-cols-2 gap-x-6 gap-y-1 text-sm text-muted-foreground">
-            <p className="flex items-center gap-1.5"><Clock size={14} /> {dateTimeBR(r.inicio)} → {timeBR(r.fim)}</p>
-            {unidade && <p className="flex items-center gap-1.5"><MapPin size={14} /> {unidade.bloco ? `${unidade.bloco} · ` : ""}Un. {unidade.numero}</p>}
-            {r.num_convidados > 0 && <p className="flex items-center gap-1.5"><Users size={14} /> {r.num_convidados} convidados</p>}
+            <p className="flex items-center gap-1.5">
+              <Clock size={14} /> {dateTimeBR(r.inicio)} → {timeBR(r.fim)}
+            </p>
+            {unidade && (
+              <p className="flex items-center gap-1.5">
+                <MapPin size={14} /> {unidade.bloco ? `${unidade.bloco} · ` : ""}Un.{" "}
+                {unidade.numero}
+              </p>
+            )}
+            {r.num_convidados > 0 && (
+              <p className="flex items-center gap-1.5">
+                <Users size={14} /> {r.num_convidados} convidados
+              </p>
+            )}
             {r.taxa > 0 && <p className="font-medium text-foreground">Taxa: {brl(r.taxa)}</p>}
           </div>
           {r.observacoes && <p className="text-sm mt-2 text-foreground/80">{r.observacoes}</p>}
           {r.motivo_recusa && (
-            <p className="text-sm mt-2 text-destructive flex items-center gap-1.5"><AlertTriangle size={14} /> {r.motivo_recusa}</p>
+            <p className="text-sm mt-2 text-destructive flex items-center gap-1.5">
+              <AlertTriangle size={14} /> {r.motivo_recusa}
+            </p>
           )}
         </div>
         <div className="flex gap-2 flex-wrap">
           {podeGerenciar && r.status === "pendente" && (
             <>
-              <button onClick={() => onAprovar?.(r.id)} className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-medium flex items-center gap-1">
+              <button
+                onClick={() => onAprovar?.(r.id)}
+                className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-medium flex items-center gap-1"
+              >
                 <Check size={14} /> Aprovar
               </button>
-              <button onClick={() => onRecusar?.(r.id)} className="px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground hover:opacity-90 text-xs font-medium flex items-center gap-1">
+              <button
+                onClick={() => onRecusar?.(r.id)}
+                className="px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground hover:opacity-90 text-xs font-medium flex items-center gap-1"
+              >
                 <X size={14} /> Recusar
               </button>
             </>
           )}
           {(r.status === "pendente" || r.status === "confirmada") && onCancelar && (
-            <button onClick={() => onCancelar(r.id)} className="px-3 py-1.5 rounded-lg border border-border hover:bg-muted text-xs font-medium">
+            <button
+              onClick={() => onCancelar(r.id)}
+              className="px-3 py-1.5 rounded-lg border border-border hover:bg-muted text-xs font-medium"
+            >
               Cancelar
             </button>
           )}
@@ -522,25 +719,38 @@ function ReservaCard({
 
 /* ========== Áreas ========== */
 function AreasView({
-  areas, podeGerenciar, onEditar, onNova, onAtualizar,
+  areas,
+  podeGerenciar,
+  onEditar,
+  onNova,
+  onAtualizar,
 }: {
-  areas: Area[]; podeGerenciar: boolean;
-  onEditar: (a: Area) => void; onNova: () => void; onAtualizar: () => void;
+  areas: Area[];
+  podeGerenciar: boolean;
+  onEditar: (a: Area) => void;
+  onNova: () => void;
+  onAtualizar: () => void;
 }) {
-  const dias = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+  const dias = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
   const excluir = async (id: string) => {
     if (!confirm("Excluir esta área? As reservas existentes serão mantidas.")) return;
     const { error } = await supabase.from("areas_comuns").delete().eq("id", id);
     if (error) toast.error(error.message);
-    else { toast.success("Área excluída"); onAtualizar(); }
+    else {
+      toast.success("Área excluída");
+      onAtualizar();
+    }
   };
 
   return (
     <div>
       {podeGerenciar && (
         <div className="mb-4">
-          <button onClick={onNova} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium flex items-center gap-2">
+          <button
+            onClick={onNova}
+            className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium flex items-center gap-2"
+          >
             <Plus size={16} /> Nova área
           </button>
         </div>
@@ -553,24 +763,42 @@ function AreasView({
             <div key={a.id} className="border border-border rounded-xl p-4 bg-background">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: a.cor }} />
+                  <span
+                    className="w-3 h-3 rounded-full flex-shrink-0"
+                    style={{ background: a.cor }}
+                  />
                   <h4 className="font-semibold truncate">{a.nome}</h4>
                 </div>
-                {!a.ativo && <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">inativa</span>}
+                {!a.ativo && (
+                  <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                    inativa
+                  </span>
+                )}
               </div>
               {a.descricao && <p className="text-sm text-muted-foreground mt-1">{a.descricao}</p>}
               <div className="mt-3 text-xs text-muted-foreground space-y-1">
-                <p>{a.hora_abertura.slice(0,5)} – {a.hora_fechamento.slice(0,5)} · {a.dias_permitidos.map((d) => dias[d]).join(" ")}</p>
+                <p>
+                  {a.hora_abertura.slice(0, 5)} – {a.hora_fechamento.slice(0, 5)} ·{" "}
+                  {a.dias_permitidos.map((d) => dias[d]).join(" ")}
+                </p>
                 {a.capacidade && <p>Capacidade: {a.capacidade}</p>}
-                {a.taxa_uso > 0 && <p className="text-foreground font-medium">Taxa: {brl(a.taxa_uso)}</p>}
+                {a.taxa_uso > 0 && (
+                  <p className="text-foreground font-medium">Taxa: {brl(a.taxa_uso)}</p>
+                )}
                 <p>{a.requer_aprovacao ? "Requer aprovação" : "Aprovação automática"}</p>
               </div>
               {podeGerenciar && (
                 <div className="mt-4 flex gap-2">
-                  <button onClick={() => onEditar(a)} className="flex-1 px-3 py-1.5 rounded-lg border border-border hover:bg-muted text-xs font-medium flex items-center justify-center gap-1">
+                  <button
+                    onClick={() => onEditar(a)}
+                    className="flex-1 px-3 py-1.5 rounded-lg border border-border hover:bg-muted text-xs font-medium flex items-center justify-center gap-1"
+                  >
                     <Settings2 size={14} /> Editar
                   </button>
-                  <button onClick={() => excluir(a.id)} className="px-3 py-1.5 rounded-lg border border-destructive/40 text-destructive hover:bg-destructive/10 text-xs">
+                  <button
+                    onClick={() => excluir(a.id)}
+                    className="px-3 py-1.5 rounded-lg border border-destructive/40 text-destructive hover:bg-destructive/10 text-xs"
+                  >
                     <Trash2 size={14} />
                   </button>
                 </div>
@@ -585,12 +813,21 @@ function AreasView({
 
 /* ========== Modal: Nova reserva ========== */
 function NovaReservaModal({
-  areas, unidades, onClose, onCriada,
-}: { areas: Area[]; unidades: Unidade[]; onClose: () => void; onCriada: () => void }) {
+  areas,
+  unidades,
+  onClose,
+  onCriada,
+}: {
+  areas: Area[];
+  unidades: Unidade[];
+  onClose: () => void;
+  onCriada: () => void;
+}) {
   const [areaId, setAreaId] = useState(areas[0]?.id ?? "");
   const [unidadeId, setUnidadeId] = useState(unidades[0]?.id ?? "");
   const [data, setData] = useState(() => {
-    const d = new Date(); d.setDate(d.getDate() + 1);
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
     return d.toISOString().slice(0, 10);
   });
   const [horaIni, setHoraIni] = useState("14:00");
@@ -603,7 +840,10 @@ function NovaReservaModal({
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!areaId || !unidadeId) { toast.error("Selecione área e unidade"); return; }
+    if (!areaId || !unidadeId) {
+      toast.error("Selecione área e unidade");
+      return;
+    }
     setSaving(true);
     const inicio = new Date(`${data}T${horaIni}:00`).toISOString();
     const fim = new Date(`${data}T${horaFim}:00`).toISOString();
@@ -620,53 +860,126 @@ function NovaReservaModal({
       toast.error(ERROS[error.message] ?? error.message);
       return;
     }
-    toast.success(area?.requer_aprovacao ? "Reserva enviada para aprovação" : "Reserva confirmada!");
+    toast.success(
+      area?.requer_aprovacao ? "Reserva enviada para aprovação" : "Reserva confirmada!",
+    );
     onCriada();
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-background rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-background rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="p-5 border-b border-border flex items-center justify-between">
           <h3 className="font-bold text-lg">Nova reserva</h3>
-          <button onClick={onClose} className="p-1 rounded hover:bg-muted"><X size={18} /></button>
+          <button onClick={onClose} className="p-1 rounded hover:bg-muted">
+            <X size={18} />
+          </button>
         </div>
         <form onSubmit={submit} className="p-5 space-y-4">
           <Field label="Área">
-            <select value={areaId} onChange={(e) => setAreaId(e.target.value)} className="input" required>
+            <select
+              value={areaId}
+              onChange={(e) => setAreaId(e.target.value)}
+              className="input"
+              required
+            >
               <option value="">Selecione...</option>
-              {areas.map((a) => <option key={a.id} value={a.id}>{a.nome}{a.taxa_uso > 0 ? ` — ${brl(a.taxa_uso)}` : ""}</option>)}
+              {areas.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.nome}
+                  {a.taxa_uso > 0 ? ` — ${brl(a.taxa_uso)}` : ""}
+                </option>
+              ))}
             </select>
           </Field>
           <Field label="Unidade">
-            <select value={unidadeId} onChange={(e) => setUnidadeId(e.target.value)} className="input" required>
+            <select
+              value={unidadeId}
+              onChange={(e) => setUnidadeId(e.target.value)}
+              className="input"
+              required
+            >
               <option value="">Selecione...</option>
-              {unidades.map((u) => <option key={u.id} value={u.id}>{u.bloco ? `${u.bloco} · ` : ""}Un. {u.numero}</option>)}
+              {unidades.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.bloco ? `${u.bloco} · ` : ""}Un. {u.numero}
+                </option>
+              ))}
             </select>
           </Field>
           <Field label="Data">
-            <input type="date" value={data} onChange={(e) => setData(e.target.value)} className="input" required />
+            <input
+              type="date"
+              value={data}
+              onChange={(e) => setData(e.target.value)}
+              className="input"
+              required
+            />
           </Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Início"><input type="time" value={horaIni} onChange={(e) => setHoraIni(e.target.value)} className="input" required /></Field>
-            <Field label="Fim"><input type="time" value={horaFim} onChange={(e) => setHoraFim(e.target.value)} className="input" required /></Field>
+            <Field label="Início">
+              <input
+                type="time"
+                value={horaIni}
+                onChange={(e) => setHoraIni(e.target.value)}
+                className="input"
+                required
+              />
+            </Field>
+            <Field label="Fim">
+              <input
+                type="time"
+                value={horaFim}
+                onChange={(e) => setHoraFim(e.target.value)}
+                className="input"
+                required
+              />
+            </Field>
           </div>
           <Field label={`Convidados${area?.capacidade ? ` (máx. ${area.capacidade})` : ""}`}>
-            <input type="number" min={0} value={convidados} onChange={(e) => setConvidados(Number(e.target.value))} className="input" />
+            <input
+              type="number"
+              min={0}
+              value={convidados}
+              onChange={(e) => setConvidados(Number(e.target.value))}
+              className="input"
+            />
           </Field>
           <Field label="Observações">
-            <textarea value={obs} onChange={(e) => setObs(e.target.value)} rows={2} className="input" />
+            <textarea
+              value={obs}
+              onChange={(e) => setObs(e.target.value)}
+              rows={2}
+              className="input"
+            />
           </Field>
           {area && (
             <div className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3 space-y-1">
-              <p>⏱️ Funcionamento: {area.hora_abertura.slice(0,5)} – {area.hora_fechamento.slice(0,5)}</p>
+              <p>
+                ⏱️ Funcionamento: {area.hora_abertura.slice(0, 5)} –{" "}
+                {area.hora_fechamento.slice(0, 5)}
+              </p>
               <p>📅 Antecedência mínima: {area.antecedencia_min_horas}h</p>
               {area.taxa_uso > 0 && <p>💰 Taxa: {brl(area.taxa_uso)}</p>}
               {area.requer_aprovacao && <p>⚠️ Esta área requer aprovação do síndico.</p>}
-              {area.regulamento && <p className="pt-1 border-t border-border whitespace-pre-line">{area.regulamento}</p>}
+              {area.regulamento && (
+                <p className="pt-1 border-t border-border whitespace-pre-line">
+                  {area.regulamento}
+                </p>
+              )}
             </div>
           )}
-          <button type="submit" disabled={saving} className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 font-medium flex items-center justify-center gap-2 disabled:opacity-60">
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 font-medium flex items-center justify-center gap-2 disabled:opacity-60"
+          >
             {saving && <Loader2 size={16} className="animate-spin" />} Solicitar reserva
           </button>
         </form>
@@ -677,8 +990,16 @@ function NovaReservaModal({
 
 /* ========== Modal: Área ========== */
 function AreaModal({
-  condominioId, area, onClose, onSalvo,
-}: { condominioId: string; area: Area | null; onClose: () => void; onSalvo: () => void }) {
+  condominioId,
+  area,
+  onClose,
+  onSalvo,
+}: {
+  condominioId: string;
+  area: Area | null;
+  onClose: () => void;
+  onSalvo: () => void;
+}) {
   const [form, setForm] = useState({
     nome: area?.nome ?? "",
     descricao: area?.descricao ?? "",
@@ -689,16 +1010,16 @@ function AreaModal({
     antecedencia_max_dias: area?.antecedencia_max_dias ?? 90,
     duracao_min_minutos: area?.duracao_min_minutos ?? 60,
     duracao_max_minutos: area?.duracao_max_minutos ?? 480,
-    hora_abertura: area?.hora_abertura?.slice(0,5) ?? "08:00",
-    hora_fechamento: area?.hora_fechamento?.slice(0,5) ?? "22:00",
-    dias_permitidos: area?.dias_permitidos ?? [0,1,2,3,4,5,6],
+    hora_abertura: area?.hora_abertura?.slice(0, 5) ?? "08:00",
+    hora_fechamento: area?.hora_fechamento?.slice(0, 5) ?? "22:00",
+    dias_permitidos: area?.dias_permitidos ?? [0, 1, 2, 3, 4, 5, 6],
     max_reservas_por_unidade_mes: area?.max_reservas_por_unidade_mes ?? 4,
     cor: area?.cor ?? "#10B981",
     regulamento: area?.regulamento ?? "",
     ativo: area?.ativo ?? true,
   });
   const [saving, setSaving] = useState(false);
-  const dias = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+  const dias = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
   const toggleDia = (i: number) => {
     setForm((f) => ({
@@ -735,42 +1056,122 @@ function AreaModal({
       ? await supabase.from("areas_comuns").update(payload).eq("id", area.id)
       : await supabase.from("areas_comuns").insert(payload);
     setSaving(false);
-    if (res.error) { toast.error(res.error.message); return; }
+    if (res.error) {
+      toast.error(res.error.message);
+      return;
+    }
     toast.success(area ? "Área atualizada" : "Área cadastrada");
     onSalvo();
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-background rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-background rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="p-5 border-b border-border flex items-center justify-between sticky top-0 bg-background">
           <h3 className="font-bold text-lg">{area ? "Editar área" : "Nova área"}</h3>
-          <button onClick={onClose} className="p-1 rounded hover:bg-muted"><X size={18} /></button>
+          <button onClick={onClose} className="p-1 rounded hover:bg-muted">
+            <X size={18} />
+          </button>
         </div>
         <form onSubmit={submit} className="p-5 space-y-4">
           <div className="grid sm:grid-cols-3 gap-3">
-            <div className="sm:col-span-2"><Field label="Nome"><input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="input" required /></Field></div>
-            <Field label="Cor"><input type="color" value={form.cor} onChange={(e) => setForm({ ...form, cor: e.target.value })} className="input h-10" /></Field>
+            <div className="sm:col-span-2">
+              <Field label="Nome">
+                <input
+                  value={form.nome}
+                  onChange={(e) => setForm({ ...form, nome: e.target.value })}
+                  className="input"
+                  required
+                />
+              </Field>
+            </div>
+            <Field label="Cor">
+              <input
+                type="color"
+                value={form.cor}
+                onChange={(e) => setForm({ ...form, cor: e.target.value })}
+                className="input h-10"
+              />
+            </Field>
           </div>
-          <Field label="Descrição"><textarea value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} rows={2} className="input" /></Field>
+          <Field label="Descrição">
+            <textarea
+              value={form.descricao}
+              onChange={(e) => setForm({ ...form, descricao: e.target.value })}
+              rows={2}
+              className="input"
+            />
+          </Field>
 
           <div className="grid sm:grid-cols-3 gap-3">
-            <Field label="Capacidade"><input type="number" min={0} value={form.capacidade} onChange={(e) => setForm({ ...form, capacidade: e.target.value })} className="input" placeholder="—" /></Field>
-            <Field label="Taxa de uso (R$)"><input type="number" step="0.01" min={0} value={form.taxa_uso} onChange={(e) => setForm({ ...form, taxa_uso: Number(e.target.value) })} className="input" /></Field>
-            <Field label="Máx. reservas/unid./mês"><input type="number" min={1} value={form.max_reservas_por_unidade_mes} onChange={(e) => setForm({ ...form, max_reservas_por_unidade_mes: Number(e.target.value) })} className="input" /></Field>
+            <Field label="Capacidade">
+              <input
+                type="number"
+                min={0}
+                value={form.capacidade}
+                onChange={(e) => setForm({ ...form, capacidade: e.target.value })}
+                className="input"
+                placeholder="—"
+              />
+            </Field>
+            <Field label="Taxa de uso (R$)">
+              <input
+                type="number"
+                step="0.01"
+                min={0}
+                value={form.taxa_uso}
+                onChange={(e) => setForm({ ...form, taxa_uso: Number(e.target.value) })}
+                className="input"
+              />
+            </Field>
+            <Field label="Máx. reservas/unid./mês">
+              <input
+                type="number"
+                min={1}
+                value={form.max_reservas_por_unidade_mes}
+                onChange={(e) =>
+                  setForm({ ...form, max_reservas_por_unidade_mes: Number(e.target.value) })
+                }
+                className="input"
+              />
+            </Field>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-3">
-            <Field label="Abertura"><input type="time" value={form.hora_abertura} onChange={(e) => setForm({ ...form, hora_abertura: e.target.value })} className="input" /></Field>
-            <Field label="Fechamento"><input type="time" value={form.hora_fechamento} onChange={(e) => setForm({ ...form, hora_fechamento: e.target.value })} className="input" /></Field>
+            <Field label="Abertura">
+              <input
+                type="time"
+                value={form.hora_abertura}
+                onChange={(e) => setForm({ ...form, hora_abertura: e.target.value })}
+                className="input"
+              />
+            </Field>
+            <Field label="Fechamento">
+              <input
+                type="time"
+                value={form.hora_fechamento}
+                onChange={(e) => setForm({ ...form, hora_fechamento: e.target.value })}
+                className="input"
+              />
+            </Field>
           </div>
 
           <div>
             <label className="text-sm font-medium mb-2 block">Dias permitidos</label>
             <div className="flex gap-2 flex-wrap">
               {dias.map((d, i) => (
-                <button key={i} type="button" onClick={() => toggleDia(i)}
-                  className={`px-3 py-1.5 text-xs rounded-full border ${form.dias_permitidos.includes(i) ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted"}`}>
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => toggleDia(i)}
+                  className={`px-3 py-1.5 text-xs rounded-full border ${form.dias_permitidos.includes(i) ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted"}`}
+                >
                   {d}
                 </button>
               ))}
@@ -778,28 +1179,81 @@ function AreaModal({
           </div>
 
           <div className="grid sm:grid-cols-2 gap-3">
-            <Field label="Antecedência mín. (horas)"><input type="number" min={0} value={form.antecedencia_min_horas} onChange={(e) => setForm({ ...form, antecedencia_min_horas: Number(e.target.value) })} className="input" /></Field>
-            <Field label="Antecedência máx. (dias)"><input type="number" min={1} value={form.antecedencia_max_dias} onChange={(e) => setForm({ ...form, antecedencia_max_dias: Number(e.target.value) })} className="input" /></Field>
-            <Field label="Duração mín. (min)"><input type="number" min={15} value={form.duracao_min_minutos} onChange={(e) => setForm({ ...form, duracao_min_minutos: Number(e.target.value) })} className="input" /></Field>
-            <Field label="Duração máx. (min)"><input type="number" min={15} value={form.duracao_max_minutos} onChange={(e) => setForm({ ...form, duracao_max_minutos: Number(e.target.value) })} className="input" /></Field>
+            <Field label="Antecedência mín. (horas)">
+              <input
+                type="number"
+                min={0}
+                value={form.antecedencia_min_horas}
+                onChange={(e) =>
+                  setForm({ ...form, antecedencia_min_horas: Number(e.target.value) })
+                }
+                className="input"
+              />
+            </Field>
+            <Field label="Antecedência máx. (dias)">
+              <input
+                type="number"
+                min={1}
+                value={form.antecedencia_max_dias}
+                onChange={(e) =>
+                  setForm({ ...form, antecedencia_max_dias: Number(e.target.value) })
+                }
+                className="input"
+              />
+            </Field>
+            <Field label="Duração mín. (min)">
+              <input
+                type="number"
+                min={15}
+                value={form.duracao_min_minutos}
+                onChange={(e) => setForm({ ...form, duracao_min_minutos: Number(e.target.value) })}
+                className="input"
+              />
+            </Field>
+            <Field label="Duração máx. (min)">
+              <input
+                type="number"
+                min={15}
+                value={form.duracao_max_minutos}
+                onChange={(e) => setForm({ ...form, duracao_max_minutos: Number(e.target.value) })}
+                className="input"
+              />
+            </Field>
           </div>
 
           <Field label="Regulamento (texto livre)">
-            <textarea value={form.regulamento} onChange={(e) => setForm({ ...form, regulamento: e.target.value })} rows={3} className="input" />
+            <textarea
+              value={form.regulamento}
+              onChange={(e) => setForm({ ...form, regulamento: e.target.value })}
+              rows={3}
+              className="input"
+            />
           </Field>
 
           <div className="flex flex-wrap gap-4">
             <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={form.requer_aprovacao} onChange={(e) => setForm({ ...form, requer_aprovacao: e.target.checked })} />
+              <input
+                type="checkbox"
+                checked={form.requer_aprovacao}
+                onChange={(e) => setForm({ ...form, requer_aprovacao: e.target.checked })}
+              />
               Requer aprovação do síndico
             </label>
             <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={form.ativo} onChange={(e) => setForm({ ...form, ativo: e.target.checked })} />
+              <input
+                type="checkbox"
+                checked={form.ativo}
+                onChange={(e) => setForm({ ...form, ativo: e.target.checked })}
+              />
               Área ativa
             </label>
           </div>
 
-          <button type="submit" disabled={saving} className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 font-medium flex items-center justify-center gap-2 disabled:opacity-60">
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 font-medium flex items-center justify-center gap-2 disabled:opacity-60"
+          >
             {saving && <Loader2 size={16} className="animate-spin" />} Salvar
           </button>
         </form>
@@ -810,12 +1264,21 @@ function AreaModal({
 
 /* ========== Modal: Bloqueio ========== */
 function BloqueioModal({
-  areas, condominioId, onClose, onSalvo,
-}: { areas: Area[]; condominioId: string; onClose: () => void; onSalvo: () => void }) {
+  areas,
+  condominioId,
+  onClose,
+  onSalvo,
+}: {
+  areas: Area[];
+  condominioId: string;
+  onClose: () => void;
+  onSalvo: () => void;
+}) {
   const [areaId, setAreaId] = useState(areas[0]?.id ?? "");
   const [inicio, setInicio] = useState(() => new Date().toISOString().slice(0, 16));
   const [fim, setFim] = useState(() => {
-    const d = new Date(); d.setDate(d.getDate() + 1);
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
     return d.toISOString().slice(0, 16);
   });
   const [motivo, setMotivo] = useState("");
@@ -832,28 +1295,78 @@ function BloqueioModal({
       motivo,
     });
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Bloqueio criado");
     onSalvo();
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-background rounded-xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-background rounded-xl max-w-md w-full"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="p-5 border-b border-border flex items-center justify-between">
-          <h3 className="font-bold text-lg flex items-center gap-2"><Ban size={18} /> Bloquear data</h3>
-          <button onClick={onClose} className="p-1 rounded hover:bg-muted"><X size={18} /></button>
+          <h3 className="font-bold text-lg flex items-center gap-2">
+            <Ban size={18} /> Bloquear data
+          </h3>
+          <button onClick={onClose} className="p-1 rounded hover:bg-muted">
+            <X size={18} />
+          </button>
         </div>
         <form onSubmit={submit} className="p-5 space-y-4">
           <Field label="Área">
-            <select value={areaId} onChange={(e) => setAreaId(e.target.value)} className="input" required>
-              {areas.map((a) => <option key={a.id} value={a.id}>{a.nome}</option>)}
+            <select
+              value={areaId}
+              onChange={(e) => setAreaId(e.target.value)}
+              className="input"
+              required
+            >
+              {areas.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.nome}
+                </option>
+              ))}
             </select>
           </Field>
-          <Field label="Início"><input type="datetime-local" value={inicio} onChange={(e) => setInicio(e.target.value)} className="input" required /></Field>
-          <Field label="Fim"><input type="datetime-local" value={fim} onChange={(e) => setFim(e.target.value)} className="input" required /></Field>
-          <Field label="Motivo"><input value={motivo} onChange={(e) => setMotivo(e.target.value)} className="input" placeholder="Ex: Manutenção, feriado..." required /></Field>
-          <button type="submit" disabled={saving} className="w-full py-2.5 rounded-lg bg-destructive text-destructive-foreground hover:opacity-90 font-medium flex items-center justify-center gap-2 disabled:opacity-60">
+          <Field label="Início">
+            <input
+              type="datetime-local"
+              value={inicio}
+              onChange={(e) => setInicio(e.target.value)}
+              className="input"
+              required
+            />
+          </Field>
+          <Field label="Fim">
+            <input
+              type="datetime-local"
+              value={fim}
+              onChange={(e) => setFim(e.target.value)}
+              className="input"
+              required
+            />
+          </Field>
+          <Field label="Motivo">
+            <input
+              value={motivo}
+              onChange={(e) => setMotivo(e.target.value)}
+              className="input"
+              placeholder="Ex: Manutenção, feriado..."
+              required
+            />
+          </Field>
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full py-2.5 rounded-lg bg-destructive text-destructive-foreground hover:opacity-90 font-medium flex items-center justify-center gap-2 disabled:opacity-60"
+          >
             {saving && <Loader2 size={16} className="animate-spin" />} Bloquear
           </button>
         </form>

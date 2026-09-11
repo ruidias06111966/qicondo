@@ -25,7 +25,11 @@ function AdminLayout() {
   }, [loading, user, navigate]);
 
   if (loading || !user || chk) {
-    return <div className="min-h-screen grid place-items-center"><Loader2 className="animate-spin text-muted-foreground" /></div>;
+    return (
+      <div className="min-h-screen grid place-items-center">
+        <Loader2 className="animate-spin text-muted-foreground" />
+      </div>
+    );
   }
 
   // Bootstrap: ainda ninguém é admin master
@@ -33,18 +37,27 @@ function AdminLayout() {
     return (
       <div className="min-h-screen grid place-items-center p-6 bg-muted/40">
         <div className="max-w-md w-full bg-background border border-border rounded-xl p-8 shadow-sm space-y-4">
-          <div className="flex items-center gap-3"><Shield className="text-primary" /><h1 className="text-xl font-semibold">Configurar Admin Master</h1></div>
+          <div className="flex items-center gap-3">
+            <Shield className="text-primary" />
+            <h1 className="text-xl font-semibold">Configurar Admin Master</h1>
+          </div>
           <p className="text-sm text-muted-foreground">
-            Ainda não existe nenhum administrador master da plataforma. Como é o primeiro,
-            pode reclamar este acesso para si. Depois disso ninguém mais o poderá obter sem a sua autorização.
+            Ainda não existe nenhum administrador master da plataforma. Como é o primeiro, pode
+            reclamar este acesso para si. Depois disso ninguém mais o poderá obter sem a sua
+            autorização.
           </p>
           <button
             onClick={async () => {
               const r = await safeCall(reclamar());
-              if (r) { toast.success("É agora Admin Master."); refetch(); }
+              if (r) {
+                toast.success("É agora Admin Master.");
+                refetch();
+              }
             }}
             className="w-full bg-primary text-primary-foreground rounded-lg py-2.5 font-medium hover:opacity-90"
-          >Tornar-me Admin Master</button>
+          >
+            Tornar-me Admin Master
+          </button>
         </div>
       </div>
     );
@@ -56,14 +69,18 @@ function AdminLayout() {
         <div className="max-w-md w-full text-center space-y-4">
           <Shield className="mx-auto text-destructive" size={48} />
           <h1 className="text-xl font-semibold">Acesso restrito</h1>
-          <p className="text-sm text-muted-foreground">Esta área é exclusiva para administradores master da plataforma.</p>
-          <Link to="/app" className="inline-block text-sm text-primary hover:underline">Voltar à aplicação</Link>
+          <p className="text-sm text-muted-foreground">
+            Esta área é exclusiva para administradores master da plataforma.
+          </p>
+          <Link to="/app" className="inline-block text-sm text-primary hover:underline">
+            Voltar à aplicação
+          </Link>
         </div>
       </div>
     );
   }
 
-  const isActive = (to: string, exact?: boolean) => exact ? path === to : path.startsWith(to);
+  const isActive = (to: string, exact?: boolean) => (exact ? path === to : path.startsWith(to));
 
   return (
     <div className="min-h-screen flex bg-muted/40">
@@ -73,20 +90,31 @@ function AdminLayout() {
           <span className="font-semibold">Admin Master</span>
         </div>
         <nav className="flex-1 p-3 space-y-1">
-          <Link to="/admin" className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ${isActive("/admin", true) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
+          <Link
+            to="/admin"
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ${isActive("/admin", true) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+          >
             <LayoutDashboard size={18} /> Visão geral
           </Link>
-          <Link to="/admin/empresas" className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ${isActive("/admin/empresas") ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
+          <Link
+            to="/admin/empresas"
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ${isActive("/admin/empresas") ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+          >
             <Building2 size={18} /> Empresas
           </Link>
         </nav>
         <div className="p-3 border-t border-border">
-          <Link to="/app" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground px-2 py-2">
+          <Link
+            to="/app"
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground px-2 py-2"
+          >
             <ArrowLeft size={16} /> Voltar à app
           </Link>
         </div>
       </aside>
-      <main className="flex-1"><Outlet /></main>
+      <main className="flex-1">
+        <Outlet />
+      </main>
     </div>
   );
 }

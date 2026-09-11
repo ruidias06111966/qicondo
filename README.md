@@ -128,16 +128,32 @@ Rotas:
    ```
 
    Ficam no vault, e não no comando do cron, porque `cron.job.command` é legível
-   por qualquer role com acesso ao schema `cron`. Os agendamentos são criados
-   pelas migrações `20260910120000_cron_fila_email.sql` (fila de e-mail) e
-   `20260910130000_cron_wa_drain.sql` (fila de WhatsApp); `app_base_url` é
-   partilhado pelos dois.
+   por qualquer role com acesso ao schema `cron`. `app_base_url` e `cron_secret`
+   são partilhados por todos os agendamentos.
+
+## Agendamentos
+
+| Job | Quando | O que faz |
+| --- | --- | --- |
+| `process-email-queue` | 10 em 10 s | Drena `auth_emails` e `transactional_emails` |
+| `wa-drain-every-minute` | a cada minuto | Drena a fila de mensagens de WhatsApp |
+| `lembretes-cobranca-diario` | 12:00 UTC (09:00 BRT) | Enfileira lembretes de cobrança |
+
+Todos leem as credenciais do vault e chamam a aplicação com
+`Authorization: Bearer`. São criados pelas migrações `*_cron_*.sql` — nunca
+aplicados à mão em produção.
+
+O horário dos lembretes não é arbitrário: a rota calcula "hoje" com o relógio do
+servidor, que é UTC. Às 12:00 UTC o dia civil já coincide com o de Brasília;
+antecipar para antes das 03:00 UTC desalinharia as datas de vencimento. Correr
+duas vezes no mesmo dia é inofensivo — a rota salta o que já enfileirou hoje.
 
 Verificar se está a correr:
 
 ```sql
 SELECT jobname, schedule, active FROM cron.job
- WHERE jobname IN ('process-email-queue', 'wa-drain-every-minute');
+ WHERE jobname IN ('process-email-queue', 'wa-drain-every-minute',
+                   'lembretes-cobranca-diario');
 SELECT status, count(*) FROM public.email_send_log GROUP BY status;
 SELECT * FROM pgmq.q_auth_emails_dlq ORDER BY enqueued_at DESC LIMIT 10;
 

@@ -314,6 +314,12 @@ function ConfigPagamento({ condominioId }: { condominioId: string }) {
             />
           </Field>
         </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          A multa entra uma vez, sobre o que estava em dívida no dia do vencimento (Código Civil,
+          art. 1.336, §1º). Os juros são simples e correm por dia de atraso, sem capitalizar. Um
+          pagamento parcial é imputado primeiro aos juros vencidos, depois à multa e só então ao
+          valor em si — é o art. 354 do Código Civil. O cálculo corre todas as noites.
+        </p>
         <label className="flex items-center gap-2 text-sm mt-3">
           <input type="checkbox" checked={ativo} onChange={(e) => setAtivo(e.target.checked)} />
           Cobranças ativas

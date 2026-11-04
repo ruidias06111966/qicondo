@@ -26,6 +26,7 @@ import { Route as StatusRouteImport } from './routes/status'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppAssembleiasRouteImport } from './routes/app.assembleias'
 import { Route as AppCondominioRouteImport } from './routes/app.condominio'
 import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes'
 import { Route as AppDocumentosRouteImport } from './routes/app.documentos'
@@ -146,6 +147,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAssembleiasRoute = AppAssembleiasRouteImport.update({
+  id: '/assembleias',
+  path: '/assembleias',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCondominioRoute = AppCondominioRouteImport.update({
@@ -348,6 +354,7 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/assembleias': typeof AppAssembleiasRoute
   '/app/condominio': typeof AppCondominioRoute
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/documentos': typeof AppDocumentosRoute
@@ -401,6 +408,7 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/assembleias': typeof AppAssembleiasRoute
   '/app/condominio': typeof AppCondominioRoute
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/documentos': typeof AppDocumentosRoute
@@ -456,6 +464,7 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/status': typeof StatusRoute
   '/termos': typeof TermosRoute
+  '/app/assembleias': typeof AppAssembleiasRoute
   '/app/condominio': typeof AppCondominioRoute
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/documentos': typeof AppDocumentosRoute
@@ -513,6 +522,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/assembleias'
     | '/app/condominio'
     | '/app/configuracoes'
     | '/app/documentos'
@@ -566,6 +576,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/assembleias'
     | '/app/condominio'
     | '/app/configuracoes'
     | '/app/documentos'
@@ -620,6 +631,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/status'
     | '/termos'
+    | '/app/assembleias'
     | '/app/condominio'
     | '/app/configuracoes'
     | '/app/documentos'
@@ -809,6 +821,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/assembleias': {
+      id: '/app/assembleias'
+      path: '/assembleias'
+      fullPath: '/app/assembleias'
+      preLoaderRoute: typeof AppAssembleiasRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/condominio': {
@@ -1105,6 +1124,7 @@ const AppFinanceiroRouteWithChildren = AppFinanceiroRoute._addFileChildren(
 )
 
 interface AppRouteChildren {
+  AppAssembleiasRoute: typeof AppAssembleiasRoute
   AppCondominioRoute: typeof AppCondominioRoute
   AppConfiguracoesRoute: typeof AppConfiguracoesRoute
   AppDocumentosRoute: typeof AppDocumentosRoute
@@ -1124,6 +1144,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAssembleiasRoute: AppAssembleiasRoute,
   AppCondominioRoute: AppCondominioRoute,
   AppConfiguracoesRoute: AppConfiguracoesRoute,
   AppDocumentosRoute: AppDocumentosRoute,

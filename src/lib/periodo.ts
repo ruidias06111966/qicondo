@@ -56,3 +56,18 @@ export function rotuloPeriodo(inicio: string, fim: string): string {
   }
   return `${dataBR(inicio)} a ${dataBR(fim)}`;
 }
+
+/**
+ * Uma data no formato que o `<input type="datetime-local">` espera.
+ *
+ * `toISOString().slice(0, 16)` é o atalho óbvio e está errado: dá UTC, e o
+ * input mostraria a hora deslocada — num fuso a oeste, uma assembleia marcada
+ * para as 19h aparecia às 22h. Monta-se a partir dos getters locais.
+ */
+export function paraInputLocal(d: Date): string {
+  const p = (n: number) => String(n).padStart(2, "0");
+  return (
+    `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}` +
+    `T${p(d.getHours())}:${p(d.getMinutes())}`
+  );
+}

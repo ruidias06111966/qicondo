@@ -25,6 +25,7 @@ import {
   FileText,
   UserCheck,
   ClipboardList,
+  Gavel,
 } from "lucide-react";
 
 export const Route = createFileRoute("/app")({
@@ -42,6 +43,7 @@ const NAV: NavItem[] = [
   { to: "/app", label: "Visão geral", icon: LayoutDashboard, exact: true },
   { to: "/app/financeiro", label: "Financeiro", icon: Wallet, roles: FIN_VER },
   { to: "/app/prestacao-contas", label: "Prestação de contas", icon: ClipboardList },
+  { to: "/app/assembleias", label: "Assembleias", icon: Gavel },
   { to: "/app/reservas", label: "Reservas", icon: Calendar },
   { to: "/app/encomendas", label: "Encomendas", icon: Package },
   { to: "/app/visitantes", label: "Visitantes", icon: UserCheck },

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dataBR, limitesDoMes, mesAnterior, rotuloPeriodo } from "./periodo";
+import { dataBR, limitesDoMes, mesAnterior, paraInputLocal, rotuloPeriodo } from "./periodo";
 
 describe("dataBR", () => {
   it("não desliza um dia em fusos negativos", () => {
@@ -65,5 +65,26 @@ describe("rotuloPeriodo", () => {
   it("não confunde Fevereiro de ano comum com bissexto", () => {
     // 28 de Fevereiro de 2028 não é o fim do mês.
     expect(rotuloPeriodo("2028-02-01", "2028-02-28")).toBe("01/02/2028 a 28/02/2028");
+  });
+});
+
+describe("paraInputLocal", () => {
+  it("mantém a hora local, não a de UTC", () => {
+    // Testado por ida e volta para valer em qualquer fuso: o que o input
+    // mostra tem de ser a mesma hora local da data de origem.
+    const d = new Date(2026, 10, 4, 19, 30);
+    const texto = paraInputLocal(d);
+    const volta = new Date(texto);
+    expect(volta.getHours()).toBe(19);
+    expect(volta.getMinutes()).toBe(30);
+    expect(volta.getDate()).toBe(4);
+  });
+
+  it("preenche com zeros à esquerda", () => {
+    expect(paraInputLocal(new Date(2026, 0, 5, 9, 7))).toBe("2026-01-05T09:07");
+  });
+
+  it("não desliza o dia à meia-noite", () => {
+    expect(paraInputLocal(new Date(2026, 2, 1, 0, 0))).toBe("2026-03-01T00:00");
   });
 });

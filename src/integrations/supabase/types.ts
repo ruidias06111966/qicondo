@@ -2190,11 +2190,21 @@ export type Database = {
           _competencia: string;
           _condominio_id: string;
           _descricao: string;
-          _usar_taxa_unidade: boolean;
-          _valor_padrao: number;
+          _modo: string;
+          _valor: number;
           _vencimento: string;
         };
         Returns: number;
+      };
+      ratear_por_fracao_ideal: {
+        Args: {
+          _condominio_id: string;
+          _total: number;
+        };
+        Returns: {
+          unidade_id: string;
+          valor: number;
+        }[];
       };
       has_role: {
         Args: {

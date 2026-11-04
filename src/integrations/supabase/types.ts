@@ -2230,16 +2230,6 @@ export type Database = {
         };
         Returns: number;
       };
-      ratear_por_fracao_ideal: {
-        Args: {
-          _condominio_id: string;
-          _total: number;
-        };
-        Returns: {
-          unidade_id: string;
-          valor: number;
-        }[];
-      };
       has_role: {
         Args: {
           _condominio_id: string;

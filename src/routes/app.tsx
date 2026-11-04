@@ -45,6 +45,7 @@ const NAV: NavItem[] = [
   { to: "/app/visitantes", label: "Visitantes", icon: UserCheck },
   { to: "/app/ocorrencias", label: "Ocorrências", icon: Wrench },
   { to: "/app/documentos", label: "Documentos", icon: FileText },
+  { to: "/app/unidades", label: "Unidades", icon: Building2, roles: ADMIN },
   { to: "/app/usuarios", label: "Equipa", icon: Users, roles: ADMIN },
   { to: "/app/moradores", label: "Moradores", icon: Users, roles: ADMIN },
   { to: "/app/condominio", label: "Empresa", icon: Building2, roles: ADMIN },

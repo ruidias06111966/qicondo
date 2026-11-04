@@ -132,14 +132,24 @@ export const listarCobrancas = createServerFn({ method: "POST" })
     return rows ?? [];
   });
 
+/**
+ * Três maneiras de pôr valor nas cobranças de um lote:
+ *
+ * - `taxa_unidade`: cada unidade paga a taxa mensal cadastrada nela.
+ * - `valor_unico`:  todas pagam o mesmo. Serve para quando é mesmo igual.
+ * - `fracao_ideal`: `valor` é o TOTAL e reparte-se na proporção da fração de
+ *                   cada unidade. É o modo correcto para taxas extras — uma
+ *                   obra não se divide em partes iguais entre a cobertura e a
+ *                   quitinete (Código Civil, art. 1.336, I).
+ */
 const GerarLoteInput = z.object({
   condominio_id: z.string().uuid(),
   categoria_id: z.string().uuid().nullable(),
   competencia: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   vencimento: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   descricao: z.string().max(500).optional().nullable(),
-  usar_taxa_unidade: z.boolean(),
-  valor_padrao: z.number().min(0),
+  modo: z.enum(["taxa_unidade", "valor_unico", "fracao_ideal"]),
+  valor: z.number().min(0),
 });
 
 export const gerarCobrancasLote = createServerFn({ method: "POST" })
@@ -153,8 +163,8 @@ export const gerarCobrancasLote = createServerFn({ method: "POST" })
       _competencia: data.competencia,
       _vencimento: data.vencimento,
       _descricao: (data.descricao ?? null) as any,
-      _usar_taxa_unidade: data.usar_taxa_unidade,
-      _valor_padrao: data.valor_padrao,
+      _modo: data.modo,
+      _valor: data.valor,
     });
     if (error) throwSafe(error);
     return { criadas: count as number };

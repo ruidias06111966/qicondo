@@ -28,6 +28,16 @@
 -- O denominador é a soma das frações do condomínio, não 1 nem 100: assim
 -- funciona tanto com frações decimais (0,023456) como com percentagens
 -- (2,3456), que é como cada convenção entende dar-lhes.
+--
+-- SECURITY INVOKER de propósito. A função é exposta no PostgREST a qualquer
+-- utilizador autenticado, e com SECURITY DEFINER ignorava o RLS de `unidades`:
+-- bastava passar o id de outro condomínio para receber todas as suas unidades
+-- e, dividindo cada quota pelo total, a fração exacta de cada uma. Como
+-- INVOKER, o RLS continua a valer mesmo que a verificação abaixo falhe um dia.
+--
+-- Chamada de dentro de `gerar_cobrancas_lote`, que é SECURITY DEFINER, corre
+-- com os privilégios do dono e vê o condomínio inteiro — que é o que a geração
+-- precisa. `auth.uid()` devolve sempre o utilizador real nos dois caminhos.
 -- ------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.ratear_por_fracao_ideal(
   _condominio_id uuid,
@@ -36,7 +46,7 @@ CREATE OR REPLACE FUNCTION public.ratear_por_fracao_ideal(
 RETURNS TABLE(unidade_id uuid, valor numeric)
 LANGUAGE plpgsql
 STABLE
-SECURITY DEFINER
+SECURITY INVOKER
 SET search_path = public
 AS $$
 DECLARE
@@ -44,6 +54,17 @@ DECLARE
   _sem_fracao int;
   _centavos_total bigint;
 BEGIN
+  -- Antes de qualquer leitura e de qualquer erro de negócio: a contagem de
+  -- unidades sem fração, que a mensagem de `fracao_ideal_em_falta` devolve,
+  -- já diria a um estranho quantas unidades o condomínio tem.
+  IF auth.uid() IS NULL THEN
+    RAISE EXCEPTION 'not_authenticated';
+  END IF;
+
+  IF NOT public.pode_gerir_financeiro(auth.uid(), _condominio_id) THEN
+    RAISE EXCEPTION 'forbidden';
+  END IF;
+
   IF COALESCE(_total, 0) <= 0 THEN
     RAISE EXCEPTION 'total_invalido';
   END IF;

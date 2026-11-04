@@ -123,7 +123,7 @@ export const fecharBalancete = createServerFn({ method: "POST" })
       _condominio_id: data.condominio_id,
       _inicio: data.inicio,
       _fim: data.fim,
-      _observacoes: data.observacoes || null,
+      _observacoes: data.observacoes || undefined,
     });
     if (error) throwSafe(error);
     return { id: id as unknown as string };
@@ -161,7 +161,7 @@ export const reabrirBalancete = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.rpc("reabrir_balancete", {
       _balancete_id: data.id,
-      _motivo: data.motivo || null,
+      _motivo: data.motivo || undefined,
     });
     if (error) throwSafe(error);
     return { ok: true };

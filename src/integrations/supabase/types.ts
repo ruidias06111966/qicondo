@@ -198,12 +198,84 @@ export type Database = {
           },
         ];
       };
+      balancetes: {
+        Row: {
+          condominio_id: string;
+          created_at: string;
+          dados: Json;
+          fechado_em: string;
+          fechado_por: string | null;
+          id: string;
+          inadimplencia: number;
+          observacoes: string | null;
+          periodo_fim: string;
+          periodo_inicio: string;
+          publicado_em: string | null;
+          publicado_por: string | null;
+          saldo_anterior: number;
+          saldo_final: number;
+          status: Database["public"]["Enums"]["balancete_status"];
+          total_despesas: number;
+          total_receitas: number;
+          updated_at: string;
+        };
+        Insert: {
+          condominio_id: string;
+          created_at?: string;
+          dados: Json;
+          fechado_em?: string;
+          fechado_por?: string | null;
+          id?: string;
+          inadimplencia?: number;
+          observacoes?: string | null;
+          periodo_fim: string;
+          periodo_inicio: string;
+          publicado_em?: string | null;
+          publicado_por?: string | null;
+          saldo_anterior: number;
+          saldo_final: number;
+          status?: Database["public"]["Enums"]["balancete_status"];
+          total_despesas: number;
+          total_receitas: number;
+          updated_at?: string;
+        };
+        Update: {
+          condominio_id?: string;
+          created_at?: string;
+          dados?: Json;
+          fechado_em?: string;
+          fechado_por?: string | null;
+          id?: string;
+          inadimplencia?: number;
+          observacoes?: string | null;
+          periodo_fim?: string;
+          periodo_inicio?: string;
+          publicado_em?: string | null;
+          publicado_por?: string | null;
+          saldo_anterior?: number;
+          saldo_final?: number;
+          status?: Database["public"]["Enums"]["balancete_status"];
+          total_despesas?: number;
+          total_receitas?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "balancetes_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       categorias_financeiras: {
         Row: {
           ativo: boolean;
           condominio_id: string;
           cor: string | null;
           created_at: string;
+          fundo_reserva: boolean;
           id: string;
           nome: string;
           ordem: number;
@@ -215,6 +287,7 @@ export type Database = {
           condominio_id: string;
           cor?: string | null;
           created_at?: string;
+          fundo_reserva?: boolean;
           id?: string;
           nome: string;
           ordem?: number;
@@ -226,6 +299,7 @@ export type Database = {
           condominio_id?: string;
           cor?: string | null;
           created_at?: string;
+          fundo_reserva?: boolean;
           id?: string;
           nome?: string;
           ordem?: number;
@@ -644,6 +718,8 @@ export type Database = {
           juros_dia_percentual: number;
           multa_percentual: number;
           pix_chave: string | null;
+          saldo_inicial: number;
+          saldo_inicial_data: string | null;
           updated_at: string;
           wa_automacao_ativa: boolean;
           wa_dias_pos_vencimento: number[];
@@ -666,6 +742,8 @@ export type Database = {
           juros_dia_percentual?: number;
           multa_percentual?: number;
           pix_chave?: string | null;
+          saldo_inicial?: number;
+          saldo_inicial_data?: string | null;
           updated_at?: string;
           wa_automacao_ativa?: boolean;
           wa_dias_pos_vencimento?: number[];
@@ -688,6 +766,8 @@ export type Database = {
           juros_dia_percentual?: number;
           multa_percentual?: number;
           pix_chave?: string | null;
+          saldo_inicial?: number;
+          saldo_inicial_data?: string | null;
           updated_at?: string;
           wa_automacao_ativa?: boolean;
           wa_dias_pos_vencimento?: number[];
@@ -2100,6 +2180,14 @@ export type Database = {
         };
         Returns: number;
       };
+      _encargos_cobranca: {
+        Args: { _cobranca_id: string; _referencia: string };
+        Returns: {
+          dias_atraso: number;
+          juros: number;
+          multa: number;
+        }[];
+      };
       _encargos_devidos: {
         Args: {
           _cobranca_id: string;
@@ -2153,6 +2241,10 @@ export type Database = {
       avaliar_ocorrencia: {
         Args: { _comentario: string; _nota: number; _ocorrencia_id: string };
         Returns: undefined;
+      };
+      calcular_balancete: {
+        Args: { _condominio_id: string; _fim: string; _inicio: string };
+        Returns: Json;
       };
       calcular_encargos_cobranca: {
         Args: { _cobranca_id: string; _referencia?: string };
@@ -2217,6 +2309,15 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string };
         Returns: number;
+      };
+      fechar_balancete: {
+        Args: {
+          _condominio_id: string;
+          _fim: string;
+          _inicio: string;
+          _observacoes?: string;
+        };
+        Returns: string;
       };
       gerar_cobrancas_lote: {
         Args: {
@@ -2289,12 +2390,20 @@ export type Database = {
       };
       processar_fila_email: { Args: never; Returns: undefined };
       processar_fila_whatsapp: { Args: never; Returns: undefined };
+      publicar_balancete: {
+        Args: { _balancete_id: string };
+        Returns: undefined;
+      };
       ratear_por_fracao_ideal: {
         Args: { _condominio_id: string; _total: number };
         Returns: {
           unidade_id: string;
           valor: number;
         }[];
+      };
+      reabrir_balancete: {
+        Args: { _balancete_id: string; _motivo?: string };
+        Returns: undefined;
       };
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number };
@@ -2397,6 +2506,7 @@ export type Database = {
         | "vendedor"
         | "comercial"
         | "consulta";
+      balancete_status: "rascunho" | "publicado";
       cnab_banco: "sicoob" | "itau" | "bradesco" | "bb" | "caixa" | "santander" | "generico";
       cnab_evento_tipo: "liquidacao" | "baixa" | "rejeicao" | "protesto" | "outros";
       cnab_remessa_status: "gerada" | "enviada" | "processada" | "erro";
@@ -2575,6 +2685,7 @@ export const Constants = {
         "comercial",
         "consulta",
       ],
+      balancete_status: ["rascunho", "publicado"],
       cnab_banco: ["sicoob", "itau", "bradesco", "bb", "caixa", "santander", "generico"],
       cnab_evento_tipo: ["liquidacao", "baixa", "rejeicao", "protesto", "outros"],
       cnab_remessa_status: ["gerada", "enviada", "processada", "erro"],

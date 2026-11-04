@@ -349,6 +349,17 @@ const ConfigInput = z.object({
   multa_percentual: z.number().min(0).max(50),
   juros_dia_percentual: z.number().min(0).max(5),
   ativo: z.boolean(),
+  // Saldo de abertura: o condomínio que adopta o sistema a meio da vida tem
+  // dinheiro no banco que o sistema nunca viu. Sem isto, o saldo acumulado do
+  // balancete fica errado para sempre. `saldo_inicial_data` é a data a que o
+  // saldo se refere; movimentos anteriores a ela são ignorados no acumulado,
+  // porque já estão dentro do saldo.
+  saldo_inicial: z.number().optional(),
+  saldo_inicial_data: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida")
+    .optional()
+    .nullable(),
   // Conta bancária do condomínio (opcionais)
   banco_nome: z.string().max(120).optional().nullable(),
   banco_agencia: z.string().max(20).optional().nullable(),
@@ -389,6 +400,9 @@ export const salvarConfigPagamento = createServerFn({ method: "POST" })
     if (data.banco_titular !== undefined) payload.banco_titular = data.banco_titular;
     if (data.banco_cnpj !== undefined) payload.banco_cnpj = data.banco_cnpj;
     if (data.instrucoes_boleto !== undefined) payload.instrucoes_boleto = data.instrucoes_boleto;
+    if (data.saldo_inicial !== undefined) payload.saldo_inicial = data.saldo_inicial;
+    if (data.saldo_inicial_data !== undefined)
+      payload.saldo_inicial_data = data.saldo_inicial_data || null;
     if (data.wa_automacao_ativa !== undefined) payload.wa_automacao_ativa = data.wa_automacao_ativa;
     if (data.wa_dias_pre_vencimento) payload.wa_dias_pre_vencimento = data.wa_dias_pre_vencimento;
     if (data.wa_dias_pos_vencimento) payload.wa_dias_pos_vencimento = data.wa_dias_pos_vencimento;
@@ -415,7 +429,7 @@ export const obterConfigPagamento = createServerFn({ method: "POST" })
     const { data: row } = await supabaseAdmin
       .from("config_pagamento")
       .select(
-        "condominio_id, pix_chave, multa_percentual, juros_dia_percentual, dias_envio_lembrete, ativo, banco_nome, banco_agencia, banco_conta, banco_tipo_conta, banco_titular, banco_cnpj, instrucoes_boleto, wa_automacao_ativa, wa_dias_pre_vencimento, wa_dias_pos_vencimento, wa_template_lembrete, wa_template_vencida",
+        "condominio_id, pix_chave, multa_percentual, juros_dia_percentual, dias_envio_lembrete, ativo, banco_nome, banco_agencia, banco_conta, banco_tipo_conta, banco_titular, banco_cnpj, instrucoes_boleto, saldo_inicial, saldo_inicial_data, wa_automacao_ativa, wa_dias_pre_vencimento, wa_dias_pos_vencimento, wa_template_lembrete, wa_template_vencida",
       )
       .eq("condominio_id", data.condominio_id)
       .maybeSingle();
@@ -436,6 +450,8 @@ export const obterConfigPagamento = createServerFn({ method: "POST" })
       banco_titular: row.banco_titular,
       banco_cnpj: row.banco_cnpj,
       instrucoes_boleto: row.instrucoes_boleto,
+      saldo_inicial: Number(row.saldo_inicial ?? 0),
+      saldo_inicial_data: row.saldo_inicial_data,
       wa_automacao_ativa: row.wa_automacao_ativa ?? false,
       wa_dias_pre_vencimento: row.wa_dias_pre_vencimento ?? [3, 1],
       wa_dias_pos_vencimento: row.wa_dias_pos_vencimento ?? [1, 7, 15],
@@ -901,4 +917,31 @@ export const relatorioInadimplencia = createServerFn({ method: "POST" })
       total: linhas.reduce((acc, l) => acc + l.total, 0),
       unidades: linhas.length,
     };
+  });
+
+/**
+ * Marca (ou desmarca) uma categoria de receita como fundo de reserva.
+ *
+ * No condomínio brasileiro o fundo de reserva não é receita corrente: é
+ * poupança com destino próprio, e misturá-lo no saldo operacional faz o
+ * condomínio parecer mais folgado do que está. O balancete separa-o — mas só
+ * sabe quais são as categorias que alguém marcou aqui.
+ *
+ * Qual delas é não se adivinha pelo nome: o `semearCategoriasPadrao` cria uma
+ * chamada "Fundo de reserva", e cada condomínio chama-lhe o que quer.
+ */
+export const definirFundoReserva = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ id: z.string().uuid(), fundo_reserva: z.boolean() }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: row, error } = await context.supabase
+      .from("categorias_financeiras")
+      .update({ fundo_reserva: data.fundo_reserva })
+      .eq("id", data.id)
+      .select("id, fundo_reserva")
+      .single();
+    if (error) throwSafe(error);
+    return row;
   });

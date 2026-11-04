@@ -6,6 +6,7 @@ import {
   criarCategoria,
   removerCategoria,
   semearCategoriasPadrao,
+  definirFundoReserva,
 } from "@/lib/financeiro.functions";
 import { Modal, Field, EmptyState, safeCall } from "@/components/financeiro/ui";
 import { toast } from "sonner";
@@ -34,6 +35,7 @@ function CategoriasPage() {
   const [showNew, setShowNew] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [seeding, setSeeding] = useState(false);
+  const [fundoBusy, setFundoBusy] = useState<string | null>(null);
 
   const seed = async () => {
     if (!condominioId || seeding) return;
@@ -48,6 +50,16 @@ function CategoriasPage() {
       );
       if (typeof window !== "undefined")
         window.dispatchEvent(new CustomEvent("categorias:changed"));
+      reload();
+    }
+  };
+
+  const marcarFundo = async (id: string, valor: boolean) => {
+    setFundoBusy(id);
+    const r = await safeCall(definirFundoReserva({ data: { id, fundo_reserva: valor } }));
+    setFundoBusy(null);
+    if (r) {
+      toast.success(valor ? "Marcada como fundo de reserva" : "Deixou de ser fundo de reserva");
       reload();
     }
   };
@@ -118,6 +130,8 @@ function CategoriasPage() {
             itens={receitas}
             onDel={(id) => del(id)}
             deletingId={deletingId}
+            onFundo={marcarFundo}
+            fundoBusy={fundoBusy}
           />
           <Bloco
             titulo="Despesas"
@@ -164,12 +178,16 @@ function Bloco({
   itens,
   onDel,
   deletingId,
+  onFundo,
+  fundoBusy,
 }: {
   titulo: string;
   cor: string;
   itens: any[];
   onDel: (id: string) => void;
   deletingId: string | null;
+  onFundo?: (id: string, valor: boolean) => void;
+  fundoBusy?: string | null;
 }) {
   return (
     <div className="bg-background border border-border rounded-2xl overflow-hidden">
@@ -186,6 +204,20 @@ function Bloco({
               <li key={c.id} className="px-5 py-3 flex items-center gap-3">
                 <span className="w-3 h-3 rounded-full" style={{ backgroundColor: c.cor }} />
                 <span className="flex-1 font-medium text-sm">{c.nome}</span>
+                {onFundo && (
+                  <label
+                    className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none"
+                    title="Fundo de reserva: poupança com destino próprio. O balancete separa-o da receita corrente."
+                  >
+                    <input
+                      type="checkbox"
+                      checked={!!c.fundo_reserva}
+                      disabled={fundoBusy === c.id}
+                      onChange={(e) => onFundo(c.id, e.target.checked)}
+                    />
+                    fundo de reserva
+                  </label>
+                )}
                 <button
                   onClick={() => onDel(c.id)}
                   disabled={busy || !!deletingId}

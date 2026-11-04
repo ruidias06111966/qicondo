@@ -150,6 +150,8 @@ function ConfigPagamento({ condominioId }: { condominioId: string }) {
   const [bancoTitular, setBancoTitular] = useState("");
   const [bancoCnpj, setBancoCnpj] = useState("");
   const [instrucoes, setInstrucoes] = useState("");
+  const [saldoInicial, setSaldoInicial] = useState("0");
+  const [saldoInicialData, setSaldoInicialData] = useState("");
   const [multa, setMulta] = useState("2");
   const [juros, setJuros] = useState("0.033");
   const [ativo, setAtivo] = useState(true);
@@ -159,6 +161,8 @@ function ConfigPagamento({ condominioId }: { condominioId: string }) {
       .then((r) => {
         setCfg(r);
         if (r) {
+          setSaldoInicial(String(r.saldo_inicial ?? 0));
+          setSaldoInicialData(r.saldo_inicial_data ?? "");
           setMulta(String(r.multa_percentual ?? 2));
           setJuros(String(r.juros_dia_percentual ?? 0.033));
           setAtivo(r.ativo ?? true);
@@ -187,6 +191,8 @@ function ConfigPagamento({ condominioId }: { condominioId: string }) {
           banco_titular: bancoTitular || null,
           banco_cnpj: bancoCnpj || null,
           instrucoes_boleto: instrucoes || null,
+          saldo_inicial: Number(saldoInicial.replace(",", ".")) || 0,
+          saldo_inicial_data: saldoInicialData || null,
           multa_percentual: Number(multa),
           juros_dia_percentual: Number(juros),
           ativo,
@@ -291,6 +297,34 @@ function ConfigPagamento({ condominioId }: { condominioId: string }) {
           className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
         />
       </Field>
+
+      <div className="border-t border-border pt-5">
+        <p className="font-semibold mb-3">Saldo de abertura</p>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Saldo em conta (R$)">
+            <input
+              value={saldoInicial}
+              onChange={(e) => setSaldoInicial(e.target.value)}
+              inputMode="decimal"
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm tabular-nums"
+            />
+          </Field>
+          <Field label="Nesta data">
+            <input
+              type="date"
+              value={saldoInicialData}
+              onChange={(e) => setSaldoInicialData(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+            />
+          </Field>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          O que o condomínio tinha em conta no dia em que começou a usar o sistema. Sem isto, o
+          saldo acumulado do balancete fica errado para sempre, porque o sistema só conhece os
+          movimentos que lhe foram lançados. Recebimentos e despesas com data anterior a esta são
+          ignorados no acumulado — já estão dentro deste saldo.
+        </p>
+      </div>
 
       <div className="border-t border-border pt-5">
         <p className="font-semibold mb-3">Multa e juros</p>

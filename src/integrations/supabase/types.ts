@@ -157,6 +157,187 @@ export type Database = {
         };
         Relationships: [];
       };
+      assembleia_pautas: {
+        Row: {
+          aberta_em: string | null;
+          assembleia_id: string;
+          created_at: string;
+          descricao: string | null;
+          fechada_em: string | null;
+          id: string;
+          maioria: Database["public"]["Enums"]["maioria_tipo"];
+          ordem: number;
+          resultado: Json | null;
+          titulo: string;
+          updated_at: string;
+        };
+        Insert: {
+          aberta_em?: string | null;
+          assembleia_id: string;
+          created_at?: string;
+          descricao?: string | null;
+          fechada_em?: string | null;
+          id?: string;
+          maioria?: Database["public"]["Enums"]["maioria_tipo"];
+          ordem?: number;
+          resultado?: Json | null;
+          titulo: string;
+          updated_at?: string;
+        };
+        Update: {
+          aberta_em?: string | null;
+          assembleia_id?: string;
+          created_at?: string;
+          descricao?: string | null;
+          fechada_em?: string | null;
+          id?: string;
+          maioria?: Database["public"]["Enums"]["maioria_tipo"];
+          ordem?: number;
+          resultado?: Json | null;
+          titulo?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "assembleia_pautas_assembleia_id_fkey";
+            columns: ["assembleia_id"];
+            isOneToOne: false;
+            referencedRelation: "assembleias";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      assembleia_votos: {
+        Row: {
+          fracao_ideal: number | null;
+          id: string;
+          opcao: Database["public"]["Enums"]["voto_opcao"];
+          pauta_id: string;
+          peso: number;
+          registrado_em: string;
+          unidade_id: string;
+          user_id: string | null;
+        };
+        Insert: {
+          fracao_ideal?: number | null;
+          id?: string;
+          opcao: Database["public"]["Enums"]["voto_opcao"];
+          pauta_id: string;
+          peso: number;
+          registrado_em?: string;
+          unidade_id: string;
+          user_id?: string | null;
+        };
+        Update: {
+          fracao_ideal?: number | null;
+          id?: string;
+          opcao?: Database["public"]["Enums"]["voto_opcao"];
+          pauta_id?: string;
+          peso?: number;
+          registrado_em?: string;
+          unidade_id?: string;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "assembleia_votos_pauta_id_fkey";
+            columns: ["pauta_id"];
+            isOneToOne: false;
+            referencedRelation: "assembleia_pautas";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "assembleia_votos_unidade_id_fkey";
+            columns: ["unidade_id"];
+            isOneToOne: false;
+            referencedRelation: "unidades";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      assembleias: {
+        Row: {
+          ata: Json | null;
+          condominio_id: string;
+          convocada_em: string | null;
+          convocada_por: string | null;
+          created_at: string;
+          criado_por: string | null;
+          edital: string | null;
+          encerrada_em: string | null;
+          encerrada_por: string | null;
+          exige_quitacao: boolean;
+          fim: string;
+          id: string;
+          inicio: string;
+          link_videoconferencia: string | null;
+          local: string | null;
+          modo: Database["public"]["Enums"]["assembleia_modo"];
+          peso_por_fracao: boolean;
+          quorum_instalacao: number;
+          status: Database["public"]["Enums"]["assembleia_status"];
+          tipo: Database["public"]["Enums"]["assembleia_tipo"];
+          titulo: string;
+          updated_at: string;
+        };
+        Insert: {
+          ata?: Json | null;
+          condominio_id: string;
+          convocada_em?: string | null;
+          convocada_por?: string | null;
+          created_at?: string;
+          criado_por?: string | null;
+          edital?: string | null;
+          encerrada_em?: string | null;
+          encerrada_por?: string | null;
+          exige_quitacao?: boolean;
+          fim: string;
+          id?: string;
+          inicio: string;
+          link_videoconferencia?: string | null;
+          local?: string | null;
+          modo?: Database["public"]["Enums"]["assembleia_modo"];
+          peso_por_fracao?: boolean;
+          quorum_instalacao?: number;
+          status?: Database["public"]["Enums"]["assembleia_status"];
+          tipo?: Database["public"]["Enums"]["assembleia_tipo"];
+          titulo: string;
+          updated_at?: string;
+        };
+        Update: {
+          ata?: Json | null;
+          condominio_id?: string;
+          convocada_em?: string | null;
+          convocada_por?: string | null;
+          created_at?: string;
+          criado_por?: string | null;
+          edital?: string | null;
+          encerrada_em?: string | null;
+          encerrada_por?: string | null;
+          exige_quitacao?: boolean;
+          fim?: string;
+          id?: string;
+          inicio?: string;
+          link_videoconferencia?: string | null;
+          local?: string | null;
+          modo?: Database["public"]["Enums"]["assembleia_modo"];
+          peso_por_fracao?: boolean;
+          quorum_instalacao?: number;
+          status?: Database["public"]["Enums"]["assembleia_status"];
+          tipo?: Database["public"]["Enums"]["assembleia_tipo"];
+          titulo?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "assembleias_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       audit_log: {
         Row: {
           acao: string;
@@ -2214,7 +2395,17 @@ export type Database = {
         };
         Returns: string;
       };
+      abrir_votacao: { Args: { _pauta_id: string }; Returns: undefined };
       aceitar_convite: { Args: { _token: string }; Returns: string };
+      adicionar_pauta: {
+        Args: {
+          _assembleia_id: string;
+          _descricao?: string;
+          _maioria: Database["public"]["Enums"]["maioria_tipo"];
+          _titulo: string;
+        };
+        Returns: string;
+      };
       admin_metricas_globais: { Args: never; Returns: Json };
       aplicar_encargos_atraso: {
         Args: { _condominio_id: string; _referencia?: string };
@@ -2222,6 +2413,7 @@ export type Database = {
       };
       aplicar_encargos_atraso_todos: { Args: never; Returns: number };
       aprovar_reserva: { Args: { _reserva_id: string }; Returns: undefined };
+      apurar_pauta: { Args: { _pauta_id: string }; Returns: Json };
       atribuir_ocorrencia: {
         Args: { _atribuido_a: string; _ocorrencia_id: string };
         Returns: undefined;
@@ -2254,6 +2446,10 @@ export type Database = {
           multa: number;
         }[];
       };
+      cancelar_assembleia: {
+        Args: { _assembleia_id: string; _motivo?: string };
+        Returns: undefined;
+      };
       cancelar_reserva: { Args: { _reserva_id: string }; Returns: undefined };
       claim_platform_admin: { Args: never; Returns: boolean };
       cnab_alocar_nosso_numero: {
@@ -2284,6 +2480,27 @@ export type Database = {
         Args: { _condominio_id: string };
         Returns: number;
       };
+      convocar_assembleia: {
+        Args: { _assembleia_id: string };
+        Returns: undefined;
+      };
+      criar_assembleia: {
+        Args: {
+          _condominio_id: string;
+          _edital?: string;
+          _exige_quitacao?: boolean;
+          _fim: string;
+          _inicio: string;
+          _link?: string;
+          _local?: string;
+          _modo: Database["public"]["Enums"]["assembleia_modo"];
+          _peso_por_fracao?: boolean;
+          _quorum_instalacao?: number;
+          _tipo: Database["public"]["Enums"]["assembleia_tipo"];
+          _titulo: string;
+        };
+        Returns: string;
+      };
       criar_condominio: {
         Args: {
           _cep: string;
@@ -2302,6 +2519,22 @@ export type Database = {
         Returns: boolean;
       };
       disparar_lembretes_cobranca: { Args: never; Returns: undefined };
+      elegibilidade_assembleia: {
+        Args: { _assembleia_id: string };
+        Returns: {
+          bloco: string;
+          elegivel: boolean;
+          fracao_ideal: number;
+          motivo: string;
+          numero: string;
+          peso: number;
+          unidade_id: string;
+        }[];
+      };
+      encerrar_assembleia: {
+        Args: { _assembleia_id: string };
+        Returns: undefined;
+      };
       enqueue_documento_comunicado: {
         Args: { _documento_id: string };
         Returns: number;
@@ -2319,6 +2552,7 @@ export type Database = {
         };
         Returns: string;
       };
+      fechar_votacao: { Args: { _pauta_id: string }; Returns: Json };
       gerar_cobrancas_lote: {
         Args: {
           _categoria_id: string;
@@ -2467,6 +2701,14 @@ export type Database = {
         };
         Returns: string;
       };
+      registrar_voto: {
+        Args: {
+          _opcao: Database["public"]["Enums"]["voto_opcao"];
+          _pauta_id: string;
+          _unidade_id: string;
+        };
+        Returns: undefined;
+      };
       relatorio_inadimplencia: {
         Args: { _condominio_id: string };
         Returns: {
@@ -2482,6 +2724,7 @@ export type Database = {
           vencimento_mais_antigo: string;
         }[];
       };
+      remover_pauta: { Args: { _pauta_id: string }; Returns: undefined };
       solicitar_reserva: {
         Args: {
           _area_id: string;
@@ -2492,6 +2735,10 @@ export type Database = {
           _unidade_id: string;
         };
         Returns: string;
+      };
+      unidade_inadimplente: {
+        Args: { _referencia?: string; _unidade_id: string };
+        Returns: boolean;
       };
     };
     Enums: {
@@ -2506,6 +2753,9 @@ export type Database = {
         | "vendedor"
         | "comercial"
         | "consulta";
+      assembleia_modo: "virtual" | "presencial" | "hibrida";
+      assembleia_status: "rascunho" | "convocada" | "em_curso" | "encerrada" | "cancelada";
+      assembleia_tipo: "ordinaria" | "extraordinaria";
       balancete_status: "rascunho" | "publicado";
       cnab_banco: "sicoob" | "itau" | "bradesco" | "bb" | "caixa" | "santander" | "generico";
       cnab_evento_tipo: "liquidacao" | "baixa" | "rejeicao" | "protesto" | "outros";
@@ -2523,6 +2773,12 @@ export type Database = {
         | "outros";
       encomenda_status: "aguardando" | "retirada" | "devolvida";
       forma_pagamento: "pix" | "boleto" | "dinheiro" | "transferencia" | "cartao" | "outro";
+      maioria_tipo:
+        | "maioria_presentes"
+        | "maioria_condominos"
+        | "dois_tercos_condominos"
+        | "tres_quartos_condominos"
+        | "unanimidade";
       ocorrencia_categoria:
         | "manutencao"
         | "barulho"
@@ -2540,6 +2796,7 @@ export type Database = {
       vinculo_tipo: "proprietario" | "inquilino" | "familiar";
       visitante_status: "aguardando" | "autorizado" | "recusado" | "dentro" | "saiu" | "expirado";
       visitante_tipo: "visita" | "prestador" | "delivery" | "mudanca" | "outro";
+      voto_opcao: "sim" | "nao" | "abstencao";
       wa_direcao: "entrada" | "saida";
       wa_intent:
         | "menu"
@@ -2685,6 +2942,9 @@ export const Constants = {
         "comercial",
         "consulta",
       ],
+      assembleia_modo: ["virtual", "presencial", "hibrida"],
+      assembleia_status: ["rascunho", "convocada", "em_curso", "encerrada", "cancelada"],
+      assembleia_tipo: ["ordinaria", "extraordinaria"],
       balancete_status: ["rascunho", "publicado"],
       cnab_banco: ["sicoob", "itau", "bradesco", "bb", "caixa", "santander", "generico"],
       cnab_evento_tipo: ["liquidacao", "baixa", "rejeicao", "protesto", "outros"],
@@ -2703,6 +2963,13 @@ export const Constants = {
       ],
       encomenda_status: ["aguardando", "retirada", "devolvida"],
       forma_pagamento: ["pix", "boleto", "dinheiro", "transferencia", "cartao", "outro"],
+      maioria_tipo: [
+        "maioria_presentes",
+        "maioria_condominos",
+        "dois_tercos_condominos",
+        "tres_quartos_condominos",
+        "unanimidade",
+      ],
       ocorrencia_categoria: [
         "manutencao",
         "barulho",
@@ -2727,6 +2994,7 @@ export const Constants = {
       vinculo_tipo: ["proprietario", "inquilino", "familiar"],
       visitante_status: ["aguardando", "autorizado", "recusado", "dentro", "saiu", "expirado"],
       visitante_tipo: ["visita", "prestador", "delivery", "mudanca", "outro"],
+      voto_opcao: ["sim", "nao", "abstencao"],
       wa_direcao: ["entrada", "saida"],
       wa_intent: [
         "menu",

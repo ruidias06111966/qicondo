@@ -545,19 +545,22 @@ function Detalhe({
             {Number(ass.quorum_instalacao) === 0
               ? "dispensado (segunda convocação, art. 1.353)"
               : `${(Number(ass.quorum_instalacao) * 100).toFixed(0)}% do total elegível`}
-            . Elegíveis: {elegiveis.length} de {eleg.length} unidade(s), peso total {num(totalPeso)}
-            .
+            {isAdmin
+              ? `. Elegíveis: ${elegiveis.length} de ${eleg.length} unidade(s), peso total ${num(totalPeso)}.`
+              : "."}
           </p>
         </div>
 
-        <button
-          onClick={() => setVerElegibilidade((v) => !v)}
-          className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-primary hover:underline"
-        >
-          <Users size={14} /> {verElegibilidade ? "Esconder" : "Ver"} quem pode votar
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => setVerElegibilidade((v) => !v)}
+            className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-primary hover:underline"
+          >
+            <Users size={14} /> {verElegibilidade ? "Esconder" : "Ver"} quem pode votar
+          </button>
+        )}
 
-        {verElegibilidade && (
+        {isAdmin && verElegibilidade && (
           <div className="mt-3 border border-border rounded-xl overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">

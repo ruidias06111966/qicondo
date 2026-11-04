@@ -276,8 +276,14 @@ AS $$
   )
 $$;
 
-REVOKE ALL ON FUNCTION public.unidade_inadimplente(uuid, date) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.unidade_inadimplente(uuid, date) TO authenticated;
+-- Interna. Estava concedida a `authenticated` sem verificação nenhuma, e por
+-- isso qualquer utilizador autenticado podia perguntar pelo id de uma unidade e
+-- saber se ela estava em atraso — contornando o RLS de `cobrancas`, que só
+-- mostra isso ao síndico, ao contador e aos moradores da própria unidade.
+-- Quem deve ao condomínio é dado pessoal sensível. Só as funções abaixo, que
+-- correm como o dono, a chamam.
+REVOKE ALL ON FUNCTION public.unidade_inadimplente(uuid, date)
+  FROM PUBLIC, anon, authenticated;
 
 -- ------------------------------------------------------------
 -- Quem pode votar nesta assembleia, e quem não pode e porquê.
@@ -287,7 +293,7 @@ GRANT EXECUTE ON FUNCTION public.unidade_inadimplente(uuid, date) TO authenticat
 -- o que conta, e o apuramento precisa do total elegível como denominador das
 -- maiorias "dos condôminos".
 -- ------------------------------------------------------------
-CREATE OR REPLACE FUNCTION public.elegibilidade_assembleia(_assembleia_id uuid)
+CREATE OR REPLACE FUNCTION public._elegibilidade_assembleia(_assembleia_id uuid)
 RETURNS TABLE(
   unidade_id uuid,
   bloco text,
@@ -312,9 +318,6 @@ BEGIN
     FROM public.assembleias a WHERE a.id = _assembleia_id;
 
   IF _cond IS NULL THEN RAISE EXCEPTION 'assembleia_nao_encontrada'; END IF;
-
-  IF auth.uid() IS NULL THEN RAISE EXCEPTION 'not_authenticated'; END IF;
-  IF NOT public.is_member_of(auth.uid(), _cond) THEN RAISE EXCEPTION 'forbidden'; END IF;
 
   RETURN QUERY
   SELECT u.id,
@@ -341,6 +344,45 @@ BEGIN
     FROM public.unidades u
    WHERE u.condominio_id = _cond
    ORDER BY u.bloco NULLS FIRST, u.numero;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public._elegibilidade_assembleia(uuid)
+  FROM PUBLIC, anon, authenticated;
+
+-- ------------------------------------------------------------
+-- O invólucro, com escopo.
+--
+-- A primeira versão verificava só `is_member_of`, e assim qualquer morador —
+-- inquilinos incluídos — listava todas as unidades do condomínio com o motivo
+-- "em atraso (art. 1.335, III)" ao lado. Ou seja: dava a lista dos vizinhos que
+-- devem, que é precisamente o que o RLS de `cobrancas` esconde. E funcionava em
+-- assembleias ainda em rascunho.
+--
+-- Agora o síndico vê a lista toda, porque precisa dela para saber com o que
+-- conta antes de abrir a votação. Qualquer outro membro vê só as unidades de
+-- que é morador — que é o que o ecrã de voto precisa para lhe dizer "não pode
+-- votar, e porquê".
+--
+-- O apuramento e a ata usam a interna, que não tem escopo, porque o
+-- denominador das maiorias "dos condóminos" é o condomínio inteiro.
+-- ------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.elegibilidade_assembleia(_assembleia_id uuid)
+RETURNS TABLE(unidade_id uuid, bloco text, numero text, fracao_ideal numeric,
+              peso numeric, elegivel boolean, motivo text)
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  _cond uuid;
+BEGIN
+  SELECT a.condominio_id INTO _cond FROM public.assembleias a WHERE a.id = _assembleia_id;
+  IF _cond IS NULL THEN RAISE EXCEPTION 'assembleia_nao_encontrada'; END IF;
+  IF auth.uid() IS NULL THEN RAISE EXCEPTION 'not_authenticated'; END IF;
+  IF NOT public.is_member_of(auth.uid(), _cond) THEN RAISE EXCEPTION 'forbidden'; END IF;
+
+  RETURN QUERY
+  SELECT e.* FROM public._elegibilidade_assembleia(_assembleia_id) e
+   WHERE public.is_sindico(auth.uid(), _cond)
+      OR public.is_morador_da_unidade(auth.uid(), e.unidade_id);
 END;
 $$;
 
@@ -541,14 +583,30 @@ DECLARE
   _cond uuid;
   _assembleia uuid;
   _status public.assembleia_status;
+  _fechada timestamptz;
 BEGIN
   IF _uid IS NULL THEN RAISE EXCEPTION 'not_authenticated'; END IF;
 
-  SELECT a.condominio_id, a.id, a.status INTO _cond, _assembleia, _status
+  SELECT a.condominio_id, a.id, a.status, p.fechada_em
+    INTO _cond, _assembleia, _status, _fechada
     FROM public.assembleia_pautas p JOIN public.assembleias a ON a.id = p.assembleia_id
    WHERE p.id = _pauta_id;
   IF _cond IS NULL THEN RAISE EXCEPTION 'pauta_nao_encontrada'; END IF;
   IF NOT public.is_sindico(_uid, _cond) THEN RAISE EXCEPTION 'forbidden'; END IF;
+
+  -- Um item apurado não se reabre.
+  --
+  -- A primeira versão punha `fechada_em` e `resultado` a NULL, o que deixava o
+  -- síndico fechar a votação, ver um resultado que não lhe agradasse, reabrir e
+  -- mandar votar outra vez — sem rasto do primeiro apuramento. Era dar a chave
+  -- da deliberação a quem tem interesse nela, e desmentia a garantia de "voto
+  -- apurado imutável" que o resto do módulo promete. Se a matéria tem de voltar
+  -- à mesa, volta como item de uma assembleia nova, que é o que acontece no
+  -- papel.
+  IF _fechada IS NOT NULL THEN
+    RAISE EXCEPTION 'pauta_ja_apurada'
+      USING HINT = 'O resultado está registado. Para voltar à matéria, convoque nova assembleia.';
+  END IF;
 
   IF _status NOT IN ('convocada', 'em_curso') THEN
     RAISE EXCEPTION 'assembleia_nao_aberta'
@@ -559,8 +617,10 @@ BEGIN
     UPDATE public.assembleias SET status = 'em_curso' WHERE id = _assembleia;
   END IF;
 
+  -- Só marca a abertura. Não toca em `fechada_em` nem em `resultado`: a
+  -- cláusula acima já garantiu que estão vazios.
   UPDATE public.assembleia_pautas
-     SET aberta_em = COALESCE(aberta_em, now()), fechada_em = NULL, resultado = NULL
+     SET aberta_em = COALESCE(aberta_em, now())
    WHERE id = _pauta_id;
 END;
 $$;
@@ -695,9 +755,10 @@ DECLARE
   _base text;
   _aprovado boolean;
   _tem_quorum boolean;
+  _fechada timestamptz;
 BEGIN
-  SELECT a.condominio_id, a.id, p.maioria, a.quorum_instalacao, a.peso_por_fracao
-    INTO _cond, _assembleia, _maioria, _quorum, _peso_fracao
+  SELECT a.condominio_id, a.id, p.maioria, a.quorum_instalacao, a.peso_por_fracao, p.fechada_em
+    INTO _cond, _assembleia, _maioria, _quorum, _peso_fracao, _fechada
     FROM public.assembleia_pautas p JOIN public.assembleias a ON a.id = p.assembleia_id
    WHERE p.id = _pauta_id;
 
@@ -705,9 +766,22 @@ BEGIN
   IF auth.uid() IS NULL THEN RAISE EXCEPTION 'not_authenticated'; END IF;
   IF NOT public.is_member_of(auth.uid(), _cond) THEN RAISE EXCEPTION 'forbidden'; END IF;
 
+  -- Enquanto a votação está aberta, o parcial é só de quem a dirige.
+  --
+  -- A política RLS de `assembleia_votos` esconde os votos dos outros até ao
+  -- fecho, para o parcial não influenciar quem ainda não votou. Mas esta função
+  -- é SECURITY DEFINER e devolvia as somas a qualquer membro: bastava chamar a
+  -- RPC para contornar a política que eu próprio escrevi com esse fim. Proteger
+  -- um caminho e deixar o paralelo aberto é o mesmo erro da política `FOR ALL`
+  -- do balancete.
+  IF _fechada IS NULL AND NOT public.is_sindico(auth.uid(), _cond) THEN
+    RAISE EXCEPTION 'forbidden'
+      USING HINT = 'O parcial de uma votação aberta é reservado a quem a dirige.';
+  END IF;
+
   SELECT COALESCE(sum(e.peso), 0), count(*)::int
     INTO _total, _unidades_elegiveis
-    FROM public.elegibilidade_assembleia(_assembleia) e
+    FROM public._elegibilidade_assembleia(_assembleia) e
    WHERE e.elegivel;
 
   -- Só contam os votos de unidades elegíveis AGORA.
@@ -728,7 +802,7 @@ BEGIN
     INTO _sim, _nao, _abst
     FROM public.assembleia_votos v
    WHERE v.pauta_id = _pauta_id
-     AND EXISTS (SELECT 1 FROM public.elegibilidade_assembleia(_assembleia) e
+     AND EXISTS (SELECT 1 FROM public._elegibilidade_assembleia(_assembleia) e
                   WHERE e.unidade_id = v.unidade_id AND e.elegivel);
 
   _presentes := _sim + _nao + _abst;
@@ -879,7 +953,7 @@ BEGIN
                'peso', e.peso,
                'elegivel', e.elegivel,
                'motivo', e.motivo) ORDER BY e.bloco, e.numero), '[]'::jsonb)
-        FROM public.elegibilidade_assembleia(_assembleia_id) e),
+        FROM public._elegibilidade_assembleia(_assembleia_id) e),
     'pautas', (
       SELECT COALESCE(jsonb_agg(jsonb_build_object(
                'ordem', p.ordem,
@@ -976,6 +1050,25 @@ BEGIN
     RETURN NEW;
   END IF;
 
+  -- A pauta apurada é tão imutável como o voto. Faltava: o guard cobria
+  -- `assembleias` e `assembleia_votos` e deixava `assembleia_pautas` de fora,
+  -- e era por aí que a reabertura apagava o resultado. Agora nem a função que
+  -- corre como dono o consegue reescrever.
+  IF TG_TABLE_NAME = 'assembleia_pautas' THEN
+    IF TG_OP = 'UPDATE' AND OLD.fechada_em IS NOT NULL AND (
+         NEW.fechada_em IS DISTINCT FROM OLD.fechada_em
+      OR NEW.resultado  IS DISTINCT FROM OLD.resultado
+      OR NEW.maioria    IS DISTINCT FROM OLD.maioria
+      OR NEW.titulo     IS DISTINCT FROM OLD.titulo
+      OR NEW.descricao  IS DISTINCT FROM OLD.descricao
+      OR NEW.aberta_em  IS DISTINCT FROM OLD.aberta_em
+    ) THEN
+      RAISE EXCEPTION 'pauta_apurada_imutavel'
+        USING HINT = 'O resultado desta matéria está registado.';
+    END IF;
+    RETURN NEW;
+  END IF;
+
   -- assembleia_votos
   IF EXISTS (SELECT 1 FROM public.assembleia_pautas p
               WHERE p.id = NEW.pauta_id AND p.fechada_em IS NOT NULL) THEN
@@ -992,6 +1085,11 @@ REVOKE ALL ON FUNCTION public.guard_assembleias_integridade() FROM PUBLIC, anon,
 DROP TRIGGER IF EXISTS trg_assembleias_guard ON public.assembleias;
 CREATE TRIGGER trg_assembleias_guard
   BEFORE UPDATE ON public.assembleias
+  FOR EACH ROW EXECUTE FUNCTION public.guard_assembleias_integridade();
+
+DROP TRIGGER IF EXISTS trg_pautas_guard ON public.assembleia_pautas;
+CREATE TRIGGER trg_pautas_guard
+  BEFORE UPDATE ON public.assembleia_pautas
   FOR EACH ROW EXECUTE FUNCTION public.guard_assembleias_integridade();
 
 DROP TRIGGER IF EXISTS trg_votos_guard ON public.assembleia_votos;

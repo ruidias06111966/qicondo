@@ -1,43 +1,68 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, dateBR } from "@/lib/format";
 import { EmptyState } from "@/components/financeiro/ui";
 import { emitChanged } from "@/lib/safe-call";
-import { enviarLembretesInadimplencia } from "@/lib/financeiro.functions";
+import {
+  enviarLembretesInadimplencia,
+  recalcularEncargos,
+  relatorioInadimplencia,
+  type LinhaInadimplencia,
+} from "@/lib/financeiro.functions";
 import { toast } from "sonner";
-import { Loader2, CheckCircle2, MessageCircle } from "lucide-react";
+import { Loader2, CheckCircle2, MessageCircle, RefreshCw } from "lucide-react";
+import { diasAtraso, hojeSP } from "@/lib/atraso";
 
 export const Route = createFileRoute("/app/financeiro/inadimplencia")({
   head: () => ({ meta: [{ title: "Inadimplência — Financeiro" }] }),
   component: InadimplenciaPage,
 });
 
+type Cobranca = {
+  id: string;
+  vencimento: string;
+  valor: number;
+  multa: number;
+  juros: number;
+  desconto: number;
+  valor_pago: number;
+  unidades: { numero: string; bloco: string | null } | null;
+};
+
 function InadimplenciaPage() {
   const { condominioId } = useCondominioAtivo();
-  const [rows, setRows] = useState<any[]>([]);
+  const [vista, setVista] = useState<"unidade" | "cobranca">("unidade");
+  const [rows, setRows] = useState<Cobranca[]>([]);
+  const [porUnidade, setPorUnidade] = useState<LinhaInadimplencia[]>([]);
   const [loading, setLoading] = useState(true);
   const [sel, setSel] = useState<Set<string>>(new Set());
   const [sending, setSending] = useState(false);
+  const [recalculando, setRecalculando] = useState(false);
 
-  const reload = () => {
+  const reload = useCallback(() => {
     if (!condominioId) return;
     setLoading(true);
-    supabase
-      .from("cobrancas")
-      .select("*, unidades(numero, bloco)")
-      .eq("condominio_id", condominioId)
-      .in("status", ["pendente", "vencida", "parcial"])
-      .lt("vencimento", new Date().toISOString().slice(0, 10))
-      .order("vencimento", { ascending: true })
-      .then(({ data }) => {
-        setRows(data ?? []);
-        setLoading(false);
-      });
-  };
+    Promise.all([
+      supabase
+        .from("cobrancas")
+        .select(
+          "id, vencimento, valor, multa, juros, desconto, valor_pago, unidades(numero, bloco)",
+        )
+        .eq("condominio_id", condominioId)
+        .in("status", ["pendente", "vencida", "parcial"])
+        .lt("vencimento", hojeSP())
+        .order("vencimento", { ascending: true }),
+      relatorioInadimplencia({ data: { condominio_id: condominioId } }).catch(() => null),
+    ]).then(([cobrancas, relatorio]) => {
+      setRows((cobrancas.data ?? []) as unknown as Cobranca[]);
+      setPorUnidade(relatorio?.linhas ?? []);
+      setLoading(false);
+    });
+  }, [condominioId]);
 
-  useEffect(reload, [condominioId]);
+  useEffect(reload, [reload]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -48,8 +73,29 @@ function InadimplenciaPage() {
       window.removeEventListener("cobrancas:changed", h);
       window.removeEventListener("pagamentos:changed", h);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [condominioId]);
+  }, [reload]);
+
+  const totais = useMemo(
+    () =>
+      rows.reduce(
+        (acc, r) => ({
+          principal:
+            acc.principal +
+            Math.max(Number(r.valor) - Number(r.desconto) - Number(r.valor_pago), 0),
+          multa: acc.multa + Number(r.multa),
+          juros: acc.juros + Number(r.juros),
+          total:
+            acc.total +
+            Number(r.valor) +
+            Number(r.multa) +
+            Number(r.juros) -
+            Number(r.desconto) -
+            Number(r.valor_pago),
+        }),
+        { principal: 0, multa: 0, juros: 0, total: 0 },
+      ),
+    [rows],
+  );
 
   const toggle = (id: string) => {
     const n = new Set(sel);
@@ -60,6 +106,25 @@ function InadimplenciaPage() {
   const toggleAll = () => {
     if (sel.size === rows.length) setSel(new Set());
     else setSel(new Set(rows.map((r) => r.id)));
+  };
+
+  const recalcular = async () => {
+    if (!condominioId || recalculando) return;
+    setRecalculando(true);
+    try {
+      const r = await recalcularEncargos({ data: { condominio_id: condominioId } });
+      toast.success(
+        r.cobrancas > 0
+          ? `Multa e juros actualizados em ${r.cobrancas} cobrança(s)`
+          : "Já estava tudo em dia — nenhuma cobrança mudou",
+      );
+      emitChanged("cobrancas:changed");
+      reload();
+    } catch (e: unknown) {
+      toast.error((e as Error)?.message || "Erro ao recalcular encargos");
+    } finally {
+      setRecalculando(false);
+    }
   };
 
   const enviarLembretes = async () => {
@@ -75,8 +140,8 @@ function InadimplenciaPage() {
       }
       emitChanged("wa:changed");
       setSel(new Set());
-    } catch (e: any) {
-      toast.error(e?.message || "Erro ao enviar lembretes");
+    } catch (e: unknown) {
+      toast.error((e as Error)?.message || "Erro ao enviar lembretes");
     } finally {
       setSending(false);
     }
@@ -100,66 +165,188 @@ function InadimplenciaPage() {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-4">
+      <div className="grid gap-3 sm:grid-cols-4 mb-5">
+        <Cartao rotulo="Principal em aberto" valor={totais.principal} />
+        <Cartao rotulo="Multa" valor={totais.multa} />
+        <Cartao rotulo="Juros" valor={totais.juros} />
+        <Cartao rotulo="Total devido" valor={totais.total} destaque />
+      </div>
+
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
+        <div className="inline-flex rounded-lg border border-border overflow-hidden text-sm">
+          <button
+            onClick={() => setVista("unidade")}
+            className={`px-3 py-1.5 font-semibold ${vista === "unidade" ? "bg-muted" : ""}`}
+          >
+            Por unidade
+          </button>
+          <button
+            onClick={() => setVista("cobranca")}
+            className={`px-3 py-1.5 font-semibold border-l border-border ${
+              vista === "cobranca" ? "bg-muted" : ""
+            }`}
+          >
+            Por cobrança
+          </button>
+        </div>
         <p className="text-sm text-muted-foreground">
-          {sel.size > 0 ? `${sel.size} selecionada(s)` : `${rows.length} em atraso`}
+          {vista === "cobranca" && sel.size > 0
+            ? `${sel.size} selecionada(s)`
+            : `${rows.length} cobrança(s) em atraso · ${porUnidade.length || "—"} unidade(s)`}
         </p>
         <div className="flex-1" />
         <button
-          onClick={enviarLembretes}
-          disabled={sending || sel.size === 0}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold text-sm disabled:opacity-50"
+          onClick={recalcular}
+          disabled={recalculando}
+          title="Recalcula multa e juros até hoje. O agendamento diário já faz isto de madrugada."
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border font-semibold text-sm disabled:opacity-50"
         >
-          <MessageCircle size={16} />
-          {sending ? "Enviando…" : "Enviar lembrete WhatsApp"}
+          <RefreshCw size={16} className={recalculando ? "animate-spin" : ""} />
+          {recalculando ? "Recalculando…" : "Recalcular encargos"}
         </button>
+        {vista === "cobranca" && (
+          <button
+            onClick={enviarLembretes}
+            disabled={sending || sel.size === 0}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold text-sm disabled:opacity-50"
+          >
+            <MessageCircle size={16} />
+            {sending ? "Enviando…" : "Enviar lembrete WhatsApp"}
+          </button>
+        )}
       </div>
-      <div className="bg-background border border-border rounded-2xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
-            <tr>
-              <th className="px-4 py-3 w-10">
-                <input
-                  type="checkbox"
-                  checked={sel.size === rows.length && rows.length > 0}
-                  onChange={toggleAll}
-                />
-              </th>
-              <th className="text-left px-4 py-3 font-semibold">Unidade</th>
-              <th className="text-left px-4 py-3 font-semibold">Vencimento</th>
-              <th className="text-left px-4 py-3 font-semibold">Dias atraso</th>
-              <th className="text-right px-4 py-3 font-semibold">Saldo devedor</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {rows.map((r) => {
-              const restante =
-                Number(r.valor) +
-                Number(r.multa) +
-                Number(r.juros) -
-                Number(r.desconto) -
-                Number(r.valor_pago);
-              const dias = Math.floor((Date.now() - new Date(r.vencimento).getTime()) / 86400000);
-              return (
-                <tr key={r.id} className="hover:bg-muted/30">
-                  <td className="px-4 py-3">
-                    <input type="checkbox" checked={sel.has(r.id)} onChange={() => toggle(r.id)} />
-                  </td>
+
+      <div className="bg-background border border-border rounded-2xl overflow-x-auto">
+        {vista === "unidade" ? (
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+              <tr>
+                <th className="text-left px-4 py-3 font-semibold">Unidade</th>
+                <th className="text-left px-4 py-3 font-semibold">Cobranças</th>
+                <th className="text-left px-4 py-3 font-semibold">Atraso máx.</th>
+                <th className="text-right px-4 py-3 font-semibold">Principal</th>
+                <th className="text-right px-4 py-3 font-semibold">Multa</th>
+                <th className="text-right px-4 py-3 font-semibold">Juros</th>
+                <th className="text-right px-4 py-3 font-semibold">Total</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {porUnidade.map((l) => (
+                <tr key={l.unidade_id} className="hover:bg-muted/30">
                   <td className="px-4 py-3 font-medium">
-                    {r.unidades?.bloco ? `${r.unidades.bloco}-` : ""}
-                    {r.unidades?.numero}
+                    {l.bloco ? `${l.bloco}-` : ""}
+                    {l.numero}
                   </td>
-                  <td className="px-4 py-3">{dateBR(r.vencimento)}</td>
+                  <td className="px-4 py-3">{l.cobrancas}</td>
                   <td className="px-4 py-3">
-                    <span className="text-rose-600 font-semibold">{dias} dias</span>
+                    <span className="text-rose-600 font-semibold">{l.dias_atraso_max} dias</span>
+                    <span className="text-muted-foreground ml-2 text-xs">
+                      desde {dateBR(l.vencimento_mais_antigo)}
+                    </span>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-rose-600">{brl(restante)}</td>
+                  <td className="px-4 py-3 text-right font-mono">{brl(l.principal)}</td>
+                  <td className="px-4 py-3 text-right font-mono">{brl(l.multa)}</td>
+                  <td className="px-4 py-3 text-right font-mono">{brl(l.juros)}</td>
+                  <td className="px-4 py-3 text-right font-mono font-semibold text-rose-600">
+                    {brl(l.total)}
+                  </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+              <tr>
+                <th className="px-4 py-3 w-10">
+                  <input
+                    type="checkbox"
+                    aria-label="Selecionar todas"
+                    checked={sel.size === rows.length && rows.length > 0}
+                    onChange={toggleAll}
+                  />
+                </th>
+                <th className="text-left px-4 py-3 font-semibold">Unidade</th>
+                <th className="text-left px-4 py-3 font-semibold">Vencimento</th>
+                <th className="text-left px-4 py-3 font-semibold">Dias atraso</th>
+                <th className="text-right px-4 py-3 font-semibold">Principal</th>
+                <th className="text-right px-4 py-3 font-semibold">Multa</th>
+                <th className="text-right px-4 py-3 font-semibold">Juros</th>
+                <th className="text-right px-4 py-3 font-semibold">Saldo devedor</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {rows.map((r) => {
+                const principal = Math.max(
+                  Number(r.valor) - Number(r.desconto) - Number(r.valor_pago),
+                  0,
+                );
+                const restante =
+                  Number(r.valor) +
+                  Number(r.multa) +
+                  Number(r.juros) -
+                  Number(r.desconto) -
+                  Number(r.valor_pago);
+                return (
+                  <tr key={r.id} className="hover:bg-muted/30">
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        aria-label={`Selecionar cobrança de ${r.unidades?.numero ?? "unidade"}`}
+                        checked={sel.has(r.id)}
+                        onChange={() => toggle(r.id)}
+                      />
+                    </td>
+                    <td className="px-4 py-3 font-medium">
+                      {r.unidades?.bloco ? `${r.unidades.bloco}-` : ""}
+                      {r.unidades?.numero}
+                    </td>
+                    <td className="px-4 py-3">{dateBR(r.vencimento)}</td>
+                    <td className="px-4 py-3">
+                      <span className="text-rose-600 font-semibold">
+                        {diasAtraso(r.vencimento)} dias
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono">{brl(principal)}</td>
+                    <td className="px-4 py-3 text-right font-mono">{brl(Number(r.multa))}</td>
+                    <td className="px-4 py-3 text-right font-mono">{brl(Number(r.juros))}</td>
+                    <td className="px-4 py-3 text-right font-mono font-semibold text-rose-600">
+                      {brl(restante)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
+
+      {totais.multa === 0 && totais.juros === 0 && (
+        <p className="text-xs text-muted-foreground mt-3">
+          Multa e juros estão a zero em todas as cobranças. O cálculo corre todas as noites; se
+          estas cobranças acabaram de ser lançadas, use «Recalcular encargos». As taxas vêm de
+          Financeiro → Configuração (por omissão 2% de multa e 0,0333% ao dia).
+        </p>
+      )}
+    </div>
+  );
+}
+
+function Cartao({
+  rotulo,
+  valor,
+  destaque,
+}: {
+  rotulo: string;
+  valor: number;
+  destaque?: boolean;
+}) {
+  return (
+    <div className="border border-border rounded-xl p-4">
+      <p className="text-xs uppercase text-muted-foreground font-semibold">{rotulo}</p>
+      <p className={`font-mono text-lg mt-1 ${destaque ? "text-rose-600 font-bold" : ""}`}>
+        {brl(valor)}
+      </p>
     </div>
   );
 }

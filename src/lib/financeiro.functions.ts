@@ -841,3 +841,64 @@ export const executarAutomacaoLembretes = createServerFn({ method: "POST" })
     }
     return { enfileirados: count, cobrancas: cobCount };
   });
+
+// ===== Inadimplência: encargos de atraso =====
+//
+// A multa e os juros são gravados em `cobrancas.multa` e `cobrancas.juros` pelo
+// agendamento diário (migração `motor_inadimplencia`). Estas duas funções
+// existem para o síndico não ter de esperar pela madrugada depois de corrigir
+// uma taxa, e para ver a dívida agrupada por unidade em vez de cobrança a
+// cobrança.
+
+export const recalcularEncargos = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ condominio_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: n, error } = await context.supabase.rpc("aplicar_encargos_atraso", {
+      _condominio_id: data.condominio_id,
+    });
+    if (error) throwSafe(error);
+    return { cobrancas: Number(n ?? 0) };
+  });
+
+export type LinhaInadimplencia = {
+  unidade_id: string;
+  bloco: string | null;
+  numero: string;
+  cobrancas: number;
+  dias_atraso_max: number;
+  principal: number;
+  multa: number;
+  juros: number;
+  total: number;
+  vencimento_mais_antigo: string;
+};
+
+export const relatorioInadimplencia = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ condominio_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase.rpc("relatorio_inadimplencia", {
+      _condominio_id: data.condominio_id,
+    });
+    if (error) throwSafe(error);
+
+    const linhas: LinhaInadimplencia[] = (rows ?? []).map((r: Record<string, unknown>) => ({
+      unidade_id: String(r.unidade_id),
+      bloco: (r.bloco as string | null) ?? null,
+      numero: String(r.numero),
+      cobrancas: Number(r.cobrancas),
+      dias_atraso_max: Number(r.dias_atraso_max),
+      principal: Number(r.principal),
+      multa: Number(r.multa),
+      juros: Number(r.juros),
+      total: Number(r.total),
+      vencimento_mais_antigo: String(r.vencimento_mais_antigo),
+    }));
+
+    return {
+      linhas,
+      total: linhas.reduce((acc, l) => acc + l.total, 0),
+      unidades: linhas.length,
+    };
+  });

@@ -4,7 +4,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5";
+    PostgrestVersion: "14.18";
   };
   public: {
     Tables: {
@@ -2092,6 +2092,27 @@ export type Database = {
       };
     };
     Functions: {
+      _aplicar_encargos: {
+        Args: {
+          _cobranca_id: string;
+          _condominio_id: string;
+          _referencia: string;
+        };
+        Returns: number;
+      };
+      _encargos_devidos: {
+        Args: {
+          _cobranca_id: string;
+          _condominio_id: string;
+          _referencia: string;
+        };
+        Returns: {
+          cobranca_id: string;
+          dias_atraso: number;
+          juros: number;
+          multa: number;
+        }[];
+      };
       abrir_ocorrencia: {
         Args: {
           _categoria: Database["public"]["Enums"]["ocorrencia_categoria"];
@@ -2107,6 +2128,11 @@ export type Database = {
       };
       aceitar_convite: { Args: { _token: string }; Returns: string };
       admin_metricas_globais: { Args: never; Returns: Json };
+      aplicar_encargos_atraso: {
+        Args: { _condominio_id: string; _referencia?: string };
+        Returns: number;
+      };
+      aplicar_encargos_atraso_todos: { Args: never; Returns: number };
       aprovar_reserva: { Args: { _reserva_id: string }; Returns: undefined };
       atribuir_ocorrencia: {
         Args: { _atribuido_a: string; _ocorrencia_id: string };
@@ -2127,6 +2153,14 @@ export type Database = {
       avaliar_ocorrencia: {
         Args: { _comentario: string; _nota: number; _ocorrencia_id: string };
         Returns: undefined;
+      };
+      calcular_encargos_cobranca: {
+        Args: { _cobranca_id: string; _referencia?: string };
+        Returns: {
+          dias_atraso: number;
+          juros: number;
+          multa: number;
+        }[];
       };
       cancelar_reserva: { Args: { _reserva_id: string }; Returns: undefined };
       claim_platform_admin: { Args: never; Returns: boolean };
@@ -2175,7 +2209,7 @@ export type Database = {
         Args: { message_id: number; queue_name: string };
         Returns: boolean;
       };
-      email_queue_dispatch: { Args: never; Returns: undefined };
+      disparar_lembretes_cobranca: { Args: never; Returns: undefined };
       enqueue_documento_comunicado: {
         Args: { _documento_id: string };
         Returns: number;
@@ -2195,16 +2229,6 @@ export type Database = {
           _vencimento: string;
         };
         Returns: number;
-      };
-      ratear_por_fracao_ideal: {
-        Args: {
-          _condominio_id: string;
-          _total: number;
-        };
-        Returns: {
-          unidade_id: string;
-          valor: number;
-        }[];
       };
       has_role: {
         Args: {
@@ -2262,6 +2286,15 @@ export type Database = {
       pode_gerir_financeiro: {
         Args: { _condominio_id: string; _user_id: string };
         Returns: boolean;
+      };
+      processar_fila_email: { Args: never; Returns: undefined };
+      processar_fila_whatsapp: { Args: never; Returns: undefined };
+      ratear_por_fracao_ideal: {
+        Args: { _condominio_id: string; _total: number };
+        Returns: {
+          unidade_id: string;
+          valor: number;
+        }[];
       };
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number };
@@ -2324,6 +2357,21 @@ export type Database = {
           _valido_ate: string;
         };
         Returns: string;
+      };
+      relatorio_inadimplencia: {
+        Args: { _condominio_id: string };
+        Returns: {
+          bloco: string;
+          cobrancas: number;
+          dias_atraso_max: number;
+          juros: number;
+          multa: number;
+          numero: string;
+          principal: number;
+          total: number;
+          unidade_id: string;
+          vencimento_mais_antigo: string;
+        }[];
       };
       solicitar_reserva: {
         Args: {

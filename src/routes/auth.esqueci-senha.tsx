@@ -3,7 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { emailSchema } from "@/auth/validators";
-import { Logo } from "@/components/site/Logo";
+import { LogoCompleto } from "@/components/site/Logo";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth/esqueci-senha")({
@@ -37,9 +37,9 @@ function EsqueciPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-6">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-md">
         <div className="mb-8">
-          <Logo />
+          <LogoCompleto />
         </div>
         <h1 className="font-display text-3xl font-extrabold">Recuperar senha</h1>
         {sent ? (

@@ -6,7 +6,7 @@ import { entrarComOAuth } from "@/integrations/supabase/oauth";
 import { useAuth } from "@/auth/AuthProvider";
 import { loginSchema } from "@/auth/validators";
 import { caminhoInternoSeguro, destinoAposLogin, validarNext } from "@/auth/proximo-destino";
-import { Logo } from "@/components/site/Logo";
+import { Logo, LogoCompleto } from "@/components/site/Logo";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth/login")({
@@ -81,9 +81,9 @@ function LoginPage() {
       </div>
 
       <div className="flex items-center justify-center p-6 sm:p-12">
-        <div className="w-full max-w-sm">
-          <div className="lg:hidden mb-8">
-            <Logo />
+        <div className="w-full max-w-md">
+          <div className="mb-8">
+            <LogoCompleto />
           </div>
           <h1 className="font-display text-3xl font-extrabold">Entrar</h1>
           <p className="mt-2 text-sm text-muted-foreground">

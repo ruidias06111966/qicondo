@@ -9,6 +9,7 @@ import {
   cancelarAssembleia,
   convocarAssembleia,
   criarAssembleia,
+  definirRepresentante,
   encerrarAssembleia,
   fecharVotacao,
   listarAssembleias,
@@ -16,6 +17,7 @@ import {
   listarVotos,
   minhasUnidades,
   obterAssembleia,
+  proprietariosDaUnidade,
   registrarVoto,
   removerPauta,
   MAIORIAS,
@@ -23,6 +25,7 @@ import {
   type Elegibilidade,
   type MaioriaTipo,
   type Pauta,
+  type ProprietarioDaUnidade,
   type Resultado,
   type VotoOpcao,
 } from "@/lib/assembleia.functions";
@@ -400,12 +403,17 @@ function Detalhe({
   const [pautas, setPautas] = useState<Pauta[]>([]);
   const [eleg, setEleg] = useState<Elegibilidade[]>([]);
   const [unidades, setUnidades] = useState<
-    { unidade_id: string; bloco: string | null; numero: string }[]
+    { unidade_id: string; bloco: string | null; numero: string; representa: boolean }[]
   >([]);
   const [loading, setLoading] = useState(true);
   const [ocupado, setOcupado] = useState<string | null>(null);
   const [novaPauta, setNovaPauta] = useState(false);
   const [verElegibilidade, setVerElegibilidade] = useState(false);
+  const [designar, setDesignar] = useState<{
+    unidade_id: string;
+    rotulo: string;
+    donos: ProprietarioDaUnidade[];
+  } | null>(null);
 
   const carregar = useCallback(async () => {
     setLoading(true);
@@ -568,6 +576,7 @@ function Detalhe({
                   <th className="text-left px-4 py-2 font-semibold">Unidade</th>
                   <th className="text-right px-4 py-2 font-semibold">Peso</th>
                   <th className="text-left px-4 py-2 font-semibold">Pode votar</th>
+                  <th className="text-left px-4 py-2 font-semibold">Representante</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -584,6 +593,34 @@ function Detalhe({
                       ) : (
                         <span className="text-rose-600">não — {e.motivo}</span>
                       )}
+                    </td>
+                    <td className="px-4 py-2 text-muted-foreground">
+                      <button
+                        onClick={async () => {
+                          const donos = await safeCall(
+                            proprietariosDaUnidade({ data: { unidade_id: e.unidade_id } }),
+                          );
+                          if (!donos) return;
+                          if (donos.length < 2) {
+                            toast.info(
+                              donos.length === 0
+                                ? "A unidade não tem proprietário registado."
+                                : "A unidade tem um só dono — é ele que a representa.",
+                            );
+                            return;
+                          }
+                          setDesignar({
+                            unidade_id: e.unidade_id,
+                            rotulo: `${e.bloco ? `${e.bloco}-` : ""}${e.numero}`,
+                            donos: donos as ProprietarioDaUnidade[],
+                          });
+                        }}
+                        className="text-left hover:underline"
+                      >
+                        {e.representante_nome ?? (
+                          <span className="text-amber-600">sem representante designado</span>
+                        )}
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -640,7 +677,90 @@ function Detalhe({
           }}
         />
       )}
+
+      {designar && (
+        <ModalRepresentante
+          alvo={designar}
+          onClose={() => setDesignar(null)}
+          onDone={() => {
+            setDesignar(null);
+            carregar();
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+/** Regista qual dos comproprietários exerce o voto da unidade.
+ *
+ *  A escolha não é do síndico — é dos donos, que a comunicam. Aqui só se
+ *  regista, e é por isso que o texto fala em "registar" e não em "escolher". */
+function ModalRepresentante({
+  alvo,
+  onClose,
+  onDone,
+}: {
+  alvo: { unidade_id: string; rotulo: string; donos: ProprietarioDaUnidade[] };
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const actual = alvo.donos.find((d) => d.representante)?.user_id ?? "";
+  const [escolhido, setEscolhido] = useState(actual);
+  const [aGravar, setAGravar] = useState(false);
+
+  const gravar = async () => {
+    if (!escolhido || escolhido === actual) return onClose();
+    setAGravar(true);
+    const r = await safeCall(
+      definirRepresentante({ data: { unidade_id: alvo.unidade_id, user_id: escolhido } }),
+    );
+    setAGravar(false);
+    if (r) {
+      toast.success("Representante registado.");
+      onDone();
+    }
+  };
+
+  return (
+    <Modal title={`Representante da unidade ${alvo.rotulo}`} onClose={onClose}>
+      <p className="text-sm text-muted-foreground">
+        A unidade tem {alvo.donos.length} proprietários e um voto só. Registe aqui quem eles
+        indicaram para o exercer (Código Civil, art. 1.335, III c/c art. 1.314).
+      </p>
+
+      <div className="mt-4 space-y-2">
+        {alvo.donos.map((d) => (
+          <label
+            key={d.user_id}
+            className="flex items-center gap-3 p-3 border border-border rounded-xl cursor-pointer hover:bg-muted/40"
+          >
+            <input
+              type="radio"
+              name="representante"
+              value={d.user_id}
+              checked={escolhido === d.user_id}
+              onChange={() => setEscolhido(d.user_id)}
+            />
+            <span className="text-sm">{d.nome}</span>
+            {d.representante && <span className="text-xs text-muted-foreground">(actual)</span>}
+          </label>
+        ))}
+      </div>
+
+      <div className="mt-5 flex justify-end gap-2">
+        <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-sm">
+          Cancelar
+        </button>
+        <button
+          onClick={gravar}
+          disabled={aGravar || !escolhido || escolhido === actual}
+          className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-60"
+        >
+          Registar
+        </button>
+      </div>
+    </Modal>
   );
 }
 
@@ -657,7 +777,12 @@ function ItemPauta({
   pauta: Pauta;
   assembleia: Assembleia;
   isAdmin: boolean;
-  unidades: { unidade_id: string; bloco: string | null; numero: string }[];
+  unidades: {
+    unidade_id: string;
+    bloco: string | null;
+    numero: string;
+    representa: boolean;
+  }[];
   eleg: Elegibilidade[];
   ocupado: string | null;
   setOcupado: (v: string | null) => void;
@@ -789,6 +914,15 @@ function ItemPauta({
                   </span>
                   {e && !e.elegivel ? (
                     <span className="text-rose-600 text-xs">Não pode votar — {e.motivo}</span>
+                  ) : !u.representa ? (
+                    // A unidade vota, mas não é este condómino que a
+                    // representa. Mostrar quem é vale mais do que esconder a
+                    // unidade: ele sabe a quem falar, e vê que o voto existe.
+                    <span className="text-amber-600 text-xs">
+                      {e?.representante_nome
+                        ? `Representada por ${e.representante_nome} — o voto da unidade é um só (art. 1.314).`
+                        : "Sem representante designado. Peça ao síndico para registar a designação."}
+                    </span>
                   ) : (
                     <div className="flex gap-1.5">
                       {(

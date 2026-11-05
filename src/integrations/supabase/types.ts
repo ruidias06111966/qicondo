@@ -1757,6 +1757,7 @@ export type Database = {
           created_at: string;
           id: string;
           principal: boolean;
+          representante: boolean;
           unidade_id: string;
           user_id: string;
           vinculo: Database["public"]["Enums"]["vinculo_tipo"];
@@ -1765,6 +1766,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           principal?: boolean;
+          representante?: boolean;
           unidade_id: string;
           user_id: string;
           vinculo?: Database["public"]["Enums"]["vinculo_tipo"];
@@ -1773,6 +1775,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           principal?: boolean;
+          representante?: boolean;
           unidade_id?: string;
           user_id?: string;
           vinculo?: Database["public"]["Enums"]["vinculo_tipo"];
@@ -2361,6 +2364,18 @@ export type Database = {
         };
         Returns: number;
       };
+      _elegibilidade_assembleia: {
+        Args: { _assembleia_id: string };
+        Returns: {
+          bloco: string;
+          elegivel: boolean;
+          fracao_ideal: number;
+          motivo: string;
+          numero: string;
+          peso: number;
+          unidade_id: string;
+        }[];
+      };
       _encargos_cobranca: {
         Args: { _cobranca_id: string; _referencia: string };
         Returns: {
@@ -2514,6 +2529,10 @@ export type Database = {
         };
         Returns: string;
       };
+      definir_representante: {
+        Args: { _unidade_id: string; _user_id: string };
+        Returns: undefined;
+      };
       delete_email: {
         Args: { message_id: number; queue_name: string };
         Returns: boolean;
@@ -2528,6 +2547,8 @@ export type Database = {
           motivo: string;
           numero: string;
           peso: number;
+          pode_votar: boolean;
+          representante_nome: string;
           unidade_id: string;
         }[];
       };
@@ -2624,6 +2645,14 @@ export type Database = {
       };
       processar_fila_email: { Args: never; Returns: undefined };
       processar_fila_whatsapp: { Args: never; Returns: undefined };
+      proprietarios_da_unidade: {
+        Args: { _unidade_id: string };
+        Returns: {
+          nome: string;
+          representante: boolean;
+          user_id: string;
+        }[];
+      };
       publicar_balancete: {
         Args: { _balancete_id: string };
         Returns: undefined;

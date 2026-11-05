@@ -110,6 +110,16 @@
   --warning-foreground: oklch(0.30 0.10 75);
 
   --border: oklch(0.91 0.005 80);                /* #E7E5E4 */
+
+  /* Cores de gráfico. Validadas com o script da skill de dataviz contra a
+     superfície clara (#fbfaf8): banda de luminosidade, piso de croma,
+     separação para daltonismo (ΔE 9.2 no pior par adjacente) e visão normal
+     (ΔE 27.6). O verde fica abaixo de 3:1 de contraste, e por isso os
+     gráficos que o usam trazem sempre a tabela ao lado — é a regra de
+     alívio, não um descuido. */
+  --viz-entradas: #1baf7a;
+  --viz-saidas: #eb6834;
+  --viz-saldo: #2a78d6;
   --input: oklch(0.91 0.005 80);
   --ring: oklch(0.49 0.115 161);
 
@@ -131,6 +141,13 @@
 
 .dark {
   --background: oklch(0.16 0.015 160);
+
+  /* Os mesmos três tons, repassados para a superfície escura (#080f0b) e
+     validados nela: os três acima de 3:1, pior par ΔE 9.4 para daltonismo.
+     Não é uma inversão automática do claro. */
+  --viz-entradas: #199e70;
+  --viz-saidas: #d95926;
+  --viz-saldo: #3987e5;
   --foreground: oklch(0.97 0.005 80);
   --surface: oklch(0.22 0.020 160);
   --surface-2: oklch(0.26 0.022 160);

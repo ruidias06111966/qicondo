@@ -3062,6 +3062,10 @@ export type Database = {
           multa: number;
         }[];
       };
+      _saldo_ate: {
+        Args: { _ate: string; _condominio_id: string };
+        Returns: number;
+      };
       abrir_ocorrencia: {
         Args: {
           _categoria: Database["public"]["Enums"]["ocorrencia_categoria"];
@@ -3210,6 +3214,10 @@ export type Database = {
         Args: { _interno: boolean; _mensagem: string; _ocorrencia_id: string };
         Returns: string;
       };
+      concentracao_pagamentos: {
+        Args: { _condominio_id: string; _fim: string; _inicio: string };
+        Returns: Json;
+      };
       conferir_certidao: {
         Args: { _codigo: string };
         Returns: Json;
@@ -3331,6 +3339,10 @@ export type Database = {
         Returns: string;
       };
       fechar_votacao: { Args: { _pauta_id: string }; Returns: Json };
+      fluxo_de_caixa: {
+        Args: { _condominio_id: string; _fim: string; _inicio: string };
+        Returns: Json;
+      };
       gerar_cobrancas_lote: {
         Args: {
           _categoria_id: string;

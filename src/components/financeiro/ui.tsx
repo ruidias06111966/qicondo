@@ -11,6 +11,7 @@ import {
   Handshake,
   FileCheck,
   Calculator,
+  Activity,
 } from "lucide-react";
 
 export function Modal({
@@ -140,6 +141,7 @@ const SUB: SubItem[] = [
   },
   { to: "/app/financeiro/acordos", label: "Acordos", icon: Handshake, restrito: true },
   { to: "/app/financeiro/orcamento", label: "Orçamento", icon: Calculator, restrito: true },
+  { to: "/app/financeiro/fluxo", label: "Fluxo de caixa", icon: Activity, restrito: true },
   {
     to: "/app/financeiro/certidoes",
     label: "Cartas e certidões",

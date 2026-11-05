@@ -12,6 +12,8 @@ import {
   FileCheck,
   Calculator,
   Activity,
+  ListTree,
+  Scale,
 } from "lucide-react";
 
 export function Modal({
@@ -128,7 +130,19 @@ export function Stat({
  *   automação de mensagens). Sem esta distinção, o perfil `financeiro` via as abas
  *   e apanhava "Não tem permissão" em todas as acções.
  */
-type SubItem = { to: string; label: string; icon: any; restrito?: boolean; apenasAdmin?: boolean };
+type SubItem = {
+  to: string;
+  label: string;
+  icon: any;
+  restrito?: boolean;
+  apenasAdmin?: boolean;
+  /**
+   * Fora da navegação, mas continua na lista: é daqui que
+   * `rotaFinanceiraBloqueada` sabe que o caminho é restrito. Tirar a entrada
+   * em vez de a esconder deixava o URL antigo acessível a qualquer morador.
+   */
+  oculto?: boolean;
+};
 const SUB: SubItem[] = [
   { to: "/app/financeiro", label: "Visão geral", icon: TrendingUp },
   { to: "/app/financeiro/cobrancas", label: "Cobranças", icon: FileText },
@@ -148,7 +162,23 @@ const SUB: SubItem[] = [
     icon: FileCheck,
     restrito: true,
   },
-  { to: "/app/financeiro/categorias", label: "Categorias", icon: Tag, restrito: true },
+  {
+    to: "/app/financeiro/prestacao",
+    label: "Prestação de contas",
+    icon: Scale,
+    restrito: true,
+  },
+  // Substituiu a aba "Categorias": é a mesma tabela, agora com código e grupo.
+  { to: "/app/financeiro/plano-contas", label: "Plano de contas", icon: ListTree, restrito: true },
+  // O caminho antigo redirecciona para o plano de contas, mas fica aqui para
+  // continuar a ser tratado como restrito.
+  {
+    to: "/app/financeiro/categorias",
+    label: "Categorias",
+    icon: Tag,
+    restrito: true,
+    oculto: true,
+  },
   {
     to: "/app/financeiro/pagamentos",
     label: "Pagamentos",
@@ -182,7 +212,9 @@ export function rotaFinanceiraBloqueada(
 
 export function FinanceiroSubNav({ podeGerir, isAdmin }: { podeGerir: boolean; isAdmin: boolean }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
-  const items = SUB.filter((i) => (i.apenasAdmin ? isAdmin : !i.restrito || podeGerir));
+  const items = SUB.filter(
+    (i) => !i.oculto && (i.apenasAdmin ? isAdmin : !i.restrito || podeGerir),
+  );
   return (
     <div className="border-b border-border mb-6 -mx-2 overflow-x-auto">
       <div className="flex gap-1 px-2 min-w-max">

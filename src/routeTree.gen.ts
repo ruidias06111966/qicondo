@@ -65,6 +65,8 @@ import { Route as AppFinanceiroFluxoRouteImport } from './routes/app.financeiro.
 import { Route as AppFinanceiroInadimplenciaRouteImport } from './routes/app.financeiro.inadimplencia'
 import { Route as AppFinanceiroOrcamentoRouteImport } from './routes/app.financeiro.orcamento'
 import { Route as AppFinanceiroPagamentosRouteImport } from './routes/app.financeiro.pagamentos'
+import { Route as AppFinanceiroPlanoContasRouteImport } from './routes/app.financeiro.plano-contas'
+import { Route as AppFinanceiroPrestacaoRouteImport } from './routes/app.financeiro.prestacao'
 import { Route as AppFinanceiroWhatsappRouteImport } from './routes/app.financeiro.whatsapp'
 import { Route as AuthConviteTokenRouteImport } from './routes/auth.convite.$token'
 import { Route as ApiPublicHooksLembretesCobrancaRouteImport } from './routes/api/public/hooks/lembretes-cobranca'
@@ -351,6 +353,17 @@ const AppFinanceiroPagamentosRoute = AppFinanceiroPagamentosRouteImport.update({
   path: '/pagamentos',
   getParentRoute: () => AppFinanceiroRoute,
 } as any)
+const AppFinanceiroPlanoContasRoute =
+  AppFinanceiroPlanoContasRouteImport.update({
+    id: '/plano-contas',
+    path: '/plano-contas',
+    getParentRoute: () => AppFinanceiroRoute,
+  } as any)
+const AppFinanceiroPrestacaoRoute = AppFinanceiroPrestacaoRouteImport.update({
+  id: '/prestacao',
+  path: '/prestacao',
+  getParentRoute: () => AppFinanceiroRoute,
+} as any)
 const AppFinanceiroWhatsappRoute = AppFinanceiroWhatsappRouteImport.update({
   id: '/whatsapp',
   path: '/whatsapp',
@@ -423,6 +436,8 @@ export interface FileRoutesByFullPath {
   '/app/financeiro/inadimplencia': typeof AppFinanceiroInadimplenciaRoute
   '/app/financeiro/orcamento': typeof AppFinanceiroOrcamentoRoute
   '/app/financeiro/pagamentos': typeof AppFinanceiroPagamentosRoute
+  '/app/financeiro/plano-contas': typeof AppFinanceiroPlanoContasRoute
+  '/app/financeiro/prestacao': typeof AppFinanceiroPrestacaoRoute
   '/app/financeiro/whatsapp': typeof AppFinanceiroWhatsappRoute
   '/auth/convite/$token': typeof AuthConviteTokenRoute
   '/admin/empresas/': typeof AdminEmpresasIndexRoute
@@ -481,6 +496,8 @@ export interface FileRoutesByTo {
   '/app/financeiro/inadimplencia': typeof AppFinanceiroInadimplenciaRoute
   '/app/financeiro/orcamento': typeof AppFinanceiroOrcamentoRoute
   '/app/financeiro/pagamentos': typeof AppFinanceiroPagamentosRoute
+  '/app/financeiro/plano-contas': typeof AppFinanceiroPlanoContasRoute
+  '/app/financeiro/prestacao': typeof AppFinanceiroPrestacaoRoute
   '/app/financeiro/whatsapp': typeof AppFinanceiroWhatsappRoute
   '/auth/convite/$token': typeof AuthConviteTokenRoute
   '/admin/empresas': typeof AdminEmpresasIndexRoute
@@ -543,6 +560,8 @@ export interface FileRoutesById {
   '/app/financeiro/inadimplencia': typeof AppFinanceiroInadimplenciaRoute
   '/app/financeiro/orcamento': typeof AppFinanceiroOrcamentoRoute
   '/app/financeiro/pagamentos': typeof AppFinanceiroPagamentosRoute
+  '/app/financeiro/plano-contas': typeof AppFinanceiroPlanoContasRoute
+  '/app/financeiro/prestacao': typeof AppFinanceiroPrestacaoRoute
   '/app/financeiro/whatsapp': typeof AppFinanceiroWhatsappRoute
   '/auth/convite/$token': typeof AuthConviteTokenRoute
   '/admin/empresas/': typeof AdminEmpresasIndexRoute
@@ -606,6 +625,8 @@ export interface FileRouteTypes {
     | '/app/financeiro/inadimplencia'
     | '/app/financeiro/orcamento'
     | '/app/financeiro/pagamentos'
+    | '/app/financeiro/plano-contas'
+    | '/app/financeiro/prestacao'
     | '/app/financeiro/whatsapp'
     | '/auth/convite/$token'
     | '/admin/empresas/'
@@ -664,6 +685,8 @@ export interface FileRouteTypes {
     | '/app/financeiro/inadimplencia'
     | '/app/financeiro/orcamento'
     | '/app/financeiro/pagamentos'
+    | '/app/financeiro/plano-contas'
+    | '/app/financeiro/prestacao'
     | '/app/financeiro/whatsapp'
     | '/auth/convite/$token'
     | '/admin/empresas'
@@ -725,6 +748,8 @@ export interface FileRouteTypes {
     | '/app/financeiro/inadimplencia'
     | '/app/financeiro/orcamento'
     | '/app/financeiro/pagamentos'
+    | '/app/financeiro/plano-contas'
+    | '/app/financeiro/prestacao'
     | '/app/financeiro/whatsapp'
     | '/auth/convite/$token'
     | '/admin/empresas/'
@@ -1156,6 +1181,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceiroPagamentosRouteImport
       parentRoute: typeof AppFinanceiroRoute
     }
+    '/app/financeiro/plano-contas': {
+      id: '/app/financeiro/plano-contas'
+      path: '/plano-contas'
+      fullPath: '/app/financeiro/plano-contas'
+      preLoaderRoute: typeof AppFinanceiroPlanoContasRouteImport
+      parentRoute: typeof AppFinanceiroRoute
+    }
+    '/app/financeiro/prestacao': {
+      id: '/app/financeiro/prestacao'
+      path: '/prestacao'
+      fullPath: '/app/financeiro/prestacao'
+      preLoaderRoute: typeof AppFinanceiroPrestacaoRouteImport
+      parentRoute: typeof AppFinanceiroRoute
+    }
     '/app/financeiro/whatsapp': {
       id: '/app/financeiro/whatsapp'
       path: '/whatsapp'
@@ -1204,6 +1243,8 @@ interface AppFinanceiroRouteChildren {
   AppFinanceiroInadimplenciaRoute: typeof AppFinanceiroInadimplenciaRoute
   AppFinanceiroOrcamentoRoute: typeof AppFinanceiroOrcamentoRoute
   AppFinanceiroPagamentosRoute: typeof AppFinanceiroPagamentosRoute
+  AppFinanceiroPlanoContasRoute: typeof AppFinanceiroPlanoContasRoute
+  AppFinanceiroPrestacaoRoute: typeof AppFinanceiroPrestacaoRoute
   AppFinanceiroWhatsappRoute: typeof AppFinanceiroWhatsappRoute
   AppFinanceiroIndexRoute: typeof AppFinanceiroIndexRoute
 }
@@ -1218,6 +1259,8 @@ const AppFinanceiroRouteChildren: AppFinanceiroRouteChildren = {
   AppFinanceiroInadimplenciaRoute: AppFinanceiroInadimplenciaRoute,
   AppFinanceiroOrcamentoRoute: AppFinanceiroOrcamentoRoute,
   AppFinanceiroPagamentosRoute: AppFinanceiroPagamentosRoute,
+  AppFinanceiroPlanoContasRoute: AppFinanceiroPlanoContasRoute,
+  AppFinanceiroPrestacaoRoute: AppFinanceiroPrestacaoRoute,
   AppFinanceiroWhatsappRoute: AppFinanceiroWhatsappRoute,
   AppFinanceiroIndexRoute: AppFinanceiroIndexRoute,
 }

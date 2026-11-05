@@ -23,6 +23,17 @@ Estes ficheiros correm num PostgreSQL local descartável:
   inventados de propósito, para o teste dar sempre o mesmo e a conta poder ser
   conferida de cabeça: doze meses de 0,50% têm de dar 6,17% e não 6,00%.
 
+- `02-esqueleto-contabil.sql` — a terceira camada do esqueleto: as colunas que
+  faltavam à categoria financeira, `unidade_moradores`, `infracoes`,
+  `orcamento_itens` e um stub do schema `storage`. Vai depois dos outros dois.
+- `plano-de-contas.sql` — dezassete blocos sobre o plano de contas e os anexos
+  de comprovação. Os números do cenário estão no cabeçalho do bloco 11 e são
+  conferíveis de cabeça: três despesas e uma receita, e os subtotais dos grupos
+  têm de dar 400, 50 e 450. O bloco 5 é o que importa guardar: uma categoria
+  antiga chamada como uma conta padrão, mas de outro tipo e já com movimento,
+  não pode ser adoptada nem apagada — nasce uma conta ao lado, com o código no
+  nome, e as duas coexistem à vista.
+
 ## Como correr
 
 ```bash

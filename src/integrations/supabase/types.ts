@@ -167,6 +167,68 @@ export type Database = {
         };
         Relationships: [];
       };
+      anexos: {
+        Row: {
+          condominio_id: string;
+          created_at: string;
+          documento_data: string | null;
+          documento_numero: string | null;
+          entidade: string;
+          entidade_id: string;
+          enviado_por: string | null;
+          id: string;
+          mime_type: string | null;
+          nome_arquivo: string;
+          observacao: string | null;
+          storage_path: string;
+          tamanho_bytes: number | null;
+          tipo: Database["public"]["Enums"]["anexo_tipo"];
+          valor: number | null;
+        };
+        Insert: {
+          condominio_id: string;
+          created_at?: string;
+          documento_data?: string | null;
+          documento_numero?: string | null;
+          entidade: string;
+          entidade_id: string;
+          enviado_por?: string | null;
+          id?: string;
+          mime_type?: string | null;
+          nome_arquivo: string;
+          observacao?: string | null;
+          storage_path: string;
+          tamanho_bytes?: number | null;
+          tipo?: Database["public"]["Enums"]["anexo_tipo"];
+          valor?: number | null;
+        };
+        Update: {
+          condominio_id?: string;
+          created_at?: string;
+          documento_data?: string | null;
+          documento_numero?: string | null;
+          entidade?: string;
+          entidade_id?: string;
+          enviado_por?: string | null;
+          id?: string;
+          mime_type?: string | null;
+          nome_arquivo?: string;
+          observacao?: string | null;
+          storage_path?: string;
+          tamanho_bytes?: number | null;
+          tipo?: Database["public"]["Enums"]["anexo_tipo"];
+          valor?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "anexos_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       area_bloqueios: {
         Row: {
           area_id: string;
@@ -597,37 +659,46 @@ export type Database = {
       categorias_financeiras: {
         Row: {
           ativo: boolean;
+          codigo: string | null;
           condominio_id: string;
+          conta_pai_id: string | null;
           cor: string | null;
           created_at: string;
           fundo_reserva: boolean;
           id: string;
           nome: string;
           ordem: number;
+          sintetica: boolean;
           tipo: Database["public"]["Enums"]["tipo_lancamento"];
           updated_at: string;
         };
         Insert: {
           ativo?: boolean;
+          codigo?: string | null;
           condominio_id: string;
+          conta_pai_id?: string | null;
           cor?: string | null;
           created_at?: string;
           fundo_reserva?: boolean;
           id?: string;
           nome: string;
           ordem?: number;
+          sintetica?: boolean;
           tipo: Database["public"]["Enums"]["tipo_lancamento"];
           updated_at?: string;
         };
         Update: {
           ativo?: boolean;
+          codigo?: string | null;
           condominio_id?: string;
+          conta_pai_id?: string | null;
           cor?: string | null;
           created_at?: string;
           fundo_reserva?: boolean;
           id?: string;
           nome?: string;
           ordem?: number;
+          sintetica?: boolean;
           tipo?: Database["public"]["Enums"]["tipo_lancamento"];
           updated_at?: string;
         };
@@ -637,6 +708,13 @@ export type Database = {
             columns: ["condominio_id"];
             isOneToOne: false;
             referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "categorias_financeiras_conta_pai_id_fkey";
+            columns: ["conta_pai_id"];
+            isOneToOne: false;
+            referencedRelation: "categorias_financeiras";
             referencedColumns: ["id"];
           },
         ];
@@ -3144,6 +3222,19 @@ export type Database = {
         Args: { _atribuido_a: string; _ocorrencia_id: string };
         Returns: undefined;
       };
+      atualizar_conta: {
+        Args: {
+          _ativo?: boolean;
+          _categoria_id: string;
+          _codigo?: string;
+          _conta_pai_id?: string;
+          _cor?: string;
+          _fundo_reserva?: boolean;
+          _nome?: string;
+          _sintetica?: boolean;
+        };
+        Returns: undefined;
+      };
       atualizar_item_orcamento: {
         Args: {
           _indice: Database["public"]["Enums"]["indice_reajuste"];
@@ -3290,6 +3381,19 @@ export type Database = {
         };
         Returns: string;
       };
+      criar_conta: {
+        Args: {
+          _codigo?: string;
+          _condominio_id: string;
+          _conta_pai_id?: string;
+          _cor?: string;
+          _fundo_reserva?: boolean;
+          _nome: string;
+          _sintetica?: boolean;
+          _tipo: Database["public"]["Enums"]["tipo_lancamento"];
+        };
+        Returns: string;
+      };
       criar_orcamento: {
         Args: {
           _ano: number;
@@ -3310,6 +3414,10 @@ export type Database = {
         Returns: boolean;
       };
       disparar_lembretes_cobranca: { Args: never; Returns: undefined };
+      desativar_conta: {
+        Args: { _categoria_id: string };
+        Returns: undefined;
+      };
       divida_da_unidade: {
         Args: { _unidade_id: string };
         Returns: Json;
@@ -3414,6 +3522,22 @@ export type Database = {
         Args: { _condominio_id: string };
         Returns: number;
       };
+      listar_anexos: {
+        Args: { _condominio_id: string; _entidade: string; _entidade_id: string };
+        Returns: {
+          created_at: string;
+          documento_data: string | null;
+          documento_numero: string | null;
+          id: string;
+          mime_type: string | null;
+          nome_arquivo: string;
+          observacao: string | null;
+          storage_path: string;
+          tamanho_bytes: number | null;
+          tipo: Database["public"]["Enums"]["anexo_tipo"];
+          valor: number | null;
+        }[];
+      };
       marcar_encomenda_retirada: {
         Args: { _encomenda_id: string; _retirado_por_nome: string };
         Returns: undefined;
@@ -3431,12 +3555,56 @@ export type Database = {
         Args: { _ate_mes?: number; _orcamento_id: string };
         Returns: Json;
       };
+      pendencias_documentais: {
+        Args: { _condominio_id: string; _fim: string; _inicio: string };
+        Returns: {
+          conta_codigo: string | null;
+          conta_nome: string | null;
+          data: string;
+          descricao: string;
+          despesa_id: string;
+          fornecedor: string | null;
+          tem_comprovante: boolean;
+          tem_fiscal: boolean;
+          valor: number;
+        }[];
+      };
+      plano_de_contas: {
+        Args: { _condominio_id: string; _incluir_inativas?: boolean };
+        Returns: {
+          ativo: boolean;
+          codigo: string | null;
+          conta_pai_id: string | null;
+          cor: string | null;
+          em_uso: boolean;
+          fundo_reserva: boolean;
+          id: string;
+          nivel: number;
+          nome: string;
+          sintetica: boolean;
+          tipo: Database["public"]["Enums"]["tipo_lancamento"];
+        }[];
+      };
       pode_gerir_financeiro: {
         Args: { _condominio_id: string; _user_id: string };
         Returns: boolean;
       };
       processar_fila_email: { Args: never; Returns: undefined };
       processar_fila_whatsapp: { Args: never; Returns: undefined };
+      prestacao_por_conta: {
+        Args: { _condominio_id: string; _fim: string; _inicio: string };
+        Returns: {
+          codigo: string | null;
+          conta_id: string;
+          documentados: number;
+          lancamentos: number;
+          nivel: number;
+          nome: string;
+          sintetica: boolean;
+          tipo: Database["public"]["Enums"]["tipo_lancamento"];
+          valor: number;
+        }[];
+      };
       proprietarios_da_unidade: {
         Args: { _unidade_id: string };
         Returns: {
@@ -3498,6 +3666,23 @@ export type Database = {
           _descricao: string;
           _local?: string;
           _unidade_id: string;
+        };
+        Returns: string;
+      };
+      registrar_anexo: {
+        Args: {
+          _condominio_id: string;
+          _documento_data?: string;
+          _documento_numero?: string;
+          _entidade: string;
+          _entidade_id: string;
+          _mime_type?: string;
+          _nome_arquivo: string;
+          _observacao?: string;
+          _storage_path: string;
+          _tamanho_bytes?: number;
+          _tipo: Database["public"]["Enums"]["anexo_tipo"];
+          _valor?: number;
         };
         Returns: string;
       };
@@ -3579,12 +3764,20 @@ export type Database = {
         }[];
       };
       remover_pauta: { Args: { _pauta_id: string }; Returns: undefined };
+      remover_anexo: {
+        Args: { _anexo_id: string };
+        Returns: string;
+      };
       rescindir_acordo: {
         Args: { _acordo_id: string; _motivo?: string };
         Returns: string;
       };
       resumo_orcamento: {
         Args: { _orcamento_id: string };
+        Returns: Json;
+      };
+      semear_plano_contas: {
+        Args: { _condominio_id: string };
         Returns: Json;
       };
       simular_acordo: {
@@ -3617,6 +3810,14 @@ export type Database = {
     };
     Enums: {
       acordo_status: "ativo" | "quitado" | "rescindido" | "cancelado";
+      anexo_tipo:
+        | "nota_fiscal"
+        | "recibo"
+        | "comprovante_pagamento"
+        | "boleto"
+        | "contrato"
+        | "extrato_bancario"
+        | "outro";
       app_role:
         | "sindico"
         | "morador"

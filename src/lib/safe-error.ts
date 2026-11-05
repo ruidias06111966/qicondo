@@ -110,6 +110,29 @@ const BUSINESS_RULES: Record<string, string> = {
   condominio_ou_cobranca_obrigatorio: "Informe o condomínio ou a cobrança.",
   unidade_de_outro_condominio: "A unidade é de outro condomínio.",
   unidade_nao_encontrada: "Unidade não encontrada.",
+
+  // Plano de contas. O HINT destas diz qual dos casos é — pai analítico, pai
+  // de outro tipo, ciclo — e é essa frase que resolve o problema a quem está
+  // a montar o plano.
+  conta_nao_encontrada: "Conta não encontrada.",
+  conta_pai_invalida: "A conta superior não serve.",
+  conta_sintetica_nao_aceita_lancamento: "Esta conta agrupa outras e não aceita lançamentos.",
+  conta_em_uso: "A conta já tem lançamentos.",
+  conta_com_filhas: "A conta tem outras abaixo dela.",
+  conta_invalida: "Conta inválida.",
+  nome_obrigatorio: "Informe o nome.",
+  categoria_codigo_formato: "O código da conta só aceita números e pontos, como 2.2.01.",
+  categorias_codigo_unico: "Já existe uma conta com esse código.",
+  categorias_nome_unico: "Já existe uma conta com esse nome.",
+
+  // Anexos de comprovação.
+  anexo_nao_encontrado: "Anexo não encontrado.",
+  anexo_sem_caminho: "O anexo não tem ficheiro associado.",
+  anexo_caminho_invalido: "O caminho do ficheiro não corresponde a este condomínio.",
+  anexo_caminho_unico: "Este ficheiro já está anexado.",
+  anexo_lancamento_nao_encontrado: "O lançamento a que o anexo se refere não existe.",
+  anexo_de_outro_condominio: "O lançamento é de outro condomínio.",
+  anexo_entidade_desconhecida: "Tipo de lançamento não suportado para anexos.",
 };
 
 /**
@@ -138,6 +161,13 @@ const COM_DETALHE = new Set([
   "inadimplente_nao_vota",
   "nao_e_representante",
   "fracao_ideal_em_falta",
+  "conta_pai_invalida",
+  "conta_sintetica_nao_aceita_lancamento",
+  "conta_em_uso",
+  "conta_com_filhas",
+  "conta_invalida",
+  "anexo_caminho_invalido",
+  "anexo_lancamento_nao_encontrado",
 ]);
 
 /** Devolve a mensagem segura para o cliente. */

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import {
   listarDespesas,
@@ -9,6 +9,8 @@ import {
 } from "@/lib/financeiro.functions";
 import { brl, dateBR } from "@/lib/format";
 import { Modal, Field, EmptyState, safeCall } from "@/components/financeiro/ui";
+import { BotaoAnexos } from "@/components/contabil/Anexos";
+import { resumoAnexos } from "@/lib/contabil.functions";
 import { toast } from "sonner";
 import { Wallet, Plus, Loader2, Trash2 } from "lucide-react";
 
@@ -23,6 +25,8 @@ function DespesasPage() {
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
   const [mes, setMes] = useState<string>("");
+  // Quantos documentos tem cada despesa. Uma chamada para a lista toda.
+  const [anexos, setAnexos] = useState<Record<string, number>>({});
 
   const reload = () => {
     if (!condominioId) return;
@@ -32,6 +36,27 @@ function DespesasPage() {
       .finally(() => setLoading(false));
   };
   useEffect(reload, [condominioId, mes]);
+
+  const recarregarAnexos = useCallback(async () => {
+    if (!condominioId || rows.length === 0) {
+      setAnexos({});
+      return;
+    }
+    const r = await safeCall(
+      resumoAnexos({
+        data: {
+          condominio_id: condominioId,
+          entidade: "despesa",
+          entidade_ids: rows.slice(0, 500).map((d) => d.id as string),
+        },
+      }),
+    );
+    setAnexos((r ?? {}) as Record<string, number>);
+  }, [condominioId, rows]);
+
+  useEffect(() => {
+    recarregarAnexos();
+  }, [recarregarAnexos]);
 
   const totaisPorCategoria = useMemo(() => {
     const map = new Map<string, { nome: string; cor: string; total: number }>();
@@ -127,6 +152,7 @@ function DespesasPage() {
                 <th className="text-left px-4 py-3 font-semibold">Categoria</th>
                 <th className="text-left px-4 py-3 font-semibold">Fornecedor</th>
                 <th className="text-right px-4 py-3 font-semibold">Valor</th>
+                <th className="text-center px-4 py-3 font-semibold">Docs</th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
@@ -138,6 +164,16 @@ function DespesasPage() {
                   <td className="px-4 py-3">{r.categorias_financeiras?.nome ?? "—"}</td>
                   <td className="px-4 py-3 text-muted-foreground">{r.fornecedor ?? "—"}</td>
                   <td className="px-4 py-3 text-right font-mono text-rose-600">- {brl(r.valor)}</td>
+                  <td className="px-4 py-3 text-center">
+                    <BotaoAnexos
+                      condominioId={condominioId}
+                      entidade="despesa"
+                      entidadeId={r.id}
+                      rotulo={r.descricao}
+                      quantos={anexos[r.id] ?? 0}
+                      onMudou={recarregarAnexos}
+                    />
+                  </td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => {

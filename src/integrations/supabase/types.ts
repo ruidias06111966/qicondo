@@ -1580,6 +1580,27 @@ export type Database = {
           },
         ];
       };
+      indices_economicos: {
+        Row: {
+          atualizado_em: string;
+          competencia: string;
+          indice: Database["public"]["Enums"]["indice_reajuste"];
+          variacao: number;
+        };
+        Insert: {
+          atualizado_em?: string;
+          competencia: string;
+          indice: Database["public"]["Enums"]["indice_reajuste"];
+          variacao: number;
+        };
+        Update: {
+          atualizado_em?: string;
+          competencia?: string;
+          indice?: Database["public"]["Enums"]["indice_reajuste"];
+          variacao?: number;
+        };
+        Relationships: [];
+      };
       infracoes: {
         Row: {
           assembleia_id: string | null;
@@ -3056,6 +3077,13 @@ export type Database = {
       };
       abrir_votacao: { Args: { _pauta_id: string }; Returns: undefined };
       aceitar_convite: { Args: { _token: string }; Returns: string };
+      acumulado_12m: {
+        Args: {
+          _ate?: string;
+          _indice: Database["public"]["Enums"]["indice_reajuste"];
+        };
+        Returns: Json;
+      };
       adicionar_pauta: {
         Args: {
           _assembleia_id: string;
@@ -3323,6 +3351,10 @@ export type Database = {
         };
         Returns: boolean;
       };
+      indices_para_orcamento: {
+        Args: { _ate?: string };
+        Returns: Json;
+      };
       is_admin: {
         Args: { _condominio_id: string; _user_id: string };
         Returns: boolean;
@@ -3458,6 +3490,10 @@ export type Database = {
       registrar_entrada_visitante: {
         Args: { _visitante_id: string };
         Returns: undefined;
+      };
+      registrar_indices: {
+        Args: { _dados: Json };
+        Returns: number;
       };
       registrar_pagamento_manual: {
         Args: {

@@ -12,7 +12,7 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Calculator, Plus, CheckCircle2, AlertTriangle, TrendingUp } from "lucide-react";
+import { Calculator, Plus, CheckCircle2, AlertTriangle, TrendingUp, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import { EmptyState, Field, Modal, safeCall } from "@/components/financeiro/ui";
@@ -38,6 +38,13 @@ import {
   type RealizadoAno,
   type ResumoOrcamento,
 } from "@/lib/orcamento.functions";
+import {
+  atualizarIndices,
+  indicesParaOrcamento,
+  INDICE_PUBLICADO,
+  type AcumuladoIndice,
+  type IndicePublicado,
+} from "@/lib/indices.functions";
 import { listarAssembleias, type Assembleia } from "@/lib/assembleia.functions";
 import { dataBR } from "@/lib/periodo";
 
@@ -159,6 +166,7 @@ function Detalhe({
   const [erroQuotas, setErroQuotas] = useState(false);
   const [comparado, setComparado] = useState<OrcadoRealizado | null>(null);
   const [aAprovar, setAAprovar] = useState(false);
+  const [indices, setIndices] = useState<AcumuladoIndice[]>([]);
 
   const rascunho = orcamento.status === "rascunho";
 
@@ -182,9 +190,15 @@ function Detalhe({
     }
   }, [orcamento.id, rascunho]);
 
+  const carregarIndices = useCallback(async () => {
+    const r = await safeCall(indicesParaOrcamento({ data: {} }));
+    setIndices((r ?? []) as AcumuladoIndice[]);
+  }, []);
+
   useEffect(() => {
     recarregar();
-  }, [recarregar]);
+    carregarIndices();
+  }, [recarregar, carregarIndices]);
 
   return (
     <div className="space-y-6">
@@ -193,6 +207,8 @@ function Detalhe({
       {rascunho && (
         <Premissas orcamento={orcamento} onGravado={() => Promise.all([onMudou(), recarregar()])} />
       )}
+
+      {rascunho && isAdmin && <PainelIndices indices={indices} onActualizado={carregarIndices} />}
 
       <div className="bg-background border border-border rounded-2xl overflow-hidden">
         <div className="px-5 py-4 border-b border-border">
@@ -219,6 +235,7 @@ function Detalhe({
                   key={i.id}
                   item={i}
                   editavel={rascunho && isAdmin}
+                  indices={indices}
                   onGravado={recarregar}
                 />
               ))}
@@ -325,10 +342,12 @@ function Resumo({ r }: { r: ResumoOrcamento }) {
 function Rubrica({
   item,
   editavel,
+  indices,
   onGravado,
 }: {
   item: OrcamentoItem;
   editavel: boolean;
+  indices: AcumuladoIndice[];
   onGravado: () => void;
 }) {
   const [indice, setIndice] = useState<IndiceReajuste>(item.indice);
@@ -337,6 +356,19 @@ function Rubrica({
   const [sujo, setSujo] = useState(false);
 
   const sugerido = useMemo(() => sugerirIndice(item.categoria), [item.categoria]);
+
+  // O acumulado publicado do índice escolhido, quando há um. É o número que
+  // mais se erra a digitar: ou se usa a variação do mês, ou se copia o de três
+  // meses atrás.
+  const publicado = useMemo(
+    () =>
+      INDICE_PUBLICADO.includes(indice as IndicePublicado)
+        ? (indices.find((i) => i.indice === indice) ?? null)
+        : null,
+    [indices, indice],
+  );
+  const diferente =
+    publicado?.acumulado != null && Number(percentual) !== Number(publicado.acumulado);
 
   const gravar = async (override?: number | null) => {
     const r = await safeCall(
@@ -417,6 +449,18 @@ function Rubrica({
           onBlur={() => sujo && gravar()}
           className="w-20 px-2 py-1.5 rounded border border-border bg-background text-xs text-right"
         />
+        {diferente && publicado && (
+          <button
+            onClick={() => {
+              setPercentual(String(publicado.acumulado));
+              setSujo(true);
+            }}
+            className="block mt-1 w-full text-right text-xs text-primary hover:underline"
+            title={`Acumulado de ${publicado.meses} meses até ${dataBR(String(publicado.ultima))}`}
+          >
+            usar {pct(Number(publicado.acumulado))}
+          </button>
+        )}
       </td>
       <td className="px-5 py-2">
         <input
@@ -807,5 +851,85 @@ function ModalAprovar({
         </button>
       </div>
     </Modal>
+  );
+}
+
+/**
+ * Os quatro índices publicados, com o acumulado de doze meses já composto.
+ *
+ * Fica ao lado das rubricas e não escondido numa configuração: é aqui que o
+ * número é preciso, e um índice de três meses atrás usado sem se dar conta
+ * passa para o orçamento inteiro.
+ */
+function PainelIndices({
+  indices,
+  onActualizado,
+}: {
+  indices: AcumuladoIndice[];
+  onActualizado: () => void;
+}) {
+  const [ocupado, setOcupado] = useState(false);
+
+  const actualizar = async () => {
+    setOcupado(true);
+    const r = await safeCall(atualizarIndices());
+    setOcupado(false);
+    if (!r) return;
+    if (r.falhou.length > 0) {
+      toast.warning(
+        `Actualizado, mas ${r.falhou
+          .map((i) => ROTULO_INDICE[i].split(" —")[0])
+          .join(", ")} não respondeu. Tente de novo daqui a pouco.`,
+      );
+    } else {
+      toast.success(r.gravadas > 0 ? `${r.gravadas} medições novas` : "Já estava em dia");
+    }
+    onActualizado();
+  };
+
+  const vazio = indices.every((i) => i.acumulado == null);
+
+  return (
+    <div className="bg-background border border-border rounded-2xl p-5">
+      <div className="flex flex-wrap items-center gap-3 mb-3">
+        <div>
+          <p className="font-semibold text-sm">Índices publicados</p>
+          <p className="text-xs text-muted-foreground">
+            Acumulado de doze meses, composto e não somado, do SGS do Banco Central.
+          </p>
+        </div>
+        <div className="flex-1" />
+        <button
+          onClick={actualizar}
+          disabled={ocupado}
+          className="px-3 py-1.5 rounded-lg border border-border text-xs font-semibold inline-flex items-center gap-2 disabled:opacity-50"
+        >
+          <RefreshCw size={14} className={ocupado ? "animate-spin" : ""} /> Actualizar
+        </button>
+      </div>
+
+      {vazio ? (
+        <p className="text-xs text-muted-foreground">
+          Ainda não há medições gravadas. Carregue em Actualizar para as buscar ao Banco Central.
+        </p>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {indices.map((i) => (
+            <div key={i.indice} className="rounded-xl border border-border p-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase">
+                {ROTULO_INDICE[i.indice].split(" —")[0]}
+              </p>
+              <p className="font-display text-lg font-bold">
+                {i.acumulado == null ? "—" : pct(i.acumulado)}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {i.ultima ? `até ${dataBR(i.ultima)}` : "sem medições"}
+                {i.acumulado != null && !i.completo ? ` · só ${i.meses} meses` : ""}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

@@ -12,6 +12,9 @@ Estes ficheiros correm num PostgreSQL local descartável:
   `user_roles`. Não substitui o esquema: serve para a migração poder correr.
 - `orcamento.sql` — dezasseis casos sobre a planilha orçamentária, com os
   números conferidos à mão no cabeçalho de cada bloco.
+- `indices.sql` — dez casos sobre os índices económicos. Os valores são
+  inventados de propósito, para o teste dar sempre o mesmo e a conta poder ser
+  conferida de cabeça: doze meses de 0,50% têm de dar 6,17% e não 6,00%.
 
 ## Como correr
 
@@ -54,3 +57,31 @@ por imitações, porque é o comportamento delas que se quer testar.
 | 14 | Orçado contra realizado, com o mês de corte a valer |
 | 15 | Quem não é do condomínio não vê |
 | 16 | Sem sessão não vê |
+
+
+## Os índices contra os dados reais
+
+Os dez casos de `indices.sql` não tocam na rede. A verificação contra o Banco
+Central foi feita à parte, uma vez, comparando o que `acumulado_12m` devolve
+com o mesmo cálculo feito em Python sobre a resposta crua da API. Em
+05/11/2026:
+
+| Índice | Série SGS | Acumulado 12m | Janela |
+|---|---|---|---|
+| IPCA | 433 | 4,58% | 10/2025 a 09/2026 |
+| INPC | 188 | 4,29% | 10/2025 a 09/2026 |
+| IGP-M | 189 | 5,25% | 11/2025 a 10/2026 |
+| INCC-M | 7456 | 6,75% | 11/2025 a 10/2026 |
+
+Os quatro bateram ao cêntimo. Repetir:
+
+```bash
+curl -s "https://api.bcb.gov.br/dados/serie/bcdata.sgs.433/dados?formato=json&dataInicial=01/01/2025&dataFinal=31/12/2026"
+```
+
+O endpoint `ultimos/N` tem tecto de 20 valores; para doze meses dá, mas a
+aplicação usa o intervalo de datas, que não tem esse limite.
+
+Repare-se, de passagem, que o INCC correu 2,17 pontos acima do IPCA nesses
+doze meses. É o argumento de ter um índice por rubrica em vez de um só, em
+números e não em teoria.

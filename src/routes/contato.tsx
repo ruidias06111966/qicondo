@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { EMAIL, TELEFONE_FORMATADO } from "@/lib/empresa";
 import {
   Mail,
   MessageCircle,
@@ -17,7 +18,7 @@ import {
 
 import { formatarTelefone, erroTelefone, telefoneE164BR, buildWaUrl } from "@/lib/wa-link";
 
-const CONTACT_EMAIL = "qidomino@gmail.com";
+const CONTACT_EMAIL = EMAIL.contato;
 
 export const Route = createFileRoute("/contato")({
   head: () => ({
@@ -25,8 +26,7 @@ export const Route = createFileRoute("/contato")({
       { title: "Contato — QiCond | Fale com a equipe de pré-vendas" },
       {
         name: "description",
-        content:
-          "Solicite uma demonstração do QiCond. Resposta em até 1 dia útil por email (qidomino@gmail.com) ou WhatsApp +55 61 98275-0884.",
+        content: `Solicite uma demonstração do QiCond. Resposta em até 1 dia útil por email (${EMAIL.contato}) ou WhatsApp ${TELEFONE_FORMATADO}.`,
       },
     ],
   }),

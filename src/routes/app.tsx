@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/auth/AuthProvider";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import { Logo } from "@/components/site/Logo";
+import { SeletorCondominio } from "@/components/app/SeletorCondominio";
 import { usePlatformAdmin } from "@/auth/usePlatformAdmin";
 import { ADMIN, FIN_VER, temAcesso } from "@/auth/permissoes";
 import type { Role } from "@/auth/useCondominio";
@@ -26,6 +27,7 @@ import {
   UserCheck,
   ClipboardList,
   Gavel,
+  ScrollText,
 } from "lucide-react";
 
 export const Route = createFileRoute("/app")({
@@ -48,6 +50,7 @@ const NAV: NavItem[] = [
   { to: "/app/encomendas", label: "Encomendas", icon: Package },
   { to: "/app/visitantes", label: "Visitantes", icon: UserCheck },
   { to: "/app/ocorrencias", label: "Ocorrências", icon: Wrench },
+  { to: "/app/infracoes", label: "Advertências e multas", icon: ScrollText },
   { to: "/app/documentos", label: "Documentos", icon: FileText },
   { to: "/app/unidades", label: "Unidades", icon: Building2, roles: ADMIN },
   { to: "/app/usuarios", label: "Equipa", icon: Users, roles: ADMIN },
@@ -95,6 +98,9 @@ function AppLayout() {
       <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-background">
         <div className="h-16 flex items-center px-6 border-b border-border">
           <Logo />
+        </div>
+        <div className="p-3 border-b border-border">
+          <SeletorCondominio />
         </div>
         <nav className="flex-1 p-3 space-y-1">
           {navItems.map((item) => (
@@ -146,6 +152,9 @@ function AppLayout() {
       </div>
       {open && (
         <div className="lg:hidden fixed inset-0 top-14 bg-background z-30 p-4 space-y-1">
+          <div className="pb-3 mb-2 border-b border-border">
+            <SeletorCondominio onTrocar={() => setOpen(false)} />
+          </div>
           {navItems.map((item) => (
             <Link
               key={item.to}

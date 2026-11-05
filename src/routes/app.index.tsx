@@ -13,14 +13,15 @@ export const Route = createFileRoute("/app/")({
   component: DashboardPage,
 });
 
-type Cond = { id: string; nome: string; codigo_publico: string; total_unidades: number };
+type Cond = { id: string; nome: string; codigo_publico: string };
 
 function DashboardPage() {
   const { profile, roles, user } = useAuth();
-  const { condominioId } = useCondominioAtivo();
+  const { condominioId, setCondominioId } = useCondominioAtivo();
   const [conds, setConds] = useState<Cond[]>([]);
   const [loading, setLoading] = useState(true);
-  const [unidadesCount, setUnidadesCount] = useState(0);
+  /** Unidades por condomínio, contadas de verdade — ver o comentário abaixo. */
+  const [unidadesPorCond, setUnidadesPorCond] = useState<Record<string, number>>({});
   const [resumo, setResumo] = useState<any>(null);
 
   useEffect(() => {
@@ -30,22 +31,28 @@ function DashboardPage() {
         setLoading(false);
         return;
       }
+      // `condominios.total_unidades` é uma coluna que ninguém mantém: ficava a
+      // zero em condomínios com unidades, e a lista dizia "0 unidades" a quem
+      // tinha doze. Conta-se a sério, por condomínio — uma consulta por cada,
+      // que são poucos e cada uma é só um COUNT indexado.
       const r = await safeCall(
         Promise.all([
-          supabase
-            .from("condominios")
-            .select("id, nome, codigo_publico, total_unidades")
-            .in("id", ids),
-          supabase
-            .from("unidades")
-            .select("*", { count: "exact", head: true })
-            .in("condominio_id", ids),
+          supabase.from("condominios").select("id, nome, codigo_publico").in("id", ids),
+          Promise.all(
+            ids.map(async (id) => {
+              const { count } = await supabase
+                .from("unidades")
+                .select("*", { count: "exact", head: true })
+                .eq("condominio_id", id);
+              return [id, count ?? 0] as const;
+            }),
+          ),
         ]),
       );
       if (r) {
-        const [{ data: cs }, { count }] = r;
+        const [{ data: cs }, pares] = r;
         setConds((cs as Cond[]) ?? []);
-        setUnidadesCount(count ?? 0);
+        setUnidadesPorCond(Object.fromEntries(pares));
       }
       setLoading(false);
     })();
@@ -98,7 +105,11 @@ function DashboardPage() {
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Stat icon={Building2} label="Condomínios" value={conds.length} />
-        <Stat icon={Users} label="Unidades" value={unidadesCount} />
+        <Stat
+          icon={Users}
+          label="Unidades"
+          value={condominioId ? (unidadesPorCond[condominioId] ?? 0) : 0}
+        />
         <Stat
           icon={Wallet}
           label="Inadimplência"
@@ -137,18 +148,43 @@ function DashboardPage() {
           <ul className="divide-y divide-border">
             {conds.map((c) => {
               const role = roles.find((r) => r.condominio_id === c.id)?.role ?? "morador";
+              const activo = c.id === condominioId;
               return (
-                <li key={c.id} className="py-4 flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold">{c.nome}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Código: <code className="font-mono">{c.codigo_publico}</code> ·{" "}
-                      {c.total_unidades} unidades
-                    </p>
-                  </div>
-                  <span className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
-                    {role}
-                  </span>
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (activo) return;
+                      setCondominioId(c.id);
+                      // O condomínio activo é estado local de cada componente;
+                      // remonta-se tudo para não ficar meio ecrã num e meio
+                      // noutro. Ver `SeletorCondominio`.
+                      window.location.reload();
+                    }}
+                    className={`w-full py-4 px-3 -mx-3 rounded-lg flex items-center justify-between gap-3 text-left transition-colors ${
+                      activo ? "bg-primary/5" : "hover:bg-muted"
+                    }`}
+                  >
+                    <div className="min-w-0">
+                      <p className="font-semibold truncate">{c.nome}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Código: <code className="font-mono">{c.codigo_publico}</code> ·{" "}
+                        {unidadesPorCond[c.id] ?? 0} unidades
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {activo ? (
+                        <span className="px-2.5 py-1 rounded-full bg-primary text-primary-foreground text-xs font-semibold uppercase">
+                          activo
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">entrar →</span>
+                      )}
+                      <span className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
+                        {role}
+                      </span>
+                    </div>
+                  </button>
                 </li>
               );
             })}

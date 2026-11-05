@@ -9,6 +9,7 @@ import {
   CreditCard,
   MessageCircle,
   Handshake,
+  FileCheck,
 } from "lucide-react";
 
 export function Modal({
@@ -137,6 +138,12 @@ const SUB: SubItem[] = [
     restrito: true,
   },
   { to: "/app/financeiro/acordos", label: "Acordos", icon: Handshake, restrito: true },
+  {
+    to: "/app/financeiro/certidoes",
+    label: "Cartas e certidões",
+    icon: FileCheck,
+    restrito: true,
+  },
   { to: "/app/financeiro/categorias", label: "Categorias", icon: Tag, restrito: true },
   {
     to: "/app/financeiro/pagamentos",

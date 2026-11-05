@@ -1,5 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { Logo } from "./Logo";
+import {
+  CNPJ,
+  EMAIL,
+  ENDERECO_LINHA,
+  RAZAO_SOCIAL,
+  TELEFONE_FORMATADO,
+  WHATSAPP,
+} from "@/lib/empresa";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -16,6 +24,32 @@ export function Footer() {
             <span className="inline-flex h-2 w-2 rounded-full bg-success animate-pulse" />
             Todos os sistemas operacionais
           </div>
+
+          <ul className="mt-5 space-y-1.5 text-sm text-muted-foreground">
+            <li>
+              <a href={`mailto:${EMAIL.contato}`} className="hover:text-primary transition-colors">
+                {EMAIL.contato}
+              </a>
+              <span className="text-xs"> · comercial</span>
+            </li>
+            <li>
+              <a href={`mailto:${EMAIL.suporte}`} className="hover:text-primary transition-colors">
+                {EMAIL.suporte}
+              </a>
+              <span className="text-xs"> · suporte</span>
+            </li>
+            <li>
+              <a
+                href={`https://wa.me/${WHATSAPP}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-primary transition-colors"
+              >
+                {TELEFONE_FORMATADO}
+              </a>
+              <span className="text-xs"> · WhatsApp</span>
+            </li>
+          </ul>
         </div>
 
         <div>
@@ -122,13 +156,15 @@ export function Footer() {
       </div>
 
       <div className="border-t border-border">
-        <div className="mx-auto max-w-7xl px-4 md:px-8 py-5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <div>© {year} QiCond · Gestão de condomínio pelo WhatsApp</div>
-          <div className="flex items-center gap-4">
-            <span>CNPJ em constituição</span>
-            <span className="hidden md:inline">·</span>
-            <span>Feito no Brasil 🇧🇷</span>
+        <div className="mx-auto max-w-7xl px-4 md:px-8 py-5 text-xs text-muted-foreground space-y-1.5">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <div>© {year} QiCond · Gestão de condomínio pelo WhatsApp</div>
+            <div>Feito no Brasil 🇧🇷</div>
           </div>
+          <div>
+            {RAZAO_SOCIAL} · CNPJ {CNPJ}
+          </div>
+          <div>{ENDERECO_LINHA}</div>
         </div>
       </div>
     </footer>

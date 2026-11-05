@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Shield, Lock, Database, FileCheck, UserCheck, Mail } from "lucide-react";
+import { EMAIL } from "@/lib/empresa";
 
 export const Route = createFileRoute("/lgpd")({
   head: () => ({
@@ -61,7 +62,7 @@ function LgpdPage() {
           {
             icon: Mail,
             title: "DPO acessível",
-            desc: "Encarregado de dados disponível em qidomino@gmail.com para qualquer solicitação.",
+            desc: `Encarregado de dados disponível em ${EMAIL.encarregado} para qualquer solicitação.`,
           },
         ].map((b) => (
           <div key={b.title} className="rounded-2xl border border-border bg-surface p-6">
@@ -101,10 +102,10 @@ function LgpdPage() {
               Para exercer qualquer direito, escreva para:
             </p>
             <a
-              href="mailto:qidomino@gmail.com"
+              href={`mailto:${EMAIL.encarregado}`}
               className="text-primary font-bold text-lg hover:underline"
             >
-              qidomino@gmail.com
+              {EMAIL.encarregado}
             </a>
           </div>
         </div>

@@ -32,6 +32,7 @@ import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes
 import { Route as AppDocumentosRouteImport } from './routes/app.documentos'
 import { Route as AppEncomendasRouteImport } from './routes/app.encomendas'
 import { Route as AppFinanceiroRouteImport } from './routes/app.financeiro'
+import { Route as AppInfracoesRouteImport } from './routes/app.infracoes'
 import { Route as AppLeadsRouteImport } from './routes/app.leads'
 import { Route as AppMoradoresRouteImport } from './routes/app.moradores'
 import { Route as AppOcorrenciasRouteImport } from './routes/app.ocorrencias'
@@ -57,6 +58,7 @@ import { Route as ApiPublicWaWebhookRouteImport } from './routes/api.public.wa-w
 import { Route as AppFinanceiroIndexRouteImport } from './routes/app.financeiro.index'
 import { Route as AppFinanceiroAcordosRouteImport } from './routes/app.financeiro.acordos'
 import { Route as AppFinanceiroCategoriasRouteImport } from './routes/app.financeiro.categorias'
+import { Route as AppFinanceiroCertidoesRouteImport } from './routes/app.financeiro.certidoes'
 import { Route as AppFinanceiroCobrancasRouteImport } from './routes/app.financeiro.cobrancas'
 import { Route as AppFinanceiroDespesasRouteImport } from './routes/app.financeiro.despesas'
 import { Route as AppFinanceiroInadimplenciaRouteImport } from './routes/app.financeiro.inadimplencia'
@@ -178,6 +180,11 @@ const AppEncomendasRoute = AppEncomendasRouteImport.update({
 const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
   id: '/financeiro',
   path: '/financeiro',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInfracoesRoute = AppInfracoesRouteImport.update({
+  id: '/infracoes',
+  path: '/infracoes',
   getParentRoute: () => AppRoute,
 } as any)
 const AppLeadsRoute = AppLeadsRouteImport.update({
@@ -306,6 +313,11 @@ const AppFinanceiroCategoriasRoute = AppFinanceiroCategoriasRouteImport.update({
   path: '/categorias',
   getParentRoute: () => AppFinanceiroRoute,
 } as any)
+const AppFinanceiroCertidoesRoute = AppFinanceiroCertidoesRouteImport.update({
+  id: '/certidoes',
+  path: '/certidoes',
+  getParentRoute: () => AppFinanceiroRoute,
+} as any)
 const AppFinanceiroCobrancasRoute = AppFinanceiroCobrancasRouteImport.update({
   id: '/cobrancas',
   path: '/cobrancas',
@@ -366,6 +378,7 @@ export interface FileRoutesByFullPath {
   '/app/documentos': typeof AppDocumentosRoute
   '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRouteWithChildren
+  '/app/infracoes': typeof AppInfracoesRoute
   '/app/leads': typeof AppLeadsRoute
   '/app/moradores': typeof AppMoradoresRoute
   '/app/ocorrencias': typeof AppOcorrenciasRoute
@@ -391,6 +404,7 @@ export interface FileRoutesByFullPath {
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
   '/app/financeiro/acordos': typeof AppFinanceiroAcordosRoute
   '/app/financeiro/categorias': typeof AppFinanceiroCategoriasRoute
+  '/app/financeiro/certidoes': typeof AppFinanceiroCertidoesRoute
   '/app/financeiro/cobrancas': typeof AppFinanceiroCobrancasRoute
   '/app/financeiro/despesas': typeof AppFinanceiroDespesasRoute
   '/app/financeiro/inadimplencia': typeof AppFinanceiroInadimplenciaRoute
@@ -420,6 +434,7 @@ export interface FileRoutesByTo {
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/documentos': typeof AppDocumentosRoute
   '/app/encomendas': typeof AppEncomendasRoute
+  '/app/infracoes': typeof AppInfracoesRoute
   '/app/leads': typeof AppLeadsRoute
   '/app/moradores': typeof AppMoradoresRoute
   '/app/ocorrencias': typeof AppOcorrenciasRoute
@@ -445,6 +460,7 @@ export interface FileRoutesByTo {
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
   '/app/financeiro/acordos': typeof AppFinanceiroAcordosRoute
   '/app/financeiro/categorias': typeof AppFinanceiroCategoriasRoute
+  '/app/financeiro/certidoes': typeof AppFinanceiroCertidoesRoute
   '/app/financeiro/cobrancas': typeof AppFinanceiroCobrancasRoute
   '/app/financeiro/despesas': typeof AppFinanceiroDespesasRoute
   '/app/financeiro/inadimplencia': typeof AppFinanceiroInadimplenciaRoute
@@ -478,6 +494,7 @@ export interface FileRoutesById {
   '/app/documentos': typeof AppDocumentosRoute
   '/app/encomendas': typeof AppEncomendasRoute
   '/app/financeiro': typeof AppFinanceiroRouteWithChildren
+  '/app/infracoes': typeof AppInfracoesRoute
   '/app/leads': typeof AppLeadsRoute
   '/app/moradores': typeof AppMoradoresRoute
   '/app/ocorrencias': typeof AppOcorrenciasRoute
@@ -503,6 +520,7 @@ export interface FileRoutesById {
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
   '/app/financeiro/acordos': typeof AppFinanceiroAcordosRoute
   '/app/financeiro/categorias': typeof AppFinanceiroCategoriasRoute
+  '/app/financeiro/certidoes': typeof AppFinanceiroCertidoesRoute
   '/app/financeiro/cobrancas': typeof AppFinanceiroCobrancasRoute
   '/app/financeiro/despesas': typeof AppFinanceiroDespesasRoute
   '/app/financeiro/inadimplencia': typeof AppFinanceiroInadimplenciaRoute
@@ -537,6 +555,7 @@ export interface FileRouteTypes {
     | '/app/documentos'
     | '/app/encomendas'
     | '/app/financeiro'
+    | '/app/infracoes'
     | '/app/leads'
     | '/app/moradores'
     | '/app/ocorrencias'
@@ -562,6 +581,7 @@ export interface FileRouteTypes {
     | '/api/public/wa-webhook'
     | '/app/financeiro/acordos'
     | '/app/financeiro/categorias'
+    | '/app/financeiro/certidoes'
     | '/app/financeiro/cobrancas'
     | '/app/financeiro/despesas'
     | '/app/financeiro/inadimplencia'
@@ -591,6 +611,7 @@ export interface FileRouteTypes {
     | '/app/configuracoes'
     | '/app/documentos'
     | '/app/encomendas'
+    | '/app/infracoes'
     | '/app/leads'
     | '/app/moradores'
     | '/app/ocorrencias'
@@ -616,6 +637,7 @@ export interface FileRouteTypes {
     | '/api/public/wa-webhook'
     | '/app/financeiro/acordos'
     | '/app/financeiro/categorias'
+    | '/app/financeiro/certidoes'
     | '/app/financeiro/cobrancas'
     | '/app/financeiro/despesas'
     | '/app/financeiro/inadimplencia'
@@ -648,6 +670,7 @@ export interface FileRouteTypes {
     | '/app/documentos'
     | '/app/encomendas'
     | '/app/financeiro'
+    | '/app/infracoes'
     | '/app/leads'
     | '/app/moradores'
     | '/app/ocorrencias'
@@ -673,6 +696,7 @@ export interface FileRouteTypes {
     | '/api/public/wa-webhook'
     | '/app/financeiro/acordos'
     | '/app/financeiro/categorias'
+    | '/app/financeiro/certidoes'
     | '/app/financeiro/cobrancas'
     | '/app/financeiro/despesas'
     | '/app/financeiro/inadimplencia'
@@ -877,6 +901,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceiroRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/infracoes': {
+      id: '/app/infracoes'
+      path: '/infracoes'
+      fullPath: '/app/infracoes'
+      preLoaderRoute: typeof AppInfracoesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/leads': {
       id: '/app/leads'
       path: '/leads'
@@ -1052,6 +1083,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceiroCategoriasRouteImport
       parentRoute: typeof AppFinanceiroRoute
     }
+    '/app/financeiro/certidoes': {
+      id: '/app/financeiro/certidoes'
+      path: '/certidoes'
+      fullPath: '/app/financeiro/certidoes'
+      preLoaderRoute: typeof AppFinanceiroCertidoesRouteImport
+      parentRoute: typeof AppFinanceiroRoute
+    }
     '/app/financeiro/cobrancas': {
       id: '/app/financeiro/cobrancas'
       path: '/cobrancas'
@@ -1121,6 +1159,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 interface AppFinanceiroRouteChildren {
   AppFinanceiroAcordosRoute: typeof AppFinanceiroAcordosRoute
   AppFinanceiroCategoriasRoute: typeof AppFinanceiroCategoriasRoute
+  AppFinanceiroCertidoesRoute: typeof AppFinanceiroCertidoesRoute
   AppFinanceiroCobrancasRoute: typeof AppFinanceiroCobrancasRoute
   AppFinanceiroDespesasRoute: typeof AppFinanceiroDespesasRoute
   AppFinanceiroInadimplenciaRoute: typeof AppFinanceiroInadimplenciaRoute
@@ -1132,6 +1171,7 @@ interface AppFinanceiroRouteChildren {
 const AppFinanceiroRouteChildren: AppFinanceiroRouteChildren = {
   AppFinanceiroAcordosRoute: AppFinanceiroAcordosRoute,
   AppFinanceiroCategoriasRoute: AppFinanceiroCategoriasRoute,
+  AppFinanceiroCertidoesRoute: AppFinanceiroCertidoesRoute,
   AppFinanceiroCobrancasRoute: AppFinanceiroCobrancasRoute,
   AppFinanceiroDespesasRoute: AppFinanceiroDespesasRoute,
   AppFinanceiroInadimplenciaRoute: AppFinanceiroInadimplenciaRoute,
@@ -1151,6 +1191,7 @@ interface AppRouteChildren {
   AppDocumentosRoute: typeof AppDocumentosRoute
   AppEncomendasRoute: typeof AppEncomendasRoute
   AppFinanceiroRoute: typeof AppFinanceiroRouteWithChildren
+  AppInfracoesRoute: typeof AppInfracoesRoute
   AppLeadsRoute: typeof AppLeadsRoute
   AppMoradoresRoute: typeof AppMoradoresRoute
   AppOcorrenciasRoute: typeof AppOcorrenciasRoute
@@ -1171,6 +1212,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDocumentosRoute: AppDocumentosRoute,
   AppEncomendasRoute: AppEncomendasRoute,
   AppFinanceiroRoute: AppFinanceiroRouteWithChildren,
+  AppInfracoesRoute: AppInfracoesRoute,
   AppLeadsRoute: AppLeadsRoute,
   AppMoradoresRoute: AppMoradoresRoute,
   AppOcorrenciasRoute: AppOcorrenciasRoute,

@@ -41,7 +41,104 @@ const BUSINESS_RULES: Record<string, string> = {
   cnab_nao_configurado: "CNAB não configurado.",
   quantidade_invalida: "Quantidade inválida.",
   nota_invalida: "Nota inválida.",
+
+  // Acordos de parcelamento
+  acordo_nao_encontrado: "Acordo não encontrado.",
+  acordo_nao_ativo: "O acordo não está em cumprimento.",
+  sem_cobrancas: "Escolha ao menos uma cobrança.",
+  cobranca_invalida: "Cobrança inválida para esta operação.",
+  desconto_excede_encargos: "O desconto não pode passar da multa e dos juros.",
+  entrada_excede_total: "A entrada não pode passar do total.",
+  num_parcelas_invalido: "Número de parcelas inválido.",
+
+  // Carta de cobrança e nada consta
+  sem_divida: "Esta unidade não tem valores em aberto.",
+  unidade_com_debito: "A unidade tem valores em aberto.",
+  unidade_com_acordo: "A unidade tem um acordo de parcelamento em cumprimento.",
+  prazo_invalido: "Prazo inválido.",
+  validade_invalida: "Validade inválida.",
+
+  // Advertências e multas
+  infracao_nao_encontrada: "Infração não encontrada.",
+  infracao_ja_cancelada: "A infração já está cancelada.",
+  taxa_mensal_em_falta: "Falta a contribuição mensal da unidade.",
+  multa_acima_do_tecto: "A multa passa do tecto legal.",
+  multa_ja_paga: "A cobrança desta multa já recebeu pagamento.",
+  motivo_obrigatorio: "Informe o motivo.",
+  data_invalida: "Data inválida.",
+  vencimento_invalido: "Vencimento inválido.",
+  valor_invalido: "Valor inválido.",
+  valor_negativo: "O valor não pode ser negativo.",
+  total_invalido: "Total inválido.",
+
+  // Assembleias
+  assembleia_nao_encontrada: "Assembleia não encontrada.",
+  assembleia_ja_convocada: "A assembleia já foi convocada.",
+  assembleia_ja_encerrada: "A assembleia já está encerrada.",
+  assembleia_encerrada_imutavel: "A assembleia está encerrada e não pode ser alterada.",
+  assembleia_nao_aberta: "A assembleia não está aberta.",
+  assembleia_nao_em_curso: "A assembleia não está em curso.",
+  sem_ordem_do_dia: "A assembleia não tem ordem do dia.",
+  pauta_nao_encontrada: "Pauta não encontrada.",
+  pauta_apurada_imutavel: "A pauta já foi apurada e não pode ser alterada.",
+  pauta_ja_apurada: "A pauta já foi apurada.",
+  votacao_nao_aberta: "A votação não está aberta.",
+  votacao_ja_encerrada: "A votação já está encerrada.",
+  votacao_encerrada: "A votação está encerrada.",
+  voto_apurado_imutavel: "O voto já foi apurado e não pode ser alterado.",
+  inadimplente_nao_vota: "Unidade inadimplente não vota (art. 1.335, III).",
+  nao_e_proprietario_da_unidade: "Só o proprietário da unidade pode fazer isto.",
+  nao_e_proprietario: "Só o proprietário pode fazer isto.",
+  nao_e_representante: "Só o representante da unidade vota por ela.",
+  sem_peso_de_voto: "A unidade não tem peso de voto.",
+  fracao_ideal_em_falta: "Falta a fração ideal da unidade.",
+  inicio_no_passado: "O início não pode ser no passado.",
+  janela_invalida: "Janela de votação inválida.",
+  modo_invalido: "Modo inválido.",
+
+  // Balancetes
+  balancete_nao_encontrado: "Balancete não encontrado.",
+  balancete_publicado_imutavel: "O balancete está publicado e não pode ser alterado.",
+  balancete_publicado: "O balancete já está publicado.",
+  balancete_nasce_rascunho: "Um balancete nasce como rascunho.",
+
+  // Coerência entre condomínios — o gatilho diz a coluna e a tabela no HINT,
+  // que não sai daqui: ao cliente basta saber que a referência é de outro
+  // condomínio.
+  condominio_incoerente: "O registo aponta para dados de outro condomínio.",
+  condominio_sem_unidades: "O condomínio não tem unidades.",
+  condominio_ou_cobranca_obrigatorio: "Informe o condomínio ou a cobrança.",
+  unidade_de_outro_condominio: "A unidade é de outro condomínio.",
+  unidade_nao_encontrada: "Unidade não encontrada.",
 };
+
+/**
+ * Regras cujo HINT do Postgres é melhor do que a mensagem fixa — porque diz o
+ * número concreto: qual é o tecto da multa e como foi calculado, quanto a
+ * unidade tem em aberto, qual o acordo que impede o nada consta.
+ *
+ * Só estas. O HINT é texto que nós escrevemos nas migrações, mas não todos
+ * são para o cliente: o de `condominio_incoerente`, por exemplo, nomeia a
+ * coluna e a tabela.
+ */
+const COM_DETALHE = new Set([
+  "multa_acima_do_tecto",
+  "taxa_mensal_em_falta",
+  "multa_ja_paga",
+  "unidade_com_debito",
+  "unidade_com_acordo",
+  "sem_divida",
+  "desconto_excede_encargos",
+  "entrada_excede_total",
+  "data_invalida",
+  "vencimento_invalido",
+  "motivo_obrigatorio",
+  "prazo_invalido",
+  "validade_invalida",
+  "inadimplente_nao_vota",
+  "nao_e_representante",
+  "fracao_ideal_em_falta",
+]);
 
 /** Devolve a mensagem segura para o cliente. */
 export function safeErrorMessage(
@@ -51,9 +148,14 @@ export function safeErrorMessage(
   const raw = String((err as any)?.message ?? err ?? "").trim();
   if (!raw) return fallback;
 
+  const hint = String((err as any)?.hint ?? "").trim();
+
   // Match por palavra-chave de regra de negócio (lançada via RAISE EXCEPTION)
   for (const key of Object.keys(BUSINESS_RULES)) {
-    if (raw === key || raw.includes(key)) return BUSINESS_RULES[key];
+    if (raw === key || raw.includes(key)) {
+      if (hint && COM_DETALHE.has(key)) return `${BUSINESS_RULES[key]} ${hint}`;
+      return BUSINESS_RULES[key];
+    }
   }
 
   // Erros HTTP/postgres conhecidos -> mensagem amigável

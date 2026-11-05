@@ -641,6 +641,63 @@ export type Database = {
           },
         ];
       };
+      certidoes: {
+        Row: {
+          codigo: string;
+          condominio_id: string;
+          created_at: string;
+          dados: Json;
+          emitida_em: string;
+          emitida_por: string | null;
+          id: string;
+          numero: number;
+          tipo: Database["public"]["Enums"]["certidao_tipo"];
+          unidade_id: string;
+          valida_ate: string;
+        };
+        Insert: {
+          codigo: string;
+          condominio_id: string;
+          created_at?: string;
+          dados: Json;
+          emitida_em?: string;
+          emitida_por?: string | null;
+          id?: string;
+          numero: number;
+          tipo?: Database["public"]["Enums"]["certidao_tipo"];
+          unidade_id: string;
+          valida_ate: string;
+        };
+        Update: {
+          codigo?: string;
+          condominio_id?: string;
+          created_at?: string;
+          dados?: Json;
+          emitida_em?: string;
+          emitida_por?: string | null;
+          id?: string;
+          numero?: number;
+          tipo?: Database["public"]["Enums"]["certidao_tipo"];
+          unidade_id?: string;
+          valida_ate?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "certidoes_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "certidoes_unidade_id_fkey";
+            columns: ["unidade_id"];
+            isOneToOne: false;
+            referencedRelation: "unidades";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       cnab_config: {
         Row: {
           agencia: string | null;
@@ -1516,6 +1573,104 @@ export type Database = {
           },
           {
             foreignKeyName: "encomendas_unidade_id_fkey";
+            columns: ["unidade_id"];
+            isOneToOne: false;
+            referencedRelation: "unidades";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      infracoes: {
+        Row: {
+          assembleia_id: string | null;
+          base_legal: Database["public"]["Enums"]["infracao_base"] | null;
+          cancelada_em: string | null;
+          cancelamento_motivo: string | null;
+          cobranca_id: string | null;
+          condominio_id: string;
+          created_at: string;
+          data_ocorrencia: string;
+          deliberacao: string | null;
+          descricao: string;
+          id: string;
+          local: string | null;
+          numero: number;
+          referencia_mensal: number | null;
+          registrada_por: string | null;
+          status: Database["public"]["Enums"]["infracao_status"];
+          tipo: Database["public"]["Enums"]["infracao_tipo"];
+          unidade_id: string;
+          updated_at: string;
+          valor: number | null;
+        };
+        Insert: {
+          assembleia_id?: string | null;
+          base_legal?: Database["public"]["Enums"]["infracao_base"] | null;
+          cancelada_em?: string | null;
+          cancelamento_motivo?: string | null;
+          cobranca_id?: string | null;
+          condominio_id: string;
+          created_at?: string;
+          data_ocorrencia: string;
+          deliberacao?: string | null;
+          descricao: string;
+          id?: string;
+          local?: string | null;
+          numero: number;
+          referencia_mensal?: number | null;
+          registrada_por?: string | null;
+          status?: Database["public"]["Enums"]["infracao_status"];
+          tipo: Database["public"]["Enums"]["infracao_tipo"];
+          unidade_id: string;
+          updated_at?: string;
+          valor?: number | null;
+        };
+        Update: {
+          assembleia_id?: string | null;
+          base_legal?: Database["public"]["Enums"]["infracao_base"] | null;
+          cancelada_em?: string | null;
+          cancelamento_motivo?: string | null;
+          cobranca_id?: string | null;
+          condominio_id?: string;
+          created_at?: string;
+          data_ocorrencia?: string;
+          deliberacao?: string | null;
+          descricao?: string;
+          id?: string;
+          local?: string | null;
+          numero?: number;
+          referencia_mensal?: number | null;
+          registrada_por?: string | null;
+          status?: Database["public"]["Enums"]["infracao_status"];
+          tipo?: Database["public"]["Enums"]["infracao_tipo"];
+          unidade_id?: string;
+          updated_at?: string;
+          valor?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "infracoes_assembleia_id_fkey";
+            columns: ["assembleia_id"];
+            isOneToOne: false;
+            referencedRelation: "assembleias";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "infracoes_cobranca_id_fkey";
+            columns: ["cobranca_id"];
+            isOneToOne: false;
+            referencedRelation: "cobrancas";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "infracoes_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "infracoes_unidade_id_fkey";
             columns: ["unidade_id"];
             isOneToOne: false;
             referencedRelation: "unidades";
@@ -2783,6 +2938,22 @@ export type Database = {
         Returns: number;
       };
       aplicar_encargos_atraso_todos: { Args: never; Returns: number };
+      aplicar_multa: {
+        Args: {
+          _assembleia_id?: string;
+          _base_legal: Database["public"]["Enums"]["infracao_base"];
+          _categoria_id?: string;
+          _condominio_id: string;
+          _data_ocorrencia: string;
+          _deliberacao?: string;
+          _descricao: string;
+          _local?: string;
+          _unidade_id: string;
+          _valor: number;
+          _vencimento: string;
+        };
+        Returns: string;
+      };
       aprovar_reserva: { Args: { _reserva_id: string }; Returns: undefined };
       apurar_pauta: { Args: { _pauta_id: string }; Returns: Json };
       atribuir_ocorrencia: {
@@ -2821,7 +2992,15 @@ export type Database = {
         Args: { _assembleia_id: string; _motivo?: string };
         Returns: undefined;
       };
+      cancelar_infracao: {
+        Args: { _infracao_id: string; _motivo: string };
+        Returns: undefined;
+      };
       cancelar_reserva: { Args: { _reserva_id: string }; Returns: undefined };
+      carta_cobranca: {
+        Args: { _prazo_dias?: number; _unidade_id: string };
+        Returns: Json;
+      };
       claim_platform_admin: { Args: never; Returns: boolean };
       cnab_alocar_nosso_numero: {
         Args: { _condominio_id: string; _quantidade: number };
@@ -2846,6 +3025,10 @@ export type Database = {
       comentar_ocorrencia: {
         Args: { _interno: boolean; _mensagem: string; _ocorrencia_id: string };
         Returns: string;
+      };
+      conferir_certidao: {
+        Args: { _codigo: string };
+        Returns: Json;
       };
       contar_usuarios_empresa: {
         Args: { _condominio_id: string };
@@ -2909,6 +3092,10 @@ export type Database = {
         Returns: boolean;
       };
       disparar_lembretes_cobranca: { Args: never; Returns: undefined };
+      divida_da_unidade: {
+        Args: { _unidade_id: string };
+        Returns: Json;
+      };
       elegibilidade_assembleia: {
         Args: { _assembleia_id: string };
         Returns: {
@@ -2922,6 +3109,10 @@ export type Database = {
           representante_nome: string;
           unidade_id: string;
         }[];
+      };
+      emitir_nada_consta: {
+        Args: { _unidade_id: string; _validade_dias?: number };
+        Returns: string;
       };
       encerrar_assembleia: {
         Args: { _assembleia_id: string };
@@ -3055,6 +3246,16 @@ export type Database = {
         Args: { _motivo: string; _visitante_id: string };
         Returns: undefined;
       };
+      registrar_advertencia: {
+        Args: {
+          _condominio_id: string;
+          _data_ocorrencia: string;
+          _descricao: string;
+          _local?: string;
+          _unidade_id: string;
+        };
+        Returns: string;
+      };
       registrar_encomenda: {
         Args: {
           _codigo_rastreio: string;
@@ -3108,6 +3309,10 @@ export type Database = {
           _unidade_id: string;
         };
         Returns: undefined;
+      };
+      reincidencia_da_unidade: {
+        Args: { _unidade_id: string };
+        Returns: Json;
       };
       relatorio_inadimplencia: {
         Args: { _condominio_id: string };
@@ -3174,6 +3379,7 @@ export type Database = {
       assembleia_status: "rascunho" | "convocada" | "em_curso" | "encerrada" | "cancelada";
       assembleia_tipo: "ordinaria" | "extraordinaria";
       balancete_status: "rascunho" | "publicado";
+      certidao_tipo: "nada_consta";
       cnab_banco: "sicoob" | "itau" | "bradesco" | "bb" | "caixa" | "santander" | "generico";
       cnab_evento_tipo: "liquidacao" | "baixa" | "rejeicao" | "protesto" | "outros";
       cnab_remessa_status: "gerada" | "enviada" | "processada" | "erro";
@@ -3190,6 +3396,9 @@ export type Database = {
         | "outros";
       encomenda_status: "aguardando" | "retirada" | "devolvida";
       forma_pagamento: "pix" | "boleto" | "dinheiro" | "transferencia" | "cartao" | "outro";
+      infracao_base: "convencao" | "art_1336_p2" | "art_1337_caput" | "art_1337_unico";
+      infracao_status: "vigente" | "cancelada";
+      infracao_tipo: "advertencia" | "multa";
       maioria_tipo:
         | "maioria_presentes"
         | "maioria_condominos"

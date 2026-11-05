@@ -8,6 +8,135 @@ export type Database = {
   };
   public: {
     Tables: {
+      acordo_itens: {
+        Row: {
+          acordo_id: string;
+          cobranca_id: string;
+          created_at: string;
+          id: string;
+          juros: number;
+          multa: number;
+          principal: number;
+        };
+        Insert: {
+          acordo_id: string;
+          cobranca_id: string;
+          created_at?: string;
+          id?: string;
+          juros: number;
+          multa: number;
+          principal: number;
+        };
+        Update: {
+          acordo_id?: string;
+          cobranca_id?: string;
+          created_at?: string;
+          id?: string;
+          juros?: number;
+          multa?: number;
+          principal?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "acordo_itens_acordo_id_fkey";
+            columns: ["acordo_id"];
+            isOneToOne: false;
+            referencedRelation: "acordos";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "acordo_itens_cobranca_id_fkey";
+            columns: ["cobranca_id"];
+            isOneToOne: false;
+            referencedRelation: "cobrancas";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      acordos: {
+        Row: {
+          autorizacao: string | null;
+          condominio_id: string;
+          created_at: string;
+          criado_por: string | null;
+          data_acordo: string;
+          id: string;
+          num_parcelas: number;
+          numero: number;
+          observacoes: string | null;
+          rescindido_em: string | null;
+          rescisao_motivo: string | null;
+          status: Database["public"]["Enums"]["acordo_status"];
+          unidade_id: string;
+          updated_at: string;
+          valor_desconto: number;
+          valor_entrada: number;
+          valor_juros: number;
+          valor_multa: number;
+          valor_principal: number;
+          valor_total: number;
+        };
+        Insert: {
+          autorizacao?: string | null;
+          condominio_id: string;
+          created_at?: string;
+          criado_por?: string | null;
+          data_acordo?: string;
+          id?: string;
+          num_parcelas: number;
+          numero: number;
+          observacoes?: string | null;
+          rescindido_em?: string | null;
+          rescisao_motivo?: string | null;
+          status?: Database["public"]["Enums"]["acordo_status"];
+          unidade_id: string;
+          updated_at?: string;
+          valor_desconto?: number;
+          valor_entrada?: number;
+          valor_juros: number;
+          valor_multa: number;
+          valor_principal: number;
+          valor_total: number;
+        };
+        Update: {
+          autorizacao?: string | null;
+          condominio_id?: string;
+          created_at?: string;
+          criado_por?: string | null;
+          data_acordo?: string;
+          id?: string;
+          num_parcelas?: number;
+          numero?: number;
+          observacoes?: string | null;
+          rescindido_em?: string | null;
+          rescisao_motivo?: string | null;
+          status?: Database["public"]["Enums"]["acordo_status"];
+          unidade_id?: string;
+          updated_at?: string;
+          valor_desconto?: number;
+          valor_entrada?: number;
+          valor_juros?: number;
+          valor_multa?: number;
+          valor_principal?: number;
+          valor_total?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "acordos_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "acordos_unidade_id_fkey";
+            columns: ["unidade_id"];
+            isOneToOne: false;
+            referencedRelation: "unidades";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       admin_audit_log: {
         Row: {
           acao: string;
@@ -75,6 +204,13 @@ export type Database = {
             columns: ["area_id"];
             isOneToOne: false;
             referencedRelation: "areas_comuns";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "area_bloqueios_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
             referencedColumns: ["id"];
           },
         ];
@@ -155,7 +291,15 @@ export type Database = {
           taxa_uso?: number;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "areas_comuns_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       assembleia_pautas: {
         Row: {
@@ -549,7 +693,15 @@ export type Database = {
           updated_at?: string;
           variacao?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "cnab_config_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: true;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       cnab_remessa_itens: {
         Row: {
@@ -580,6 +732,13 @@ export type Database = {
           vencimento?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "cnab_remessa_itens_cobranca_id_fkey";
+            columns: ["cobranca_id"];
+            isOneToOne: false;
+            referencedRelation: "cobrancas";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "cnab_remessa_itens_remessa_id_fkey";
             columns: ["remessa_id"];
@@ -635,7 +794,15 @@ export type Database = {
           total_titulos?: number;
           valor_total?: number;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "cnab_remessas_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       cnab_retorno_eventos: {
         Row: {
@@ -675,6 +842,13 @@ export type Database = {
           valor?: number | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "cnab_retorno_eventos_cobranca_id_fkey";
+            columns: ["cobranca_id"];
+            isOneToOne: false;
+            referencedRelation: "cobrancas";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "cnab_retorno_eventos_retorno_id_fkey";
             columns: ["retorno_id"];
@@ -718,10 +892,19 @@ export type Database = {
           total_eventos?: number;
           valor_total_liquidado?: number;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "cnab_retornos_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       cobrancas: {
         Row: {
+          acordo_id: string | null;
           categoria_id: string | null;
           competencia: string;
           condominio_id: string;
@@ -737,6 +920,7 @@ export type Database = {
           mp_ticket_url: string | null;
           multa: number;
           pago_em: string | null;
+          parcela_num: number | null;
           status: Database["public"]["Enums"]["cobranca_status"];
           unidade_id: string;
           updated_at: string;
@@ -745,6 +929,7 @@ export type Database = {
           vencimento: string;
         };
         Insert: {
+          acordo_id?: string | null;
           categoria_id?: string | null;
           competencia: string;
           condominio_id: string;
@@ -760,6 +945,7 @@ export type Database = {
           mp_ticket_url?: string | null;
           multa?: number;
           pago_em?: string | null;
+          parcela_num?: number | null;
           status?: Database["public"]["Enums"]["cobranca_status"];
           unidade_id: string;
           updated_at?: string;
@@ -768,6 +954,7 @@ export type Database = {
           vencimento: string;
         };
         Update: {
+          acordo_id?: string | null;
           categoria_id?: string | null;
           competencia?: string;
           condominio_id?: string;
@@ -783,6 +970,7 @@ export type Database = {
           mp_ticket_url?: string | null;
           multa?: number;
           pago_em?: string | null;
+          parcela_num?: number | null;
           status?: Database["public"]["Enums"]["cobranca_status"];
           unidade_id?: string;
           updated_at?: string;
@@ -791,6 +979,13 @@ export type Database = {
           vencimento?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "cobrancas_acordo_id_fkey";
+            columns: ["acordo_id"];
+            isOneToOne: false;
+            referencedRelation: "acordos";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "cobrancas_categoria_id_fkey";
             columns: ["categoria_id"];
@@ -1150,7 +1345,15 @@ export type Database = {
           updated_at?: string;
           visivel_publico?: boolean;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "documentos_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       email_send_log: {
         Row: {
@@ -1303,7 +1506,22 @@ export type Database = {
           unidade_id?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "encomendas_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "encomendas_unidade_id_fkey";
+            columns: ["unidade_id"];
+            isOneToOne: false;
+            referencedRelation: "unidades";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       leads: {
         Row: {
@@ -1402,7 +1620,22 @@ export type Database = {
           status?: Database["public"]["Enums"]["wa_status"];
           unidade_id?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "notificacoes_whatsapp_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notificacoes_whatsapp_unidade_id_fkey";
+            columns: ["unidade_id"];
+            isOneToOne: false;
+            referencedRelation: "unidades";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       ocorrencia_anexos: {
         Row: {
@@ -1433,6 +1666,13 @@ export type Database = {
           url?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "ocorrencia_anexos_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "ocorrencia_anexos_ocorrencia_id_fkey";
             columns: ["ocorrencia_id"];
@@ -1471,6 +1711,13 @@ export type Database = {
           ocorrencia_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "ocorrencia_comentarios_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "ocorrencia_comentarios_ocorrencia_id_fkey";
             columns: ["ocorrencia_id"];
@@ -1553,7 +1800,22 @@ export type Database = {
           unidade_id?: string | null;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "ocorrencias_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "ocorrencias_unidade_id_fkey";
+            columns: ["unidade_id"];
+            isOneToOne: false;
+            referencedRelation: "unidades";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       pagamentos: {
         Row: {
@@ -1724,6 +1986,27 @@ export type Database = {
             columns: ["area_id"];
             isOneToOne: false;
             referencedRelation: "areas_comuns";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reservas_cobranca_id_fkey";
+            columns: ["cobranca_id"];
+            isOneToOne: false;
+            referencedRelation: "cobrancas";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reservas_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reservas_unidade_id_fkey";
+            columns: ["unidade_id"];
+            isOneToOne: false;
+            referencedRelation: "unidades";
             referencedColumns: ["id"];
           },
         ];
@@ -1936,7 +2219,22 @@ export type Database = {
           updated_at?: string;
           valido_ate?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "visitantes_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "visitantes_unidade_id_fkey";
+            columns: ["unidade_id"];
+            isOneToOne: false;
+            referencedRelation: "unidades";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       wa_bot_estado: {
         Row: {
@@ -2028,7 +2326,15 @@ export type Database = {
           updated_at?: string;
           webhook_verify_token?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "wa_config_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: true;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       wa_conversas: {
         Row: {
@@ -2067,7 +2373,22 @@ export type Database = {
           updated_at?: string;
           user_id?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "wa_conversas_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "wa_conversas_unidade_id_fkey";
+            columns: ["unidade_id"];
+            isOneToOne: false;
+            referencedRelation: "unidades";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       wa_mensagens: {
         Row: {
@@ -2125,6 +2446,13 @@ export type Database = {
           wa_message_id?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "wa_mensagens_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "wa_mensagens_conversa_id_fkey";
             columns: ["conversa_id"];
@@ -2192,7 +2520,15 @@ export type Database = {
           updated_at?: string;
           wa_message_id?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "wa_notif_jobs_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       wa_preferencias: {
         Row: {
@@ -2228,7 +2564,15 @@ export type Database = {
           updated_at?: string;
           user_id?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "wa_preferencias_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: {
@@ -2356,6 +2700,18 @@ export type Database = {
       };
     };
     Functions: {
+      _acordo_calcular: {
+        Args: {
+          _cobranca_ids: string[];
+          _condominio_id: string;
+          _desconto: number;
+          _entrada: number;
+          _num_parcelas: number;
+          _primeiro_vencimento: string;
+          _unidade_id: string;
+        };
+        Returns: Json;
+      };
       _aplicar_encargos: {
         Args: {
           _cobranca_id: string;
@@ -2498,6 +2854,21 @@ export type Database = {
       convocar_assembleia: {
         Args: { _assembleia_id: string };
         Returns: undefined;
+      };
+      criar_acordo: {
+        Args: {
+          _autorizacao?: string;
+          _categoria_id?: string;
+          _cobranca_ids: string[];
+          _condominio_id: string;
+          _desconto: number;
+          _entrada: number;
+          _num_parcelas: number;
+          _observacoes?: string;
+          _primeiro_vencimento: string;
+          _unidade_id: string;
+        };
+        Returns: string;
       };
       criar_assembleia: {
         Args: {
@@ -2754,6 +3125,22 @@ export type Database = {
         }[];
       };
       remover_pauta: { Args: { _pauta_id: string }; Returns: undefined };
+      rescindir_acordo: {
+        Args: { _acordo_id: string; _motivo?: string };
+        Returns: string;
+      };
+      simular_acordo: {
+        Args: {
+          _cobranca_ids: string[];
+          _condominio_id: string;
+          _desconto: number;
+          _entrada: number;
+          _num_parcelas: number;
+          _primeiro_vencimento: string;
+          _unidade_id: string;
+        };
+        Returns: Json;
+      };
       solicitar_reserva: {
         Args: {
           _area_id: string;
@@ -2771,6 +3158,7 @@ export type Database = {
       };
     };
     Enums: {
+      acordo_status: "ativo" | "quitado" | "rescindido" | "cancelado";
       app_role:
         | "sindico"
         | "morador"
@@ -2789,7 +3177,7 @@ export type Database = {
       cnab_banco: "sicoob" | "itau" | "bradesco" | "bb" | "caixa" | "santander" | "generico";
       cnab_evento_tipo: "liquidacao" | "baixa" | "rejeicao" | "protesto" | "outros";
       cnab_remessa_status: "gerada" | "enviada" | "processada" | "erro";
-      cobranca_status: "pendente" | "paga" | "vencida" | "cancelada" | "parcial";
+      cobranca_status: "pendente" | "paga" | "vencida" | "cancelada" | "parcial" | "em_acordo";
       convite_status: "pendente" | "aceito" | "expirado" | "cancelado";
       documento_categoria:
         | "convencao"
@@ -2959,6 +3347,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      acordo_status: ["ativo", "quitado", "rescindido", "cancelado"],
       app_role: [
         "sindico",
         "morador",
@@ -2978,7 +3367,7 @@ export const Constants = {
       cnab_banco: ["sicoob", "itau", "bradesco", "bb", "caixa", "santander", "generico"],
       cnab_evento_tipo: ["liquidacao", "baixa", "rejeicao", "protesto", "outros"],
       cnab_remessa_status: ["gerada", "enviada", "processada", "erro"],
-      cobranca_status: ["pendente", "paga", "vencida", "cancelada", "parcial"],
+      cobranca_status: ["pendente", "paga", "vencida", "cancelada", "parcial", "em_acordo"],
       convite_status: ["pendente", "aceito", "expirado", "cancelado"],
       documento_categoria: [
         "convencao",

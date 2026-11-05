@@ -2,9 +2,14 @@
  * Helpers partilhados para construir links wa.me com validação e formato
  * de telefone padronizados em todo o site (Contato, Preços, Home, etc.).
  */
+import { WHATSAPP } from "@/lib/empresa";
 
-/** Número oficial do QiCond (E.164 sem o "+", como exigido pelo wa.me). */
-export const WHATSAPP_NUMBER = "5561982750884";
+/**
+ * Número oficial, em E.164 sem o "+", como o wa.me exige. Reexportado daqui
+ * por retro-compatibilidade — o número em si vive em `empresa.ts`, com os
+ * restantes contactos.
+ */
+export const WHATSAPP_NUMBER = WHATSAPP;
 
 /** DDDs brasileiros válidos. */
 export const DDD_VALIDOS = new Set([

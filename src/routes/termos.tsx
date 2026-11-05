@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import type { ReactNode } from "react";
+import { CNPJ, EMAIL, ENDERECO_LINHA, RAZAO_SOCIAL } from "@/lib/empresa";
 
 export function LegalPage({
   title,
@@ -99,13 +100,23 @@ function TermosPage() {
       </p>
 
       <h2>9. Foro</h2>
-      <p>Fica eleito o foro da comarca de São Paulo/SP para dirimir quaisquer controvérsias.</p>
+      <p>
+        Fica eleito o foro de Brasília/DF para dirimir quaisquer controvérsias, como consta do
+        contrato social.
+      </p>
 
       <h2>10. Contato</h2>
       <p>
-        Dúvidas? Escreva para{" "}
-        <a href="mailto:qidomino@gmail.com" className="text-primary">
-          qidomino@gmail.com
+        O serviço é prestado por {RAZAO_SOCIAL}, CNPJ {CNPJ}, com sede em {ENDERECO_LINHA}.
+      </p>
+      <p>
+        Dúvidas sobre o contrato ou a fatura:{" "}
+        <a href={`mailto:${EMAIL.administrativo}`} className="text-primary">
+          {EMAIL.administrativo}
+        </a>
+        . Dúvidas sobre o uso do sistema:{" "}
+        <a href={`mailto:${EMAIL.suporte}`} className="text-primary">
+          {EMAIL.suporte}
         </a>
         .
       </p>

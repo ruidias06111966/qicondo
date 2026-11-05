@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { CNPJ, EMAIL, ENDERECO_LINHA, RAZAO_SOCIAL } from "@/lib/empresa";
 
 export const Route = createFileRoute("/privacidade")({
   head: () => ({
@@ -108,10 +109,13 @@ function PrivacidadePage() {
           <h2 className="font-display font-extrabold text-2xl text-foreground mt-10">
             7. Encarregado de dados (DPO)
           </h2>
+          <p>
+            O controlador dos dados é {RAZAO_SOCIAL}, CNPJ {CNPJ}, com sede em {ENDERECO_LINHA}.
+          </p>
           <p>Para exercer seus direitos ou tirar dúvidas sobre privacidade, fale com nosso DPO:</p>
           <p>
-            <a href="mailto:qidomino@gmail.com" className="text-primary font-semibold">
-              qidomino@gmail.com
+            <a href={`mailto:${EMAIL.encarregado}`} className="text-primary font-semibold">
+              {EMAIL.encarregado}
             </a>
           </p>
         </div>

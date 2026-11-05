@@ -1972,6 +1972,139 @@ export type Database = {
           },
         ];
       };
+      orcamento_itens: {
+        Row: {
+          categoria_id: string;
+          condominio_id: string;
+          created_at: string;
+          id: string;
+          indice: Database["public"]["Enums"]["indice_reajuste"];
+          observacao: string | null;
+          orcamento_id: string;
+          ordem: number;
+          percentual: number;
+          realizado_base: number;
+          updated_at: string;
+          valor_previsto: number;
+        };
+        Insert: {
+          categoria_id: string;
+          condominio_id: string;
+          created_at?: string;
+          id?: string;
+          indice?: Database["public"]["Enums"]["indice_reajuste"];
+          observacao?: string | null;
+          orcamento_id: string;
+          ordem?: number;
+          percentual?: number;
+          realizado_base?: number;
+          updated_at?: string;
+          valor_previsto?: number;
+        };
+        Update: {
+          categoria_id?: string;
+          condominio_id?: string;
+          created_at?: string;
+          id?: string;
+          indice?: Database["public"]["Enums"]["indice_reajuste"];
+          observacao?: string | null;
+          orcamento_id?: string;
+          ordem?: number;
+          percentual?: number;
+          realizado_base?: number;
+          updated_at?: string;
+          valor_previsto?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "orcamento_itens_categoria_id_fkey";
+            columns: ["categoria_id"];
+            isOneToOne: false;
+            referencedRelation: "categorias_financeiras";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "orcamento_itens_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "orcamento_itens_orcamento_id_fkey";
+            columns: ["orcamento_id"];
+            isOneToOne: false;
+            referencedRelation: "orcamentos";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      orcamentos: {
+        Row: {
+          ano: number;
+          ano_base: number;
+          aprovado_em: string | null;
+          aprovado_por: string | null;
+          assembleia_id: string | null;
+          condominio_id: string;
+          created_at: string;
+          criado_por: string | null;
+          fundo_reserva_percentual: number;
+          id: string;
+          inadimplencia_prevista: number;
+          premissas: string | null;
+          status: Database["public"]["Enums"]["orcamento_status"];
+          updated_at: string;
+        };
+        Insert: {
+          ano: number;
+          ano_base: number;
+          aprovado_em?: string | null;
+          aprovado_por?: string | null;
+          assembleia_id?: string | null;
+          condominio_id: string;
+          created_at?: string;
+          criado_por?: string | null;
+          fundo_reserva_percentual?: number;
+          id?: string;
+          inadimplencia_prevista?: number;
+          premissas?: string | null;
+          status?: Database["public"]["Enums"]["orcamento_status"];
+          updated_at?: string;
+        };
+        Update: {
+          ano?: number;
+          ano_base?: number;
+          aprovado_em?: string | null;
+          aprovado_por?: string | null;
+          assembleia_id?: string | null;
+          condominio_id?: string;
+          created_at?: string;
+          criado_por?: string | null;
+          fundo_reserva_percentual?: number;
+          id?: string;
+          inadimplencia_prevista?: number;
+          premissas?: string | null;
+          status?: Database["public"]["Enums"]["orcamento_status"];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "orcamentos_assembleia_id_fkey";
+            columns: ["assembleia_id"];
+            isOneToOne: false;
+            referencedRelation: "assembleias";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "orcamentos_condominio_id_fkey";
+            columns: ["condominio_id"];
+            isOneToOne: false;
+            referencedRelation: "condominios";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       pagamentos: {
         Row: {
           cobranca_id: string | null;
@@ -2954,10 +3087,33 @@ export type Database = {
         };
         Returns: string;
       };
+      aprovar_orcamento: {
+        Args: { _assembleia_id: string; _orcamento_id: string };
+        Returns: undefined;
+      };
       aprovar_reserva: { Args: { _reserva_id: string }; Returns: undefined };
       apurar_pauta: { Args: { _pauta_id: string }; Returns: Json };
       atribuir_ocorrencia: {
         Args: { _atribuido_a: string; _ocorrencia_id: string };
+        Returns: undefined;
+      };
+      atualizar_item_orcamento: {
+        Args: {
+          _indice: Database["public"]["Enums"]["indice_reajuste"];
+          _item_id: string;
+          _observacao?: string;
+          _percentual: number;
+          _valor_previsto?: number;
+        };
+        Returns: number;
+      };
+      atualizar_orcamento: {
+        Args: {
+          _fundo_reserva?: number;
+          _inadimplencia?: number;
+          _orcamento_id: string;
+          _premissas?: string;
+        };
         Returns: undefined;
       };
       atualizar_status_ocorrencia: {
@@ -3083,6 +3239,17 @@ export type Database = {
         };
         Returns: string;
       };
+      criar_orcamento: {
+        Args: {
+          _ano: number;
+          _ano_base: number;
+          _condominio_id: string;
+          _fundo_reserva?: number;
+          _inadimplencia?: number;
+          _premissas?: string;
+        };
+        Returns: string;
+      };
       definir_representante: {
         Args: { _unidade_id: string; _user_id: string };
         Returns: undefined;
@@ -3201,6 +3368,10 @@ export type Database = {
         };
         Returns: number;
       };
+      orcado_x_realizado: {
+        Args: { _ate_mes?: number; _orcamento_id: string };
+        Returns: Json;
+      };
       pode_gerir_financeiro: {
         Args: { _condominio_id: string; _user_id: string };
         Returns: boolean;
@@ -3218,6 +3389,17 @@ export type Database = {
       publicar_balancete: {
         Args: { _balancete_id: string };
         Returns: undefined;
+      };
+      quotas_do_orcamento: {
+        Args: { _orcamento_id: string };
+        Returns: {
+          bloco: string;
+          fracao_ideal: number;
+          numero: string;
+          quota_mensal: number;
+          taxa_actual: number;
+          unidade_id: string;
+        }[];
       };
       ratear_por_fracao_ideal: {
         Args: { _condominio_id: string; _total: number };
@@ -3237,6 +3419,10 @@ export type Database = {
           msg_id: number;
           read_ct: number;
         }[];
+      };
+      realizado_por_categoria: {
+        Args: { _ano: number; _condominio_id: string };
+        Returns: Json;
       };
       recusar_reserva: {
         Args: { _motivo: string; _reserva_id: string };
@@ -3334,6 +3520,10 @@ export type Database = {
         Args: { _acordo_id: string; _motivo?: string };
         Returns: string;
       };
+      resumo_orcamento: {
+        Args: { _orcamento_id: string };
+        Returns: Json;
+      };
       simular_acordo: {
         Args: {
           _cobranca_ids: string[];
@@ -3396,6 +3586,7 @@ export type Database = {
         | "outros";
       encomenda_status: "aguardando" | "retirada" | "devolvida";
       forma_pagamento: "pix" | "boleto" | "dinheiro" | "transferencia" | "cartao" | "outro";
+      indice_reajuste: "ipca" | "inpc" | "igpm" | "incc" | "cct" | "tarifa" | "manual" | "nenhum";
       infracao_base: "convencao" | "art_1336_p2" | "art_1337_caput" | "art_1337_unico";
       infracao_status: "vigente" | "cancelada";
       infracao_tipo: "advertencia" | "multa";
@@ -3416,6 +3607,7 @@ export type Database = {
       ocorrencia_prioridade: "baixa" | "media" | "alta" | "urgente";
       ocorrencia_status:
         "aberta" | "em_andamento" | "aguardando_morador" | "resolvida" | "fechada" | "cancelada";
+      orcamento_status: "rascunho" | "aprovado";
       plano_tipo: "basico" | "profissional" | "admin" | "enterprise";
       reserva_status: "pendente" | "confirmada" | "recusada" | "cancelada" | "concluida";
       tipo_lancamento: "receita" | "despesa";

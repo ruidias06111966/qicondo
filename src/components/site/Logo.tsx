@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import logoMark from "@/assets/whatscond-logo.png";
+import logoMark from "@/assets/qicond-mark.png";
 
 export function Logo({
   size = "md",
@@ -12,18 +12,16 @@ export function Logo({
   const text = size === "sm" ? "text-base" : size === "lg" ? "text-2xl" : "text-xl";
   return (
     <Link to="/" className="flex items-center gap-2.5 group" aria-label="QiCond">
-      <span
-        className={`${dims} flex items-center justify-center rounded-[10px] bg-primary-soft p-1 shadow-[var(--shadow-soft)] group-hover:scale-[1.03] transition-transform`}
-      >
-        <img
-          src={logoMark}
-          alt="QiCond"
-          width={44}
-          height={44}
-          loading="lazy"
-          className="h-full w-full object-contain"
-        />
-      </span>
+      {/* A marca traz o seu próprio quadrado verde arredondado. O invólucro
+          que havia aqui — fundo `primary-soft` com recuo — desenhava um
+          segundo quadrado à volta do primeiro. */}
+      <img
+        src={logoMark}
+        alt="QiCond"
+        width={44}
+        height={44}
+        className={`${dims} object-contain group-hover:scale-[1.03] transition-transform`}
+      />
       <span
         className={`font-display font-extrabold tracking-tight ${text} ${inverse ? "text-white" : "text-foreground"}`}
       >

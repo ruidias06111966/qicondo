@@ -117,6 +117,11 @@ export type Elegibilidade = {
   peso: number;
   elegivel: boolean;
   motivo: string | null;
+  /** Se é este utilizador que exerce o voto da unidade. Numa unidade com um
+   *  só dono coincide com ser proprietário; com vários, só o representante. */
+  pode_votar: boolean;
+  /** Quem representa a unidade, para a interface poder dizer a quem falar. */
+  representante_nome: string | null;
 };
 
 const MAIORIA = z.enum([
@@ -178,22 +183,36 @@ export const listarElegibilidade = createServerFn({ method: "POST" })
     return (rows ?? []) as unknown as Elegibilidade[];
   });
 
-/** As unidades de que o utilizador é proprietário neste condomínio — é por elas
- *  que pode votar, e só por elas (art. 1.335). */
+/** As unidades cujo voto este utilizador exerce neste condomínio.
+ *
+ *  Não basta ser proprietário: numa unidade com mais de um dono, o voto é um
+ *  só e cabe a quem a representa (art. 1.335, III c/c art. 1.314). Com um
+ *  único dono as duas condições coincidem, porque a designação é automática. */
 export const minhasUnidades = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ condominio_id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("unidade_moradores")
-      .select("unidade_id, vinculo, unidades!inner(id, bloco, numero, condominio_id)")
+      .select(
+        "unidade_id, vinculo, representante, unidades!inner(id, bloco, numero, condominio_id)",
+      )
       .eq("vinculo", "proprietario")
       .eq("unidades.condominio_id", data.condominio_id);
     if (error) throwSafe(error);
 
+    // Devolve todas as unidades de que é dono, não só aquelas cujo voto exerce.
+    // As outras a interface tem de mostrar na mesma, a dizer quem as
+    // representa — caso contrário o coproprietário não vê a unidade em lado
+    // nenhum e fica sem perceber porquê.
     return (rows ?? []).map((r: Record<string, unknown>) => {
       const u = r.unidades as { id: string; bloco: string | null; numero: string };
-      return { unidade_id: u.id, bloco: u.bloco, numero: u.numero };
+      return {
+        unidade_id: u.id,
+        bloco: u.bloco,
+        numero: u.numero,
+        representa: Boolean(r.representante),
+      };
     });
   });
 
@@ -384,4 +403,47 @@ export const cancelarAssembleia = createServerFn({ method: "POST" })
     });
     if (error) throwSafe(error);
     return { ok: true };
+  });
+
+/** Regista a designação de representante de uma unidade.
+ *
+ *  A escolha é dos comproprietários; o que a administração faz é registá-la,
+ *  e por isso só o síndico chama. Se qualquer coproprietário pudesse chamar a
+ *  si a representação, bastava fazê-lo minutos antes da votação para tomar a
+ *  unidade ao outro. */
+export const definirRepresentante = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        unidade_id: z.string().uuid(),
+        user_id: z.string().uuid(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.rpc("definir_representante", {
+      _unidade_id: data.unidade_id,
+      _user_id: data.user_id,
+    });
+    if (error) throwSafe(error);
+    return { ok: true };
+  });
+
+export type ProprietarioDaUnidade = {
+  user_id: string;
+  nome: string;
+  representante: boolean;
+};
+
+/** Os donos de uma unidade, para o síndico escolher quem a representa. */
+export const proprietariosDaUnidade = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ unidade_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase.rpc("proprietarios_da_unidade", {
+      _unidade_id: data.unidade_id,
+    });
+    if (error) throwSafe(error);
+    return (rows ?? []) as unknown as ProprietarioDaUnidade[];
   });

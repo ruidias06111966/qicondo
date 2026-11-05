@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/auth/AuthProvider";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import { Logo } from "@/components/site/Logo";
+import { SeletorCondominio } from "@/components/app/SeletorCondominio";
 import { usePlatformAdmin } from "@/auth/usePlatformAdmin";
 import { ADMIN, FIN_VER, temAcesso } from "@/auth/permissoes";
 import type { Role } from "@/auth/useCondominio";
@@ -98,6 +99,9 @@ function AppLayout() {
         <div className="h-16 flex items-center px-6 border-b border-border">
           <Logo />
         </div>
+        <div className="p-3 border-b border-border">
+          <SeletorCondominio />
+        </div>
         <nav className="flex-1 p-3 space-y-1">
           {navItems.map((item) => (
             <Link
@@ -148,6 +152,9 @@ function AppLayout() {
       </div>
       {open && (
         <div className="lg:hidden fixed inset-0 top-14 bg-background z-30 p-4 space-y-1">
+          <div className="pb-3 mb-2 border-b border-border">
+            <SeletorCondominio onTrocar={() => setOpen(false)} />
+          </div>
           {navItems.map((item) => (
             <Link
               key={item.to}

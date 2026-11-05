@@ -12,6 +12,13 @@ Estes ficheiros correm num PostgreSQL local descartável:
   `user_roles`. Não substitui o esquema: serve para a migração poder correr.
 - `orcamento.sql` — dezasseis casos sobre a planilha orçamentária, com os
   números conferidos à mão no cabeçalho de cada bloco.
+- `01-esqueleto-financeiro.sql` — a parte financeira do esqueleto: cobranças,
+  pagamentos e configuração. Vai a seguir ao `00-esqueleto.sql` e só é precisa
+  para os testes de fluxo de caixa.
+- `fluxo-de-caixa.sql` — doze casos. O mais importante é o segundo: compara o
+  saldo de abertura que o fluxo calcula com o `saldo_anterior` que a função
+  real do balancete devolve para a mesma data. Se os dois ecrãs discordassem,
+  o condómino teria dois números e nenhuma forma de saber qual vale.
 - `indices.sql` — dez casos sobre os índices económicos. Os valores são
   inventados de propósito, para o teste dar sempre o mesmo e a conta poder ser
   conferida de cabeça: doze meses de 0,50% têm de dar 6,17% e não 6,00%.

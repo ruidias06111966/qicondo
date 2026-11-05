@@ -12,11 +12,20 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Calculator, Plus, CheckCircle2, AlertTriangle, TrendingUp, RefreshCw } from "lucide-react";
+import {
+  Calculator,
+  Plus,
+  CheckCircle2,
+  AlertTriangle,
+  TrendingUp,
+  RefreshCw,
+  Receipt,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import { EmptyState, Field, Modal, safeCall } from "@/components/financeiro/ui";
 import {
+  aplicarOrcamento,
   aprovarOrcamento,
   atualizarOrcamento,
   atualizarRubrica,
@@ -46,6 +55,7 @@ import {
   type IndicePublicado,
 } from "@/lib/indices.functions";
 import { listarAssembleias, type Assembleia } from "@/lib/assembleia.functions";
+import { listarCategorias } from "@/lib/financeiro.functions";
 import { dataBR } from "@/lib/periodo";
 
 export const Route = createFileRoute("/app/financeiro/orcamento")({
@@ -166,6 +176,7 @@ function Detalhe({
   const [erroQuotas, setErroQuotas] = useState(false);
   const [comparado, setComparado] = useState<OrcadoRealizado | null>(null);
   const [aAprovar, setAAprovar] = useState(false);
+  const [aAplicar, setAAplicar] = useState(false);
   const [indices, setIndices] = useState<AcumuladoIndice[]>([]);
 
   const rascunho = orcamento.status === "rascunho";
@@ -258,6 +269,32 @@ function Detalhe({
 
       {comparado && <Comparado c={comparado} />}
 
+      {!rascunho && isAdmin && !orcamento.aplicado_em && (
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-5">
+          <div className="min-w-0">
+            <p className="font-semibold text-sm">Aprovado, mas ainda não cobrado</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Aplicar escreve a quota em cada unidade e gera as cobranças do ano. É um passo à parte
+              da aprovação de propósito: entre a assembleia e a primeira cobrança há actas a lavrar.
+            </p>
+          </div>
+          <div className="flex-1" />
+          <button
+            onClick={() => setAAplicar(true)}
+            className="px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold inline-flex items-center gap-2 shrink-0"
+          >
+            <Receipt size={16} /> Gerar as cobranças do ano
+          </button>
+        </div>
+      )}
+
+      {!rascunho && orcamento.aplicado_em && (
+        <p className="text-xs text-muted-foreground">
+          Cobranças do ano geradas em {dataBR(orcamento.aplicado_em)}. Gerar outra vez não duplica:
+          as unidades que já têm cobrança na competência são saltadas.
+        </p>
+      )}
+
       {rascunho && isAdmin && (
         <div className="flex justify-end">
           <button
@@ -267,6 +304,19 @@ function Detalhe({
             <CheckCircle2 size={16} /> Aprovar em assembleia
           </button>
         </div>
+      )}
+
+      {aAplicar && (
+        <ModalAplicar
+          orcamento={orcamento}
+          condominioId={condominioId}
+          onClose={() => setAAplicar(false)}
+          onAplicado={() => {
+            setAAplicar(false);
+            onMudou();
+            recarregar();
+          }}
+        />
       )}
 
       {aAprovar && (
@@ -931,5 +981,129 @@ function PainelIndices({
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * Gerar as cobranças do ano.
+ *
+ * O dia do vencimento é pedido uma vez e serve os doze meses. Nos meses em que
+ * esse dia não existe, cai no último — que é o que qualquer convenção entende
+ * por "vence no dia 30".
+ */
+function ModalAplicar({
+  orcamento,
+  condominioId,
+  onClose,
+  onAplicado,
+}: {
+  orcamento: Orcamento;
+  condominioId: string;
+  onClose: () => void;
+  onAplicado: () => void;
+}) {
+  const [categorias, setCategorias] = useState<{ id: string; nome: string; tipo: string }[]>([]);
+  const [categoriaId, setCategoriaId] = useState("");
+  const [dia, setDia] = useState(10);
+  const [meses, setMeses] = useState(12);
+  const [ocupado, setOcupado] = useState(false);
+
+  useEffect(() => {
+    safeCall(listarCategorias({ data: { condominio_id: condominioId } })).then((r) => {
+      const receitas = ((r ?? []) as { id: string; nome: string; tipo: string }[]).filter(
+        (c) => c.tipo === "receita",
+      );
+      setCategorias(receitas);
+      // A taxa condominial é a escolha certa em quase todos os casos; propô-la
+      // poupa um clique sem decidir por quem gere.
+      const taxa = receitas.find((c) => /taxa/i.test(c.nome));
+      if (taxa) setCategoriaId(taxa.id);
+    });
+  }, [condominioId]);
+
+  const aplicar = async () => {
+    setOcupado(true);
+    const r = await safeCall(
+      aplicarOrcamento({
+        data: {
+          orcamento_id: orcamento.id,
+          categoria_id: categoriaId,
+          dia_vencimento: dia,
+          ate_mes: meses,
+        },
+      }),
+    );
+    setOcupado(false);
+    if (r) {
+      toast.success(
+        `${r.cobrancas_geradas} cobranças geradas e ${r.unidades_actualizadas} unidades actualizadas`,
+      );
+      onAplicado();
+    }
+  };
+
+  return (
+    <Modal title={`Gerar as cobranças de ${orcamento.ano}`} onClose={onClose}>
+      <div className="space-y-4">
+        <div className="flex gap-2 text-sm bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-3">
+          <AlertTriangle size={18} className="shrink-0 mt-0.5" />
+          <p>
+            Isto reescreve a taxa mensal de <strong>todas as unidades</strong>. O que lá estava fica
+            guardado no registo de auditoria, para se poder voltar atrás.
+          </p>
+        </div>
+
+        <Field label="Categoria da receita">
+          <select
+            value={categoriaId}
+            onChange={(e) => setCategoriaId(e.target.value)}
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+          >
+            <option value="">Escolha…</option>
+            {categorias.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nome}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Dia do vencimento">
+            <input
+              type="number"
+              min={1}
+              max={31}
+              value={dia}
+              onChange={(e) => setDia(Number(e.target.value))}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+            />
+          </Field>
+          <Field label="Meses a gerar">
+            <input
+              type="number"
+              min={1}
+              max={12}
+              value={meses}
+              onChange={(e) => setMeses(Number(e.target.value))}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+            />
+          </Field>
+        </div>
+
+        <p className="text-xs text-muted-foreground">
+          Nos meses sem o dia {dia}, o vencimento cai no último dia do mês. Gerar outra vez não
+          duplica — as unidades que já têm cobrança na competência são saltadas.
+        </p>
+
+        <button
+          onClick={aplicar}
+          disabled={!categoriaId || ocupado}
+          className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50"
+        >
+          Gerar {meses} {meses === 1 ? "mês" : "meses"} de cobranças
+        </button>
+      </div>
+    </Modal>
   );
 }

@@ -2064,6 +2064,8 @@ export type Database = {
         Row: {
           ano: number;
           ano_base: number;
+          aplicado_em: string | null;
+          aplicado_por: string | null;
           aprovado_em: string | null;
           aprovado_por: string | null;
           assembleia_id: string | null;
@@ -2080,6 +2082,8 @@ export type Database = {
         Insert: {
           ano: number;
           ano_base: number;
+          aplicado_em?: string | null;
+          aplicado_por?: string | null;
           aprovado_em?: string | null;
           aprovado_por?: string | null;
           assembleia_id?: string | null;
@@ -2096,6 +2100,8 @@ export type Database = {
         Update: {
           ano?: number;
           ano_base?: number;
+          aplicado_em?: string | null;
+          aplicado_por?: string | null;
           aprovado_em?: string | null;
           aprovado_por?: string | null;
           assembleia_id?: string | null;
@@ -3062,6 +3068,10 @@ export type Database = {
           multa: number;
         }[];
       };
+      _saldo_ate: {
+        Args: { _ate: string; _condominio_id: string };
+        Returns: number;
+      };
       abrir_ocorrencia: {
         Args: {
           _categoria: Database["public"]["Enums"]["ocorrencia_categoria"];
@@ -3114,6 +3124,15 @@ export type Database = {
           _vencimento: string;
         };
         Returns: string;
+      };
+      aplicar_orcamento: {
+        Args: {
+          _ate_mes?: number;
+          _categoria_id: string;
+          _dia_vencimento?: number;
+          _orcamento_id: string;
+        };
+        Returns: Json;
       };
       aprovar_orcamento: {
         Args: { _assembleia_id: string; _orcamento_id: string };
@@ -3209,6 +3228,10 @@ export type Database = {
       comentar_ocorrencia: {
         Args: { _interno: boolean; _mensagem: string; _ocorrencia_id: string };
         Returns: string;
+      };
+      concentracao_pagamentos: {
+        Args: { _condominio_id: string; _fim: string; _inicio: string };
+        Returns: Json;
       };
       conferir_certidao: {
         Args: { _codigo: string };
@@ -3331,6 +3354,10 @@ export type Database = {
         Returns: string;
       };
       fechar_votacao: { Args: { _pauta_id: string }; Returns: Json };
+      fluxo_de_caixa: {
+        Args: { _condominio_id: string; _fim: string; _inicio: string };
+        Returns: Json;
+      };
       gerar_cobrancas_lote: {
         Args: {
           _categoria_id: string;

@@ -8,6 +8,7 @@ import {
   Tag,
   CreditCard,
   MessageCircle,
+  Handshake,
 } from "lucide-react";
 
 export function Modal({
@@ -78,12 +79,14 @@ export function StatusBadge({ status, venc }: { status: string; venc: string }) 
     vencida: "bg-rose-100 text-rose-700",
     parcial: "bg-blue-100 text-blue-700",
     cancelada: "bg-muted text-muted-foreground",
+    em_acordo: "bg-violet-100 text-violet-700",
   };
+  const rotulo = real === "em_acordo" ? "em acordo" : real;
   return (
     <span
       className={`px-2 py-1 rounded-full text-xs font-semibold uppercase ${map[real] || "bg-muted"}`}
     >
-      {real}
+      {rotulo}
     </span>
   );
 }
@@ -133,6 +136,7 @@ const SUB: SubItem[] = [
     icon: AlertTriangle,
     restrito: true,
   },
+  { to: "/app/financeiro/acordos", label: "Acordos", icon: Handshake, restrito: true },
   { to: "/app/financeiro/categorias", label: "Categorias", icon: Tag, restrito: true },
   {
     to: "/app/financeiro/pagamentos",

@@ -55,6 +55,7 @@ import { Route as ApiEmailQueueProcessRouteImport } from './routes/api/email/que
 import { Route as ApiPublicWaDrainRouteImport } from './routes/api/public/wa-drain'
 import { Route as ApiPublicWaWebhookRouteImport } from './routes/api.public.wa-webhook'
 import { Route as AppFinanceiroIndexRouteImport } from './routes/app.financeiro.index'
+import { Route as AppFinanceiroAcordosRouteImport } from './routes/app.financeiro.acordos'
 import { Route as AppFinanceiroCategoriasRouteImport } from './routes/app.financeiro.categorias'
 import { Route as AppFinanceiroCobrancasRouteImport } from './routes/app.financeiro.cobrancas'
 import { Route as AppFinanceiroDespesasRouteImport } from './routes/app.financeiro.despesas'
@@ -295,6 +296,11 @@ const AppFinanceiroIndexRoute = AppFinanceiroIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppFinanceiroRoute,
 } as any)
+const AppFinanceiroAcordosRoute = AppFinanceiroAcordosRouteImport.update({
+  id: '/acordos',
+  path: '/acordos',
+  getParentRoute: () => AppFinanceiroRoute,
+} as any)
 const AppFinanceiroCategoriasRoute = AppFinanceiroCategoriasRouteImport.update({
   id: '/categorias',
   path: '/categorias',
@@ -383,6 +389,7 @@ export interface FileRoutesByFullPath {
   '/api/email/queue-process': typeof ApiEmailQueueProcessRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
+  '/app/financeiro/acordos': typeof AppFinanceiroAcordosRoute
   '/app/financeiro/categorias': typeof AppFinanceiroCategoriasRoute
   '/app/financeiro/cobrancas': typeof AppFinanceiroCobrancasRoute
   '/app/financeiro/despesas': typeof AppFinanceiroDespesasRoute
@@ -436,6 +443,7 @@ export interface FileRoutesByTo {
   '/api/email/queue-process': typeof ApiEmailQueueProcessRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
+  '/app/financeiro/acordos': typeof AppFinanceiroAcordosRoute
   '/app/financeiro/categorias': typeof AppFinanceiroCategoriasRoute
   '/app/financeiro/cobrancas': typeof AppFinanceiroCobrancasRoute
   '/app/financeiro/despesas': typeof AppFinanceiroDespesasRoute
@@ -493,6 +501,7 @@ export interface FileRoutesById {
   '/api/email/queue-process': typeof ApiEmailQueueProcessRoute
   '/api/public/wa-drain': typeof ApiPublicWaDrainRoute
   '/api/public/wa-webhook': typeof ApiPublicWaWebhookRoute
+  '/app/financeiro/acordos': typeof AppFinanceiroAcordosRoute
   '/app/financeiro/categorias': typeof AppFinanceiroCategoriasRoute
   '/app/financeiro/cobrancas': typeof AppFinanceiroCobrancasRoute
   '/app/financeiro/despesas': typeof AppFinanceiroDespesasRoute
@@ -551,6 +560,7 @@ export interface FileRouteTypes {
     | '/api/email/queue-process'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
+    | '/app/financeiro/acordos'
     | '/app/financeiro/categorias'
     | '/app/financeiro/cobrancas'
     | '/app/financeiro/despesas'
@@ -604,6 +614,7 @@ export interface FileRouteTypes {
     | '/api/email/queue-process'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
+    | '/app/financeiro/acordos'
     | '/app/financeiro/categorias'
     | '/app/financeiro/cobrancas'
     | '/app/financeiro/despesas'
@@ -660,6 +671,7 @@ export interface FileRouteTypes {
     | '/api/email/queue-process'
     | '/api/public/wa-drain'
     | '/api/public/wa-webhook'
+    | '/app/financeiro/acordos'
     | '/app/financeiro/categorias'
     | '/app/financeiro/cobrancas'
     | '/app/financeiro/despesas'
@@ -1026,6 +1038,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceiroIndexRouteImport
       parentRoute: typeof AppFinanceiroRoute
     }
+    '/app/financeiro/acordos': {
+      id: '/app/financeiro/acordos'
+      path: '/acordos'
+      fullPath: '/app/financeiro/acordos'
+      preLoaderRoute: typeof AppFinanceiroAcordosRouteImport
+      parentRoute: typeof AppFinanceiroRoute
+    }
     '/app/financeiro/categorias': {
       id: '/app/financeiro/categorias'
       path: '/categorias'
@@ -1100,6 +1119,7 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface AppFinanceiroRouteChildren {
+  AppFinanceiroAcordosRoute: typeof AppFinanceiroAcordosRoute
   AppFinanceiroCategoriasRoute: typeof AppFinanceiroCategoriasRoute
   AppFinanceiroCobrancasRoute: typeof AppFinanceiroCobrancasRoute
   AppFinanceiroDespesasRoute: typeof AppFinanceiroDespesasRoute
@@ -1110,6 +1130,7 @@ interface AppFinanceiroRouteChildren {
 }
 
 const AppFinanceiroRouteChildren: AppFinanceiroRouteChildren = {
+  AppFinanceiroAcordosRoute: AppFinanceiroAcordosRoute,
   AppFinanceiroCategoriasRoute: AppFinanceiroCategoriasRoute,
   AppFinanceiroCobrancasRoute: AppFinanceiroCobrancasRoute,
   AppFinanceiroDespesasRoute: AppFinanceiroDespesasRoute,

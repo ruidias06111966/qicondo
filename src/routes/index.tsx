@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { LogoHero } from "@/components/site/Logo";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/track";
 import { URL_SITE } from "@/lib/site";
@@ -386,9 +387,11 @@ function HomePage() {
             Sem app. Sem treino. No WhatsApp que seus moradores já usam.
           </div>
 
-          <h1 className="mt-6 font-display text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground max-w-4xl mx-auto">
-            Gestão completa do seu condomínio,{" "}
-            <span className="text-gradient-brand">pelo WhatsApp</span>
+          {/* O logótipo inteiro faz as vezes do título. O `alt` guarda a
+              frase, por isso o `h1` continua a dizer o mesmo a quem não vê a
+              imagem — e num telemóvel a frase volta a aparecer escrita. */}
+          <h1 className="mt-8 mx-auto max-w-4xl">
+            <LogoHero />
           </h1>
 
           <p className="mt-6 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">

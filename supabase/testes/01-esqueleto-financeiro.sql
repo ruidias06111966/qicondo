@@ -43,3 +43,4 @@ ALTER TABLE public.despesas ADD COLUMN IF NOT EXISTS forma public.forma_pagament
 ALTER TABLE public.despesas ADD COLUMN IF NOT EXISTS anexo_url text;
 ALTER TABLE public.cobrancas ADD COLUMN IF NOT EXISTS acordo_id uuid;
 ALTER TABLE public.cobrancas ADD COLUMN IF NOT EXISTS parcela_num integer;
+ALTER TABLE public.cobrancas ADD COLUMN IF NOT EXISTS criado_por uuid;

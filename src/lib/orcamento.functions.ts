@@ -67,6 +67,7 @@ export type Orcamento = {
   premissas: string | null;
   assembleia_id: string | null;
   aprovado_em: string | null;
+  aplicado_em: string | null;
 };
 
 export type OrcamentoItem = {
@@ -142,7 +143,7 @@ export const listarOrcamentos = createServerFn({ method: "POST" })
     const { data: rows, error } = await context.supabase
       .from("orcamentos")
       .select(
-        "id, ano, ano_base, status, inadimplencia_prevista, fundo_reserva_percentual, premissas, assembleia_id, aprovado_em",
+        "id, ano, ano_base, status, inadimplencia_prevista, fundo_reserva_percentual, premissas, assembleia_id, aprovado_em, aplicado_em",
       )
       .eq("condominio_id", data.condominio_id)
       .order("ano", { ascending: false });
@@ -158,6 +159,7 @@ export const listarOrcamentos = createServerFn({ method: "POST" })
       premissas: (r.premissas as string) ?? null,
       assembleia_id: (r.assembleia_id as string) ?? null,
       aprovado_em: (r.aprovado_em as string) ?? null,
+      aplicado_em: (r.aplicado_em as string) ?? null,
     })) satisfies Orcamento[];
   });
 
@@ -339,4 +341,40 @@ export const orcadoXRealizado = createServerFn({ method: "POST" })
     });
     if (error) throwSafe(error);
     return r as unknown as OrcadoRealizado;
+  });
+
+/**
+ * Do orçamento aprovado para as cobranças do ano.
+ *
+ * Escreve a quota em cada unidade e gera os doze lotes. Separado da aprovação
+ * de propósito: a assembleia aprova em Novembro e a cobrança começa em
+ * Janeiro, e entre as duas coisas há actas a lavrar.
+ */
+export const aplicarOrcamento = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        orcamento_id: uuid,
+        categoria_id: uuid,
+        dia_vencimento: z.number().int().min(1).max(31).default(10),
+        ate_mes: z.number().int().min(1).max(12).default(12),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: r, error } = await context.supabase.rpc("aplicar_orcamento", {
+      _orcamento_id: data.orcamento_id,
+      _categoria_id: data.categoria_id,
+      _dia_vencimento: data.dia_vencimento,
+      _ate_mes: data.ate_mes,
+    });
+    if (error) throwSafe(error);
+    return r as unknown as {
+      ano: number;
+      unidades_actualizadas: number;
+      cobrancas_geradas: number;
+      meses: number;
+      dia_vencimento: number;
+    };
   });

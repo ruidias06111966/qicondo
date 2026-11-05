@@ -2064,6 +2064,8 @@ export type Database = {
         Row: {
           ano: number;
           ano_base: number;
+          aplicado_em: string | null;
+          aplicado_por: string | null;
           aprovado_em: string | null;
           aprovado_por: string | null;
           assembleia_id: string | null;
@@ -2080,6 +2082,8 @@ export type Database = {
         Insert: {
           ano: number;
           ano_base: number;
+          aplicado_em?: string | null;
+          aplicado_por?: string | null;
           aprovado_em?: string | null;
           aprovado_por?: string | null;
           assembleia_id?: string | null;
@@ -2096,6 +2100,8 @@ export type Database = {
         Update: {
           ano?: number;
           ano_base?: number;
+          aplicado_em?: string | null;
+          aplicado_por?: string | null;
           aprovado_em?: string | null;
           aprovado_por?: string | null;
           assembleia_id?: string | null;
@@ -3118,6 +3124,15 @@ export type Database = {
           _vencimento: string;
         };
         Returns: string;
+      };
+      aplicar_orcamento: {
+        Args: {
+          _ate_mes?: number;
+          _categoria_id: string;
+          _dia_vencimento?: number;
+          _orcamento_id: string;
+        };
+        Returns: Json;
       };
       aprovar_orcamento: {
         Args: { _assembleia_id: string; _orcamento_id: string };

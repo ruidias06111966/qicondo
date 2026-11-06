@@ -1,0 +1,94 @@
+Pager usage is off.
+INSERT 0 1
+                              set_config                               
+-----------------------------------------------------------------------
+ {"sub":"33333333-3333-3333-3333-333333333333","role":"authenticated"}
+(1 row)
+
+=== 1. doze meses de 0,50% ===
+    somado daria 6,00; composto dá (1,005^12 - 1) x 100 = 6,17
+ gravadas 
+----------
+       12
+(1 row)
+
+ acumulado | completo 
+-----------+----------
+ 6.17      | true
+(1 row)
+
+=== 2. gravar os mesmos números outra vez (espera 0) ===
+ regravadas 
+------------
+          0
+(1 row)
+
+=== 3. revisão de um mês (espera 1 linha mexida, e o acumulado a mudar) ===
+ revistas 
+----------
+        1
+(1 row)
+
+ acumulado_apos_revisao 
+------------------------
+ 7.22
+(1 row)
+
+=== 4. a janela anda com a data: doze meses até Junho ===
+    Jan a Jun a 0,50 excepto Junho a 1,50 — faltam meses, por isso 6 e incompleto
+ meses | completo |   ultima   
+-------+----------+------------
+ 6     | false    | 2026-06-01
+(1 row)
+
+=== 5. mais de doze meses gravados: conta só os doze últimos ===
+ gravadas_2025 
+---------------
+            12
+(1 row)
+
+    o acumulado até Dez/2026 não pode ter mudado: 2025 fica fora da janela
+ acumulado |  primeira  
+-----------+------------
+ 7.22      | 2026-01-01
+(1 row)
+
+=== 6. deflação: um mês negativo baixa o acumulado ===
+ gravadas 
+----------
+        2
+(1 row)
+
+    1,01 x 0,995 - 1 = 0,495% -> 0,50
+ acumulado 
+-----------
+ 0.50
+(1 row)
+
+=== 7. índice que não se publica (espera indice_nao_publicado) ===
+psql:testes/indices.sql:65: ERROR:  indice_nao_publicado
+HINT:  Só IPCA, INPC, IGP-M e INCC vêm de série publicada. Os outros são escolha de quem orça.
+CONTEXT:  PL/pgSQL function registrar_indices(jsonb) line 17 at RAISE
+=== 8. competência a meio do mês passa a dia 1 ===
+ gravadas 
+----------
+        1
+(1 row)
+
+ competencia 
+-------------
+ 2026-05-01
+(1 row)
+
+=== 9. o que não é lista é recusado ===
+psql:testes/indices.sql:73: ERROR:  dados_invalidos
+HINT:  Esperava uma lista de medições.
+CONTEXT:  PL/pgSQL function registrar_indices(jsonb) line 8 at RAISE
+=== 10. sem sessão (espera not_authenticated) ===
+ set_config 
+------------
+ 
+(1 row)
+
+psql:testes/indices.sql:77: ERROR:  not_authenticated
+CONTEXT:  PL/pgSQL function indices_para_orcamento(date) line 3 at RAISE

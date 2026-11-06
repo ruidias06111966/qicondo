@@ -207,3 +207,74 @@ export async function enviarTemplateWA(
   if (!res.ok) return { ok: false, error: json?.error?.message || `http_${res.status}`, raw: json };
   return { ok: true, waMessageId: json?.messages?.[0]?.id as string | undefined, raw: json };
 }
+
+// ============================================================
+// Descarregar uma mídia recebida
+//
+// A Meta não manda o ficheiro no webhook: manda um id. Buscar são dois pedidos
+// — o primeiro devolve um URL temporário e os metadados, o segundo o conteúdo.
+// O URL só funciona com o mesmo `access_token` no cabeçalho, por isso não serve
+// para dar ao condómino nem para guardar.
+// ============================================================
+
+export type MidiaBaixada = {
+  ok: true;
+  bytes: Uint8Array;
+  mimeType: string;
+  tamanho: number;
+};
+
+/**
+ * O tecto que se aplica ANTES de descarregar.
+ *
+ * Os metadados dizem o tamanho, por isso um vídeo de 80 MB é recusado sem se
+ * gastar a banda a buscá-lo. O segundo tecto, depois do download, existe
+ * porque o `file_size` vem de fora e não é prova de nada.
+ */
+export async function baixarMidiaWA(
+  cfg: WaConfig,
+  mediaId: string,
+  limites: { mimesAceitos: readonly string[]; tamanhoMaximo: number },
+): Promise<MidiaBaixada | { ok: false; error: string }> {
+  if (!cfg.ativo || !cfg.access_token) return { ok: false, error: "wa_nao_configurado" };
+  if (!mediaId) return { ok: false, error: "midia_sem_id" };
+
+  const meta = await fetch(`${GRAPH}/${encodeURIComponent(mediaId)}`, {
+    headers: { Authorization: `Bearer ${cfg.access_token}` },
+  });
+  const info: any = await meta.json().catch(() => ({}));
+  if (!meta.ok || !info?.url) {
+    return { ok: false, error: info?.error?.message || `midia_meta_http_${meta.status}` };
+  }
+
+  const mimeDeclarado = String(info.mime_type ?? "")
+    .split(";")[0]
+    .trim()
+    .toLowerCase();
+  if (!limites.mimesAceitos.includes(mimeDeclarado)) {
+    return { ok: false, error: "tipo_nao_aceito" };
+  }
+  const tamanhoDeclarado = Number(info.file_size ?? 0);
+  if (tamanhoDeclarado > limites.tamanhoMaximo) {
+    return { ok: false, error: "grande_demais" };
+  }
+
+  const bin = await fetch(String(info.url), {
+    headers: { Authorization: `Bearer ${cfg.access_token}` },
+  });
+  if (!bin.ok) return { ok: false, error: `midia_download_http_${bin.status}` };
+
+  const bytes = new Uint8Array(await bin.arrayBuffer());
+
+  // O `file_size` dos metadados vem de fora. Se mentir, é aqui que se apanha —
+  // depois de gastar a banda, mas antes de escrever no bucket.
+  if (bytes.byteLength === 0) return { ok: false, error: "midia_vazia" };
+  if (bytes.byteLength > limites.tamanhoMaximo) return { ok: false, error: "grande_demais" };
+
+  return {
+    ok: true,
+    bytes,
+    mimeType: mimeDeclarado,
+    tamanho: bytes.byteLength,
+  };
+}

@@ -15,8 +15,32 @@ import { brl, dateBR, competenciaBR } from "@/lib/format";
 import { Modal, Field, EmptyState, StatusBadge, safeCall } from "@/components/financeiro/ui";
 import { emitChanged } from "@/lib/safe-call";
 import { toast } from "sonner";
-import { FileText, Plus, Loader2, X, CheckCircle2, MessageCircle, QrCode } from "lucide-react";
+import {
+  FileText,
+  Plus,
+  Loader2,
+  X,
+  CheckCircle2,
+  MessageCircle,
+  QrCode,
+  Paperclip,
+} from "lucide-react";
 import { QrPix } from "@/components/pix/QrPix";
+import { BotaoAnexos } from "@/components/contabil/Anexos";
+import { resumoAnexos } from "@/lib/contabil.functions";
+
+/**
+ * Chegou comprovante e ainda não houve baixa.
+ *
+ * `comprovante_recebido_em` não é um status: a cobrança continua pendente ou
+ * vencida, e com razão — um comprovante é uma imagem, e a baixa é um acto do
+ * síndico com o extracto ao lado. O que isto marca é trabalho por fazer.
+ */
+function aConferir(r: any): boolean {
+  return (
+    !!r?.comprovante_recebido_em && ["pendente", "vencida", "parcial"].includes(String(r?.status))
+  );
+}
 
 export const Route = createFileRoute("/app/financeiro/cobrancas")({
   head: () => ({ meta: [{ title: "Cobranças — Financeiro" }] }),
@@ -34,12 +58,33 @@ function CobrancasPage() {
   // lado — quanto menos esta linha souber, menos há para divergir.
   const [showPix, setShowPix] = useState<{ id: string } | null>(null);
   const [showPagar, setShowPagar] = useState<any>(null);
+  // Quantos documentos tem cada cobrança. Numa chamada só para a lista toda:
+  // se cada botão contasse os seus, uma tabela de cinquenta linhas fazia
+  // cinquenta chamadas ao abrir.
+  const [anexos, setAnexos] = useState<Record<string, number>>({});
+
+  const recarregarAnexos = (ids: string[]) => {
+    if (!condominioId || ids.length === 0) return setAnexos({});
+    safeCall(
+      resumoAnexos({
+        data: {
+          condominio_id: condominioId,
+          entidade: "cobranca",
+          entidade_ids: ids.slice(0, 500),
+        },
+      }),
+    ).then((r) => setAnexos(r ?? {}));
+  };
 
   const reload = () => {
     if (!condominioId) return;
     setLoading(true);
     safeCall(listarCobrancas({ data: { condominio_id: condominioId } }))
-      .then((rs) => setRows(Array.isArray(rs) ? rs : []))
+      .then((rs) => {
+        const arr = Array.isArray(rs) ? rs : [];
+        setRows(arr);
+        recarregarAnexos(arr.map((r: any) => r.id));
+      })
       .finally(() => setLoading(false));
   };
   useEffect(reload, [condominioId]);
@@ -58,8 +103,17 @@ function CobrancasPage() {
 
   const filtered = useMemo(() => {
     const arr = Array.isArray(rows) ? rows : [];
-    return filter === "todos" ? arr : arr.filter((r) => r.status === filter);
+    if (filter === "todos") return arr;
+    // Não é um status: é "chegou comprovante e ainda não houve baixa". Vive no
+    // mesmo selector porque é a mesma pergunta — "o que é que me falta fazer?".
+    if (filter === "a_conferir") return arr.filter(aConferir);
+    return arr.filter((r) => r.status === filter);
   }, [rows, filter]);
+
+  const quantosAConferir = useMemo(
+    () => (Array.isArray(rows) ? rows.filter(aConferir).length : 0),
+    [rows],
+  );
 
   if (!condominioId) return null;
 
@@ -85,6 +139,9 @@ function CobrancasPage() {
           <option value="parcial">Parciais</option>
           <option value="vencida">Vencidas</option>
           <option value="cancelada">Canceladas</option>
+          <option value="a_conferir">
+            Comprovante a conferir{quantosAConferir > 0 ? ` (${quantosAConferir})` : ""}
+          </option>
         </select>
         <div className="flex-1" />
         {podeGerir && (
@@ -96,6 +153,25 @@ function CobrancasPage() {
           </button>
         )}
       </div>
+
+      {/* O PIX estático não avisa de pagamento nenhum. Quando o condómino manda
+          o comprovante pelo WhatsApp, é esta linha que o diz ao síndico — sem
+          ela o documento ficava no bucket e ninguém o ia procurar. */}
+      {quantosAConferir > 0 && filter !== "a_conferir" && (
+        <button
+          onClick={() => setFilter("a_conferir")}
+          className="w-full text-left mb-5 flex items-center gap-3 px-4 py-3 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
+        >
+          <Paperclip size={16} className="shrink-0" />
+          <span className="text-sm">
+            <strong>
+              {quantosAConferir} cobrança{quantosAConferir > 1 ? "s" : ""}
+            </strong>{" "}
+            com comprovante enviado pelo morador e ainda sem baixa. Confira no extrato e dê a baixa
+            — o PIX não avisa sozinho.
+          </span>
+        </button>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-20">
@@ -123,6 +199,7 @@ function CobrancasPage() {
                   <th className="text-left px-4 py-3 font-semibold">Vencimento</th>
                   <th className="text-right px-4 py-3 font-semibold">Valor</th>
                   <th className="text-left px-4 py-3 font-semibold">Status</th>
+                  <th className="text-center px-4 py-3 font-semibold">Docs</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
@@ -140,7 +217,28 @@ function CobrancasPage() {
                       {brl(Number(r.valor) + Number(r.multa) - Number(r.desconto))}
                     </td>
                     <td className="px-4 py-3">
-                      <StatusBadge status={r.status} venc={r.vencimento} />
+                      <div className="flex items-center gap-2">
+                        <StatusBadge status={r.status} venc={r.vencimento} />
+                        {aConferir(r) && (
+                          <span
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-semibold bg-amber-100 text-amber-900 dark:bg-amber-900/50 dark:text-amber-200"
+                            title={`Comprovante enviado pelo morador em ${dateBR(r.comprovante_recebido_em)}. Ainda sem baixa.`}
+                          >
+                            <Paperclip size={11} /> comprovante
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <BotaoAnexos
+                        condominioId={condominioId}
+                        entidade="cobranca"
+                        entidadeId={r.id}
+                        rotulo={`${r.unidades?.numero ?? "Unidade"} · ${competenciaBR(r.competencia)}`}
+                        quantos={anexos[r.id] ?? 0}
+                        podeGerir={podeGerir}
+                        onMudou={() => recarregarAnexos(rows.map((x: any) => x.id))}
+                      />
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1">

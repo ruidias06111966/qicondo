@@ -1,0 +1,112 @@
+Pager usage is off.
+Output format is aligned.
+INSERT 0 2
+INSERT 0 4
+INSERT 0 4
+INSERT 0 4
+INSERT 0 4
+INSERT 0 4
+INSERT 0 2
+SET
+
+=========== 1. 1.000,01 em quatro unidades de 25% ===========
+--- esperado: a 101 paga 250,01 e as outras 250,00.
+--- 100001 centavos / 4 = 25000,25 cada: todas truncam a 25000 e sobra 1.
+--- O centavo vai ao primeiro da ordem — e a ordem é bloco, número.
+ bloco | numero |        valor         
+-------+--------+----------------------
+ A     | 101    | 250.0100000000000000
+ A     | 102    | 250.0000000000000000
+ A     | 103    | 250.0000000000000000
+ A     | 104    | 250.0000000000000000
+(4 rows)
+
+--- 1b. a soma tem de ser exactamente o total (esperado: 1000.01, t)
+        somado         | bate 
+-----------------------+------
+ 1000.0100000000000000 | t
+(1 row)
+
+
+=========== 2. três centavos a sobrar vão às três primeiras ===========
+--- esperado: 101, 102 e 103 com 250,01 e a 104 com 250,00.
+--- 100003 / 4 = 25000,75 cada: truncam a 25000 e sobram 3.
+ numero |        valor         
+--------+----------------------
+ 101    | 250.0100000000000000
+ 102    | 250.0100000000000000
+ 103    | 250.0100000000000000
+ 104    | 250.0000000000000000
+(4 rows)
+
+
+=========== 3. A ORDEM É NATURAL, NÃO ALFABÉTICA ===========
+--- esperado: o centavo vai à unidade 8.
+---
+--- Este é o bloco que importa. Em texto, a ordem seria "10", "11", "8",
+--- "9" — e o centavo iria à 10. Extraem-se os dígitos e compara-se como
+--- número, por isso vai à 8. Dizer a um condómino que ele paga um centavo
+--- a mais "porque a sua unidade é a primeira" exige que seja verdade.
+ numero |        valor         
+--------+----------------------
+ 8      | 250.0100000000000000
+ 9      | 250.0000000000000000
+ 10     | 250.0000000000000000
+ 11     | 250.0000000000000000
+(4 rows)
+
+
+=========== 4. o bloco decide antes do número ===========
+--- esperado: A 1 fica com o centavo; B 1 não, apesar de ter o mesmo número
+ bloco | numero |        valor         
+-------+--------+----------------------
+ A     | 1      | 250.0100000000000000
+ A     | 2      | 250.0000000000000000
+ B     | 1      | 250.0000000000000000
+ B     | 2      | 250.0000000000000000
+(4 rows)
+
+
+=========== 5. correr duas vezes dá o mesmo rateio (esperado: 0 diferenças) ===========
+--- O determinismo era o requisito antigo e continua a valer: um rateio
+--- que muda entre execuções é um balancete que não se reproduz.
+ diferencas 
+------------
+          0
+(1 row)
+
+
+=========== 6. divisão sem sobra: ninguém leva centavo a mais ===========
+--- esperado: quatro linhas de 250,00
+ numero |        valor         
+--------+----------------------
+ 101    | 250.0000000000000000
+ 102    | 250.0000000000000000
+ 103    | 250.0000000000000000
+ 104    | 250.0000000000000000
+(4 rows)
+
+
+=========== 7. unidade sem fração ideal (esperado: fracao_ideal_em_falta) ===========
+--- Ratear com frações em falta produziria uma cobrança errada em silêncio.
+psql:testes/rateio.sql:128: ERROR:  fracao_ideal_em_falta
+HINT:  1 unidade(s) sem fração ideal preenchida.
+CONTEXT:  PL/pgSQL function ratear_por_fracao_ideal(uuid,numeric) line 28 at RAISE
+
+=========== 8. total zero e total negativo (esperado: total_invalido, duas vezes) ===========
+psql:testes/rateio.sql:132: ERROR:  total_invalido
+CONTEXT:  PL/pgSQL function ratear_por_fracao_ideal(uuid,numeric) line 19 at RAISE
+psql:testes/rateio.sql:133: ERROR:  total_invalido
+CONTEXT:  PL/pgSQL function ratear_por_fracao_ideal(uuid,numeric) line 19 at RAISE
+
+=========== 9. quem não é do condomínio não rateia (esperado: forbidden) ===========
+--- A verificação vem ANTES de qualquer leitura: a contagem de unidades
+--- sem fração, que a mensagem devolveria, já diria quantas unidades há.
+SET
+psql:testes/rateio.sql:140: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function ratear_por_fracao_ideal(uuid,numeric) line 15 at RAISE
+
+=========== 10. sem sessão (esperado: not_authenticated) ===========
+SET
+psql:testes/rateio.sql:145: ERROR:  not_authenticated
+CONTEXT:  PL/pgSQL function ratear_por_fracao_ideal(uuid,numeric) line 11 at RAISE

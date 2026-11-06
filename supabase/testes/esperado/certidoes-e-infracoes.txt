@@ -1,0 +1,277 @@
+Pager usage is off.
+Output format is aligned.
+INSERT 0 4
+INSERT 0 2
+INSERT 0 1
+INSERT 0 3
+INSERT 0 4
+INSERT 0 2
+INSERT 0 1
+INSERT 0 2
+INSERT 0 1
+INSERT 0 1
+SET
+
+=========== 1. a dívida da 101 ===========
+--- esperado: principal 450, total 450, 2 itens
+ principal | total  | itens 
+-----------+--------+-------
+    450.00 | 450.00 |     2
+(1 row)
+
+
+=========== 2. carta de cobrança da 101 ===========
+--- esperado: total 450, prazo 10, 1 proprietário (Maria da Silva), cnpj preenchido
+ total  | prazo |   proprietarios    |        cnpj        | dias_ate_vencer 
+--------+-------+--------------------+--------------------+-----------------
+ 450.00 |    10 | ["Maria da Silva"] | 12.345.678/0001-90 |              10
+(1 row)
+
+--- 2b. a carta ficou no audit_log (esperado: 1)
+ count 
+-------
+     1
+(1 row)
+
+
+=========== 3. carta a quem não deve nada (esperado: sem_divida) ===========
+psql:testes/certidoes-e-infracoes.sql:93: ERROR:  sem_divida
+HINT:  Esta unidade não tem valores em aberto. Não há o que cobrar.
+CONTEXT:  PL/pgSQL function carta_cobranca(uuid,integer) line 24 at RAISE
+
+=========== 4. prazo fora do intervalo (esperado: prazo_invalido) ===========
+psql:testes/certidoes-e-infracoes.sql:97: ERROR:  prazo_invalido
+HINT:  Entre 1 e 90 dias.
+CONTEXT:  PL/pgSQL function carta_cobranca(uuid,integer) line 13 at RAISE
+psql:testes/certidoes-e-infracoes.sql:98: ERROR:  prazo_invalido
+HINT:  Entre 1 e 90 dias.
+CONTEXT:  PL/pgSQL function carta_cobranca(uuid,integer) line 13 at RAISE
+
+=========== 5. nada consta para quem deve (esperado: unidade_com_debito) ===========
+psql:testes/certidoes-e-infracoes.sql:102: ERROR:  unidade_com_debito
+HINT:  A unidade tem 450.00 em aberto. Emita a certidão depois da liquidação.
+CONTEXT:  PL/pgSQL function emitir_nada_consta(uuid,integer) line 30 at RAISE
+
+=========== 6. nada consta com acordo activo (esperado: unidade_com_acordo) ===========
+--- A parcela do acordo está PAGA de propósito. Se estivesse em aberto,
+--- a função parava antes, no unidade_com_debito: qualquer cobrança em
+--- aberto entra na dívida, parcela de acordo incluída. O aviso próprio do
+--- acordo só se alcança quando não há nada vencido e o acordo ainda corre.
+INSERT 0 1
+psql:testes/certidoes-e-infracoes.sql:115: ERROR:  unidade_com_acordo
+HINT:  A unidade tem o acordo 1 em cumprimento, com 0.00 em aberto. Um acordo activo é dívida parcelada, e o art. 1.345 transfere-a a quem adquire a fração.
+CONTEXT:  PL/pgSQL function emitir_nada_consta(uuid,integer) line 38 at RAISE
+
+=========== 7. nada consta para a 102, que está limpa ===========
+--- esperado: uma certidão, código NC-aaaa-0001-XXXXXXXX, válida 30 dias
+--- Emitir e consultar são dois passos: chamar a função dentro do WHERE
+--- fazia o SELECT ver a fotografia anterior ao INSERT, e não devolvia nada.
+ numero | codigo_no_formato | dias_de_validade | referencia |  proprietarios   
+--------+-------------------+------------------+------------+------------------
+      1 | t                 |               30 | 2026-11-06 | ["João Pereira"]
+(1 row)
+
+
+=========== 8. validade fora do intervalo (esperado: validade_invalida) ===========
+psql:testes/certidoes-e-infracoes.sql:135: ERROR:  validade_invalida
+HINT:  Entre 1 e 180 dias.
+CONTEXT:  PL/pgSQL function emitir_nada_consta(uuid,integer) line 17 at RAISE
+psql:testes/certidoes-e-infracoes.sql:136: ERROR:  validade_invalida
+HINT:  Entre 1 e 180 dias.
+CONTEXT:  PL/pgSQL function emitir_nada_consta(uuid,integer) line 17 at RAISE
+
+=========== 9. conferir a certidão ===========
+--- 9a. o síndico confere (esperado: valida t, motivo vazio)
+ valida | motivo |        codigo         
+--------+--------+-----------------------
+ t      |        | NC-2026-0001-<aleatorio>
+(1 row)
+
+--- 9b. código que não existe (esperado: valida f, codigo_nao_encontrado)
+ valida |        motivo         
+--------+-----------------------
+ f      | codigo_nao_encontrado
+(1 row)
+
+--- 9c. certidão expirada (esperado: valida f, expirada)
+UPDATE 1
+ valida |  motivo  
+--------+----------
+ f      | expirada
+(1 row)
+
+
+=========== 10. quem pode o quê ===========
+SET
+--- 10a. estranho pede a carta (esperado: forbidden)
+psql:testes/certidoes-e-infracoes.sql:160: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function carta_cobranca(uuid,integer) line 19 at RAISE
+--- 10b. estranho pede a dívida (esperado: forbidden)
+psql:testes/certidoes-e-infracoes.sql:162: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function divida_da_unidade(uuid) line 20 at RAISE
+SET
+--- 10c. o dono da 101 vê a sua própria dívida (esperado: 450)
+ numeric 
+---------
+  450.00
+(1 row)
+
+--- 10d. o dono da 101 vê a dívida da 102 (esperado: forbidden)
+psql:testes/certidoes-e-infracoes.sql:168: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function divida_da_unidade(uuid) line 20 at RAISE
+--- 10e. o dono da 101 emite nada consta (esperado: forbidden)
+psql:testes/certidoes-e-infracoes.sql:170: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function emitir_nada_consta(uuid,integer) line 23 at RAISE
+SET
+
+=========== 11. os tectos legais da multa ===========
+--- 11a. 2.000 pelo art. 1.336 §2.º, exactamente no tecto (esperado: passa)
+ aplicada 
+----------
+ t
+(1 row)
+
+--- 11b. 2.000,01 pelo mesmo artigo (esperado: multa_acima_do_tecto)
+psql:testes/certidoes-e-infracoes.sql:201: ERROR:  multa_acima_do_tecto
+HINT:  O limite é 2,000.00 (5x a contribuição mensal de 400.00). Uma multa acima do tecto legal é anulável.
+CONTEXT:  PL/pgSQL function aplicar_multa(uuid,uuid,date,text,infracao_base,numeric,date,text,uuid,text,uuid) line 47 at RAISE
+--- 11c. 4.000 pelo art. 1.337 § único, o tecto de 10x (esperado: passa)
+ aplicada 
+----------
+ t
+(1 row)
+
+--- 11d. unidade sem contribuição mensal (esperado: taxa_mensal_em_falta)
+psql:testes/certidoes-e-infracoes.sql:215: ERROR:  taxa_mensal_em_falta
+HINT:  O tecto da multa é um múltiplo da contribuição mensal, e a unidade não a tem preenchida. Sem ela não há como verificar se a multa é legal.
+CONTEXT:  PL/pgSQL function aplicar_multa(uuid,uuid,date,text,infracao_base,numeric,date,text,uuid,text,uuid) line 40 at RAISE
+--- 11e. multa pela convenção: o tecto é o que ela fixar, e o sistema não o
+--- conhece. É também a única base que dispensa deliberação registada.
+--- (esperado: passa, mesmo com valor alto e sem taxa mensal na unidade)
+ aplicada 
+----------
+ t
+(1 row)
+
+--- 11f. multa fora da convenção sem deliberação nem assembleia
+--- (esperado: recusada pela restrição multa_deliberada)
+psql:testes/certidoes-e-infracoes.sql:230: ERROR:  new row for relation "infracoes" violates check constraint "multa_deliberada"
+DETAIL:  Failing row contains (<uuid>, aaaaaaaa-0000-0000-0000-000000000001, dddddddd-0000-0000-0000-000000000101, 4, multa, 2026-11-05, Multa sem deliberação registada em lado nenhum, null, art_1336_p2, 100.00, 400.00, null, null, <uuid>, vigente, null, null, 11111111-1111-1111-1111-111111111111, <carimbo>, <carimbo>).
+CONTEXT:  SQL statement "INSERT INTO public.infracoes (
+    condominio_id, unidade_id, numero, tipo, data_ocorrencia, descricao, local,
+    base_legal, valor, referencia_mensal, deliberacao, assembleia_id, cobranca_id,
+    registrada_por
+  ) VALUES (
+    _condominio_id, _unidade_id, _numero, 'multa', _data_ocorrencia,
+    trim(_descricao), NULLIF(trim(COALESCE(_local, '')), ''),
+    _base_legal, _valor, _taxa,
+    NULLIF(trim(COALESCE(_deliberacao, '')), ''), _assembleia_id, _cob, _uid
+  ) RETURNING id"
+PL/pgSQL function aplicar_multa(uuid,uuid,date,text,infracao_base,numeric,date,text,uuid,text,uuid) line 70 at SQL statement
+
+=========== 12. datas ===========
+--- 12a. ocorrência no futuro (esperado: data_invalida)
+psql:testes/certidoes-e-infracoes.sql:238: ERROR:  data_invalida
+HINT:  A ocorrência não pode ser no futuro.
+CONTEXT:  PL/pgSQL function aplicar_multa(uuid,uuid,date,text,infracao_base,numeric,date,text,uuid,text,uuid) line 16 at RAISE
+--- 12b. vencimento no passado (esperado: vencimento_invalido)
+psql:testes/certidoes-e-infracoes.sql:244: ERROR:  vencimento_invalido
+HINT:  O vencimento não pode ser anterior a hoje.
+CONTEXT:  PL/pgSQL function aplicar_multa(uuid,uuid,date,text,infracao_base,numeric,date,text,uuid,text,uuid) line 22 at RAISE
+
+=========== 13. a multa virou cobrança ===========
+--- esperado: 2 cobranças de multa na 101, de 2.000 e 4.000, pendentes
+  valor  |  status  |            descricao             
+---------+----------+----------------------------------
+ 2000.00 | pendente | Multa 1 — infração de 04/11/2026
+ 4000.00 | pendente | Multa 2 — infração de 05/11/2026
+(2 rows)
+
+
+=========== 14. advertência ===========
+ registada 
+-----------
+ t
+(1 row)
+
+--- esperado: a advertência não tem valor, base legal nem cobrança
+    tipo     | sem_valor | sem_base | sem_cobranca 
+-------------+-----------+----------+--------------
+ advertencia | t         | t        | t
+(1 row)
+
+
+=========== 15. reincidência (conta só as vigentes) ===========
+--- esperado: 1 advertência, 2 multas, total 3, valor_multas 6.000
+ advertencias | multas | total | valor_multas 
+--------------+--------+-------+--------------
+            1 |      2 |     3 |      6000.00
+(1 row)
+
+
+=========== 16. cancelar uma multa cancela a cobrança ===========
+--- 16a. motivo curto de mais (esperado: motivo_obrigatorio)
+psql:testes/certidoes-e-infracoes.sql:278: ERROR:  motivo_obrigatorio
+HINT:  Diga por que a infração foi cancelada. É o que o condómino vai ler.
+CONTEXT:  PL/pgSQL function cancelar_infracao(uuid,text) line 16 at RAISE
+--- 16b. com motivo a sério (esperado: sem erro)
+ cancelar_infracao 
+-------------------
+ 
+(1 row)
+
+--- 16c. a cobrança da multa ficou cancelada (esperado: cancelada)
+  valor  |  status   
+---------+-----------
+ 2000.00 | cancelada
+(1 row)
+
+--- 16d. a infração ficou cancelada, com motivo e data (esperado: cancelada, t, t)
+  status   | tem_motivo | tem_data 
+-----------+------------+----------
+ cancelada | t          | t
+(1 row)
+
+--- 16e. cancelar outra vez (esperado: infracao_ja_cancelada)
+psql:testes/certidoes-e-infracoes.sql:298: ERROR:  infracao_ja_cancelada
+CONTEXT:  PL/pgSQL function cancelar_infracao(uuid,text) line 13 at RAISE
+--- 16f. a reincidência já não a conta (esperado: 1 advertência, 1 multa, total 2, 4.000)
+ advertencias | multas | total | valor_multas 
+--------------+--------+-------+--------------
+            1 |      1 |     2 |      4000.00
+(1 row)
+
+
+=========== 17. multa já paga não se cancela ===========
+UPDATE 1
+--- esperado: multa_ja_paga, com o valor recebido no aviso
+psql:testes/certidoes-e-infracoes.sql:314: ERROR:  multa_ja_paga
+HINT:  A cobrança desta multa já recebeu 1,000.00. Trate a devolução e depois cancele a cobrança à mão — não é automatismo.
+CONTEXT:  PL/pgSQL function cancelar_infracao(uuid,text) line 24 at RAISE
+--- 17b. e a infração continua vigente (esperado: vigente)
+ status  
+---------
+ vigente
+(1 row)
+
+
+=========== 18. quem pode o quê ===========
+SET
+--- 18a. o morador aplica multa (esperado: forbidden)
+psql:testes/certidoes-e-infracoes.sql:326: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function aplicar_multa(uuid,uuid,date,text,infracao_base,numeric,date,text,uuid,text,uuid) line 13 at RAISE
+--- 18b. o morador regista advertência (esperado: forbidden)
+psql:testes/certidoes-e-infracoes.sql:331: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function registrar_advertencia(uuid,uuid,date,text,text) line 9 at RAISE
+--- 18c. o morador cancela uma infração (esperado: forbidden)
+psql:testes/certidoes-e-infracoes.sql:335: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function cancelar_infracao(uuid,text) line 12 at RAISE
+--- 18d. o morador vê a reincidência da sua unidade (esperado: total 2)
+ int4 
+------
+    2
+(1 row)
+
+--- 18e. o morador vê a reincidência da 102, que não é dele (esperado: forbidden)
+psql:testes/certidoes-e-infracoes.sql:341: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function reincidencia_da_unidade(uuid) line 13 at RAISE

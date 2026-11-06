@@ -8,7 +8,7 @@ import {
   registrarMensagem,
   verifySignature,
 } from "@/server/whatsapp.server";
-import { processarMensagemBot } from "@/server/wa-bot.server";
+import { processarMensagemBot, processarMidiaBot } from "@/server/wa-bot.server";
 
 export const Route = createFileRoute("/api/public/wa-webhook")({
   server: {
@@ -92,18 +92,41 @@ export const Route = createFileRoute("/api/public/wa-webhook")({
                     null;
                 else if (msg.type === "button") texto = msg.button?.text ?? null;
 
+                // A legenda de uma imagem é texto, mas não é uma resposta ao
+                // bot: «segue o comprovante» não é um número de menu. Vai para
+                // o registo e não para o roteador, senão o bot responde «não
+                // entendi» a quem acabou de mandar o documento certo.
+                const midiaId: string | null =
+                  msg.type === "image"
+                    ? (msg.image?.id ?? null)
+                    : msg.type === "document"
+                      ? (msg.document?.id ?? null)
+                      : null;
+                const legenda: string | null =
+                  msg.type === "image"
+                    ? (msg.image?.caption ?? null)
+                    : msg.type === "document"
+                      ? (msg.document?.caption ?? null)
+                      : null;
+
                 await registrarMensagem({
                   conversaId: conv.id,
                   condominioId: cfg.condominio_id,
                   direcao: "entrada",
-                  tipo: "texto",
-                  texto,
+                  tipo: midiaId ? "midia" : "texto",
+                  texto: texto ?? legenda,
                   payload: msg,
                   waMessageId: msg.id,
                   status: "recebida",
                 });
 
-                if (texto) {
+                // Uma imagem ou um PDF é um comprovante até prova em contrário.
+                // Antes disto, uma mídia chegava, era registada e mais nada
+                // acontecia: o documento mais útil do processo de cobrança
+                // caía no chão em silêncio.
+                if (midiaId) {
+                  await processarMidiaBot(cfg as any, conv as any, { mediaId: midiaId });
+                } else if (texto) {
                   await processarMensagemBot(cfg as any, conv as any, texto, null);
                 }
               }

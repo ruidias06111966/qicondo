@@ -13,8 +13,14 @@ INSERT INTO public.condominios (id, nome) VALUES
 INSERT INTO public.user_roles (user_id, condominio_id, role)
 VALUES ('11111111-1111-1111-1111-111111111111','aaaaaaaa-0000-0000-0000-000000000001','sindico');
 
-INSERT INTO public.unidades (condominio_id, bloco, numero, fracao_ideal, taxa_mensal)
-SELECT 'aaaaaaaa-0000-0000-0000-000000000001','A', n::text, 25, 400
+-- Os ids são fixos de propósito. O `ratear_por_fracao_ideal` desempata pelo
+-- `id` quando o resto e a fração ideal são iguais — e aqui são, porque as
+-- quatro unidades têm 25% cada. Com ids aleatórios, o centavo que sobra ia
+-- parar a uma unidade diferente em cada execução e a bateria nunca dava o
+-- mesmo resultado duas vezes.
+INSERT INTO public.unidades (id, condominio_id, bloco, numero, fracao_ideal, taxa_mensal)
+SELECT ('dddddddd-0000-0000-0000-' || lpad(n::text, 12, '0'))::uuid,
+       'aaaaaaaa-0000-0000-0000-000000000001','A', n::text, 25, 400
   FROM generate_series(101,104) n;
 
 INSERT INTO public.categorias_financeiras (id, condominio_id, nome, tipo, ordem) VALUES

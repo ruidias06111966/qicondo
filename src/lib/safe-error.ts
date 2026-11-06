@@ -39,6 +39,14 @@ const BUSINESS_RULES: Record<string, string> = {
   antecedencia_minima_nao_atendida: "Antecedência mínima não atendida.",
   antecedencia_maxima_excedida: "Antecedência máxima excedida.",
   cnab_nao_configurado: "CNAB não configurado.",
+
+  // Pix copia e cola. As mensagens dizem o que fazer e não só o que falhou:
+  // quem as lê é o síndico, no momento em que está a tentar cobrar.
+  chave_pix_nao_configurada: "O condomínio ainda não tem chave Pix. Defina-a em Dados da empresa.",
+  cidade_do_condominio_nao_preenchida:
+    "Preencha a cidade do condomínio em Dados da empresa: o padrão do Pix exige-a no QR Code.",
+  cobranca_nao_esta_em_aberto: "Esta cobrança não está em aberto.",
+  cobranca_sem_saldo_a_pagar: "Esta cobrança não tem saldo a pagar.",
   quantidade_invalida: "Quantidade inválida.",
   nota_invalida: "Nota inválida.",
 

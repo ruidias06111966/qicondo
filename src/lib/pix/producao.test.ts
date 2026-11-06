@@ -3,9 +3,27 @@ import { brCodeValido, montarBrCode } from "./brcode";
 
 // Linhas que a `pix_da_cobranca` devolveu em produção, copiadas tal e qual.
 const REAIS = [
-  { recebedor: "Residencial Modelo", cidade: "Brasília", centavos: 46739, txid: "8e13a4dd1e044fb4b08ccaf99", chave: "12345678000199" },
-  { recebedor: "Residencial Modelo", cidade: "Brasília", centavos: 53490, txid: "e8dc986eae5a4922a9400eef8", chave: "12345678000199" },
-  { recebedor: "Residencial Modelo", cidade: "Brasília", centavos: 88588, txid: "58d7678275ec4924999d73c57", chave: "12345678000199" },
+  {
+    recebedor: "Residencial Modelo",
+    cidade: "Brasília",
+    centavos: 46739,
+    txid: "8e13a4dd1e044fb4b08ccaf99",
+    chave: "12345678000199",
+  },
+  {
+    recebedor: "Residencial Modelo",
+    cidade: "Brasília",
+    centavos: 53490,
+    txid: "e8dc986eae5a4922a9400eef8",
+    chave: "12345678000199",
+  },
+  {
+    recebedor: "Residencial Modelo",
+    cidade: "Brasília",
+    centavos: 88588,
+    txid: "58d7678275ec4924999d73c57",
+    chave: "12345678000199",
+  },
 ];
 
 describe("cadeia completa com dados de produção", () => {

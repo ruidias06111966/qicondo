@@ -97,9 +97,7 @@ describe("normalizarTexto", () => {
   it("corta no limite do campo", () => {
     // 25 caracteres exactos. A conta é do código, não minha: tinha escrito
     // "Residencial Jardim das" à mão e faltavam-lhe três caracteres.
-    expect(normalizarTexto("Residencial Jardim das Acacias", 25)).toBe(
-      "Residencial Jardim das Ac",
-    );
+    expect(normalizarTexto("Residencial Jardim das Acacias", 25)).toBe("Residencial Jardim das Ac");
   });
 
   it("não deixa espaço pendurado quando o corte cai num espaço", () => {

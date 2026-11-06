@@ -34,6 +34,19 @@ Estes ficheiros correm num PostgreSQL local descartável:
   não pode ser adoptada nem apagada — nasce uma conta ao lado, com o código no
   nome, e as duas coexistem à vista.
 
+- `03-esqueleto-certidoes.sql` — a camada para a carta de cobrança, o nada
+  consta e as infrações: `profiles`, `unidade_moradores` com vínculo,
+  `acordos`, o cabeçalho do condomínio e `extensions.gen_random_bytes`. Vai
+  **em vez de** `02-esqueleto-contabil.sql`, não a seguir: o 02 cria uma
+  `infracoes` reduzida e aqui quem a cria é a migração real.
+- `certidoes-e-infracoes.sql` — dezoito blocos, vinte e duas recusas
+  esperadas. Foi esta bateria que apanhou o `carta_cobranca` declarado
+  `STABLE` a tentar gravar no `audit_log`: a funcionalidade nunca tinha
+  funcionado, falhava em todas as chamadas, e ninguém reparou porque nunca
+  tinha sido corrida contra uma base. Os tectos das multas estão nos números
+  do bloco 11 e conferem-se de cabeça: com contribuição mensal de 400, o art.
+  1.336 §2.º dá 2.000 e o art. 1.337 § único dá 4.000.
+
 ## Como correr
 
 ```bash
@@ -48,6 +61,26 @@ su postgres -c "psql -h $D -U postgres -d teste -c \"CREATE ROLE anon NOLOGIN; C
 psql ... -f supabase/testes/00-esqueleto.sql
 psql ... -f supabase/migrations/20261105190000_orcamento_anual.sql
 psql ... -f supabase/testes/orcamento.sql
+```
+
+As camadas do esqueleto não se empilham todas: a 02 e a 03 são alternativas,
+porque ambas tocam na `infracoes`.
+
+| Bateria | Esqueleto | Migrações |
+|---|---|---|
+| `orcamento.sql` | 00 | 190000 |
+| `indices.sql` | 00 | 190000, 200000 |
+| `fluxo-de-caixa.sql` | 00, 01 | 180000…210000 |
+| `aplicar-orcamento.sql` | 00, 01 | 190000…220000 |
+| `plano-de-contas.sql` | 00, 01, **02** | 230000, 240000, 250000 |
+| `certidoes-e-infracoes.sql` | 00, 01, **03** | 170000, 180000, 260000 |
+
+Uma recusa esperada aparece no `psql` como `ERROR:`. O que se conta no fim é
+que sejam **aquelas** recusas e nenhuma outra:
+
+```bash
+psql ... -f supabase/testes/certidoes-e-infracoes.sql 2>&1 \
+  | grep -E '^psql.*ERROR' | sed 's/.*ERROR:  //' | sort | uniq -c
 ```
 
 A migração do orçamento depende de `validar_coerencia_condominio`

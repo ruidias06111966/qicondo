@@ -58,6 +58,11 @@ Estes ficheiros correm num PostgreSQL local descartável:
   caso normal. O bloco 14 apanhou uma coluna do `RETURNS TABLE` declarada
   `text` onde a tabela tem `date`: a função falhava em todas as chamadas.
 
+- `rateio.sql` — dez blocos sobre o desempate do centavo que sobra no rateio
+  por fração ideal. O bloco 3 é o que importa guardar: `numero` é texto, e em
+  texto a unidade "10" vem antes da "9". Dizer a um condómino que ele paga um
+  centavo a mais "porque a sua unidade é a primeira" exige que seja verdade.
+
 ## Como correr
 
 ```bash
@@ -129,6 +134,7 @@ porque ambas tocam na `infracoes`.
 | `plano-de-contas.sql` | 00, 01, **02** | 230000, 240000, 250000 |
 | `certidoes-e-infracoes.sql` | 00, 01, **03** | 170000, 180000, 260000 |
 | `comprovante-whatsapp.sql` | 00, 01, 02, 04 | 230000, 240000, 06200000 |
+| `rateio.sql` | 00 | 06210000 |
 
 Uma recusa esperada aparece no `psql` como `ERROR:`. O que se conta no fim é
 que sejam **aquelas** recusas e nenhuma outra:
@@ -154,7 +160,7 @@ por imitações, porque é o comportamento delas que se quer testar.
 | 5 | Dois orçamentos para o mesmo ano são recusados |
 | 6 | Projectar por índice, e com valor próprio |
 | 7 | O resumo, com a inadimplência como divisor |
-| 8 | Quotas por fração ideal, com a soma exacta ao cêntimo |
+| 8 | Quotas por fração ideal, com a soma exacta ao cêntimo (o desempate do centavo tem bateria própria, `rateio.sql`) |
 | 9 | Aprovar com assembleia por encerrar é recusado |
 | 10 | Assembleia de outro condomínio é recusada |
 | 11 | Aprovar |

@@ -138,22 +138,24 @@ declare -A ESQUELETO=(
   [plano-de-contas]="00 01 02"
   [certidoes-e-infracoes]="00 01 03"
   [comprovante-whatsapp]="00 01 02 04"
+  [rateio]="00"
 )
 declare -A MIGRACOES=(
-  [orcamento]="20261105190000"
+  [orcamento]="20261105190000 20261106210000"
   [indices]="20261105190000 20261105200000"
   [fluxo-de-caixa]="20261104180000 20261105120000 20261105190000 20261105200000 20261105210000"
-  [aplicar-orcamento]="20261105190000 20261105200000 20261105210000 20261105220000"
+  [aplicar-orcamento]="20261105190000 20261105200000 20261105210000 20261105220000 20261106210000"
   [plano-de-contas]="20261105230000 20261105240000 20261105250000"
   [certidoes-e-infracoes]="20261105170000 20261105180000 20261105260000"
   [comprovante-whatsapp]="20261105230000 20261105240000 20261106200000"
+  [rateio]="20261106210000"
 )
 # Funções reais de que as migrações dependem e que não vale a pena imitar: é o
 # comportamento delas que se quer testar.
 DEPENDENCIAS="20261105160000 20261104150000"
 
 falhas=0
-for bateria in orcamento indices fluxo-de-caixa aplicar-orcamento plano-de-contas certidoes-e-infracoes comprovante-whatsapp; do
+for bateria in orcamento indices fluxo-de-caixa aplicar-orcamento plano-de-contas certidoes-e-infracoes comprovante-whatsapp rateio; do
   [ -f "$AQUI/$bateria.sql" ] || { echo "SALTADA  $bateria (ficheiro não existe)"; continue; }
 
   como_postgres "psql -h $D -U postgres -q -c 'DROP DATABASE IF EXISTS teste'" >/dev/null 2>&1

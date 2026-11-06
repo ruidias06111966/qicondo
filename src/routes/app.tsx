@@ -4,6 +4,8 @@ import { useAuth } from "@/auth/AuthProvider";
 import { useCondominioAtivo } from "@/auth/useCondominio";
 import { Logo } from "@/components/site/Logo";
 import { SeletorCondominio } from "@/components/app/SeletorCondominio";
+import { AvisoAssinatura } from "@/components/app/AvisoAssinatura";
+import { useAssinaturaDoCondominio } from "@/auth/useAssinatura";
 import { usePlatformAdmin } from "@/auth/usePlatformAdmin";
 import { ADMIN, FIN_VER, temAcesso } from "@/auth/permissoes";
 import type { Role } from "@/auth/useCondominio";
@@ -65,6 +67,7 @@ function AppLayout() {
   const navigate = useNavigate();
   const { loading, user, hasAnyRole, profile, signOut } = useAuth();
   const { role } = useCondominioAtivo();
+  const assinatura = useAssinaturaDoCondominio();
   const { isPlatformAdmin } = usePlatformAdmin();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
@@ -175,6 +178,9 @@ function AppLayout() {
       )}
 
       <main className="flex-1 lg:ml-0 mt-14 lg:mt-0">
+        {/* A faixa fica acima do conteúdo; o bloqueio cobre o ecrã inteiro.
+            Ambos saem do mesmo componente porque a decisão é a mesma. */}
+        <AvisoAssinatura assinatura={assinatura} />
         <Outlet />
       </main>
     </div>

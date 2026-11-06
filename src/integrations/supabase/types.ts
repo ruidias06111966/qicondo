@@ -1150,6 +1150,11 @@ export type Database = {
       condominios: {
         Row: {
           assinatura_fim: string | null;
+          assinatura_conhecida: boolean | null;
+          assinatura_externa_id: string | null;
+          assinatura_fatura: Json | null;
+          assinatura_sincronizada_em: string | null;
+          assinatura_status: string | null;
           assinatura_inicio: string | null;
           cep: string | null;
           chave_pix: string | null;
@@ -1174,6 +1179,11 @@ export type Database = {
         };
         Insert: {
           assinatura_fim?: string | null;
+          assinatura_conhecida?: boolean | null;
+          assinatura_externa_id?: string | null;
+          assinatura_fatura?: Json | null;
+          assinatura_sincronizada_em?: string | null;
+          assinatura_status?: string | null;
           assinatura_inicio?: string | null;
           cep?: string | null;
           chave_pix?: string | null;
@@ -1198,6 +1208,11 @@ export type Database = {
         };
         Update: {
           assinatura_fim?: string | null;
+          assinatura_conhecida?: boolean | null;
+          assinatura_externa_id?: string | null;
+          assinatura_fatura?: Json | null;
+          assinatura_sincronizada_em?: string | null;
+          assinatura_status?: string | null;
           assinatura_inicio?: string | null;
           cep?: string | null;
           chave_pix?: string | null;

@@ -70,6 +70,7 @@ import { Route as AppFinanceiroPrestacaoRouteImport } from './routes/app.finance
 import { Route as AppFinanceiroWhatsappRouteImport } from './routes/app.financeiro.whatsapp'
 import { Route as AuthConviteTokenRouteImport } from './routes/auth.convite.$token'
 import { Route as ApiPublicHooksLembretesCobrancaRouteImport } from './routes/api/public/hooks/lembretes-cobranca'
+import { Route as ApiPublicHooksSincronizarAssinaturasRouteImport } from './routes/api/public/hooks/sincronizar-assinaturas'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -380,6 +381,12 @@ const ApiPublicHooksLembretesCobrancaRoute =
     path: '/api/public/hooks/lembretes-cobranca',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksSincronizarAssinaturasRoute =
+  ApiPublicHooksSincronizarAssinaturasRouteImport.update({
+    id: '/api/public/hooks/sincronizar-assinaturas',
+    path: '/api/public/hooks/sincronizar-assinaturas',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -443,6 +450,7 @@ export interface FileRoutesByFullPath {
   '/admin/empresas/': typeof AdminEmpresasIndexRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
+  '/api/public/hooks/sincronizar-assinaturas': typeof ApiPublicHooksSincronizarAssinaturasRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -503,6 +511,7 @@ export interface FileRoutesByTo {
   '/admin/empresas': typeof AdminEmpresasIndexRoute
   '/app/financeiro': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
+  '/api/public/hooks/sincronizar-assinaturas': typeof ApiPublicHooksSincronizarAssinaturasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -567,6 +576,7 @@ export interface FileRoutesById {
   '/admin/empresas/': typeof AdminEmpresasIndexRoute
   '/app/financeiro/': typeof AppFinanceiroIndexRoute
   '/api/public/hooks/lembretes-cobranca': typeof ApiPublicHooksLembretesCobrancaRoute
+  '/api/public/hooks/sincronizar-assinaturas': typeof ApiPublicHooksSincronizarAssinaturasRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -632,6 +642,7 @@ export interface FileRouteTypes {
     | '/admin/empresas/'
     | '/app/financeiro/'
     | '/api/public/hooks/lembretes-cobranca'
+    | '/api/public/hooks/sincronizar-assinaturas'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -692,6 +703,7 @@ export interface FileRouteTypes {
     | '/admin/empresas'
     | '/app/financeiro'
     | '/api/public/hooks/lembretes-cobranca'
+    | '/api/public/hooks/sincronizar-assinaturas'
   id:
     | '__root__'
     | '/'
@@ -755,6 +767,7 @@ export interface FileRouteTypes {
     | '/admin/empresas/'
     | '/app/financeiro/'
     | '/api/public/hooks/lembretes-cobranca'
+    | '/api/public/hooks/sincronizar-assinaturas'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -785,6 +798,7 @@ export interface RootRouteChildren {
   ApiPublicWaWebhookRoute: typeof ApiPublicWaWebhookRoute
   AuthConviteTokenRoute: typeof AuthConviteTokenRoute
   ApiPublicHooksLembretesCobrancaRoute: typeof ApiPublicHooksLembretesCobrancaRoute
+  ApiPublicHooksSincronizarAssinaturasRoute: typeof ApiPublicHooksSincronizarAssinaturasRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1216,6 +1230,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksLembretesCobrancaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/sincronizar-assinaturas': {
+      id: '/api/public/hooks/sincronizar-assinaturas'
+      path: '/api/public/hooks/sincronizar-assinaturas'
+      fullPath: '/api/public/hooks/sincronizar-assinaturas'
+      preLoaderRoute: typeof ApiPublicHooksSincronizarAssinaturasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1341,6 +1362,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicWaWebhookRoute: ApiPublicWaWebhookRoute,
   AuthConviteTokenRoute: AuthConviteTokenRoute,
   ApiPublicHooksLembretesCobrancaRoute: ApiPublicHooksLembretesCobrancaRoute,
+  ApiPublicHooksSincronizarAssinaturasRoute:
+    ApiPublicHooksSincronizarAssinaturasRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

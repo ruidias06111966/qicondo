@@ -30,29 +30,30 @@ export const EmailChangeEmail = ({
   newEmail,
   confirmationUrl,
 }: EmailChangeEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="pt-BR" dir="ltr">
     <Head />
-    <Preview>Confirm your email change for {siteName}</Preview>
+    <Preview>Confirme o seu novo e-mail no {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Confirm your email change</Heading>
+        <Heading style={h1}>Confirme o seu novo e-mail</Heading>
         <Text style={text}>
-          You requested to change your email address for {siteName} from{" "}
+          Você pediu para trocar o seu endereço de e-mail no {siteName} de{" "}
           <Link href={`mailto:${oldEmail}`} style={link}>
             {oldEmail}
           </Link>{" "}
-          to{" "}
+          para{" "}
           <Link href={`mailto:${newEmail}`} style={link}>
             {newEmail}
           </Link>
           .
         </Text>
-        <Text style={text}>Click the button below to confirm this change:</Text>
+        <Text style={text}>Clique no botão abaixo para confirmar a troca.</Text>
         <Button style={button} href={confirmationUrl}>
-          Confirm Email Change
+          Confirmar troca de e-mail
         </Button>
         <Text style={footer}>
-          If you didn't request this change, please secure your account immediately.
+          Se não foi você que pediu esta troca, mude já a sua senha — alguém pode ter acesso à sua
+          conta.
         </Text>
       </Container>
     </Body>

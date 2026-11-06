@@ -1,0 +1,358 @@
+Pager usage is off.
+Output format is aligned.
+INSERT 0 4
+INSERT 0 2
+INSERT 0 4
+INSERT 0 2
+INSERT 0 2
+INSERT 0 6
+INSERT 0 1
+INSERT 0 1
+SET
+
+=========== 1. semear o plano ===========
+                    resultado                    
+-------------------------------------------------
+ {"criadas": 52, "adotadas": 5, "com_sufixo": 1}
+(1 row)
+
+--- 1b. nenhuma conta com ponto no código ficou sem pai (esperado: 0)
+ orfas 
+-------
+     0
+(1 row)
+
+--- 1c. contagem por tipo e natureza
+  tipo   | sintetica | count 
+---------+-----------+-------
+ receita | f         |    10
+ receita | t         |     5
+ despesa | f         |    33
+ despesa | t         |     9
+(4 rows)
+
+
+=========== 2. idempotência: correr outra vez não cria nada ===========
+                  segunda_vez                   
+------------------------------------------------
+ {"criadas": 0, "adotadas": 0, "com_sufixo": 0}
+(1 row)
+
+--- esperado: criadas 0, adotadas 0, com_sufixo 0
+
+=========== 3. adopção: "Água" é a conta 2.2.02 e mantém o nome ===========
+--- esperado: id cccccccc-...002, codigo 2.2.02, nome Água, pai 2.2
+                  id                  | codigo | nome | pai 
+--------------------------------------+--------+------+-----
+ cccccccc-0000-0000-0000-000000000002 | 2.2.02 | Água | 2.2
+(1 row)
+
+
+=========== 4. a despesa de 2025 continua na mesma conta ===========
+--- esperado: 2.2.02
+ codigo 
+--------
+ 2.2.02
+(1 row)
+
+
+=========== 5. colisão com movimento: "Gás" receita fica, nasce "Gás (2.2.03)" ===========
+--- esperado: duas linhas — Gás/receita/sem código, Gás (2.2.03)/despesa/2.2.03
+     nome     |  tipo   | codigo 
+--------------+---------+--------
+ Gás          | receita | 
+ Gás (2.2.03) | despesa | 2.2.03
+(2 rows)
+
+
+=========== 6. conta sintética recusa lançamento ===========
+--- 6a. despesa em "2 DESPESAS" (esperado: conta_sintetica_nao_aceita_lancamento)
+psql:testes/plano-de-contas.sql:106: ERROR:  conta_sintetica_nao_aceita_lancamento
+HINT:  "DESPESAS" é conta de grupo. Escolha uma das contas abaixo dela.
+CONTEXT:  PL/pgSQL function recusar_conta_sintetica() line 14 at RAISE
+--- 6b. cobrança em "1 RECEITAS" (esperado: a mesma recusa)
+psql:testes/plano-de-contas.sql:113: ERROR:  conta_sintetica_nao_aceita_lancamento
+HINT:  "RECEITAS" é conta de grupo. Escolha uma das contas abaixo dela.
+CONTEXT:  PL/pgSQL function recusar_conta_sintetica() line 14 at RAISE
+--- 6c. rubrica de orçamento no grupo (esperado: a mesma recusa)
+INSERT 0 1
+psql:testes/plano-de-contas.sql:121: ERROR:  conta_sintetica_nao_aceita_lancamento
+HINT:  "Consumos e concessionárias" é conta de grupo. Escolha uma das contas abaixo dela.
+CONTEXT:  PL/pgSQL function recusar_conta_sintetica() line 14 at RAISE
+--- 6d. a mesma rubrica numa analítica passa (esperado: 1 linha inserida)
+INSERT 0 1
+
+=========== 7. pai inválido ===========
+--- 7a. pai analítico (esperado: conta_pai_invalida)
+psql:testes/plano-de-contas.sql:135: ERROR:  conta_pai_invalida
+HINT:  Só uma conta sintética (de grupo) pode ter contas abaixo.
+CONTEXT:  PL/pgSQL function validar_conta_pai() line 32 at RAISE
+SQL statement "INSERT INTO public.categorias_financeiras
+    (condominio_id, nome, tipo, cor, ordem, codigo, conta_pai_id, sintetica, fundo_reserva)
+  VALUES
+    (_condominio_id, btrim(_nome), _tipo, _cor, _ordem, nullif(btrim(_codigo), ''),
+     _conta_pai_id, _sintetica, _fundo_reserva)
+  RETURNING id"
+PL/pgSQL function criar_conta(uuid,text,tipo_lancamento,text,uuid,boolean,boolean,text) line 26 at SQL statement
+--- 7b. pai de outro tipo (esperado: conta_pai_invalida)
+psql:testes/plano-de-contas.sql:141: ERROR:  conta_pai_invalida
+HINT:  Uma conta de receita não pode ficar sob um grupo de despesa, nem o contrário.
+CONTEXT:  PL/pgSQL function validar_conta_pai() line 27 at RAISE
+SQL statement "INSERT INTO public.categorias_financeiras
+    (condominio_id, nome, tipo, cor, ordem, codigo, conta_pai_id, sintetica, fundo_reserva)
+  VALUES
+    (_condominio_id, btrim(_nome), _tipo, _cor, _ordem, nullif(btrim(_codigo), ''),
+     _conta_pai_id, _sintetica, _fundo_reserva)
+  RETURNING id"
+PL/pgSQL function criar_conta(uuid,text,tipo_lancamento,text,uuid,boolean,boolean,text) line 26 at SQL statement
+--- 7c. pai de outro condomínio (esperado: conta_pai_invalida)
+               semear_plano_contas               
+-------------------------------------------------
+ {"criadas": 57, "adotadas": 0, "com_sufixo": 0}
+(1 row)
+
+psql:testes/plano-de-contas.sql:148: ERROR:  conta_pai_invalida
+HINT:  A conta superior é de outro condomínio.
+CONTEXT:  PL/pgSQL function validar_conta_pai() line 22 at RAISE
+SQL statement "INSERT INTO public.categorias_financeiras
+    (condominio_id, nome, tipo, cor, ordem, codigo, conta_pai_id, sintetica, fundo_reserva)
+  VALUES
+    (_condominio_id, btrim(_nome), _tipo, _cor, _ordem, nullif(btrim(_codigo), ''),
+     _conta_pai_id, _sintetica, _fundo_reserva)
+  RETURNING id"
+PL/pgSQL function criar_conta(uuid,text,tipo_lancamento,text,uuid,boolean,boolean,text) line 26 at SQL statement
+--- 7d. ciclo: pôr "2" debaixo de "2.2" (esperado: conta_pai_invalida)
+psql:testes/plano-de-contas.sql:154: ERROR:  conta_pai_invalida
+HINT:  Isso fecharia um ciclo no plano de contas.
+CONTEXT:  PL/pgSQL function validar_conta_pai() line 40 at RAISE
+--- 7e. código com formato inválido (esperado: categoria_codigo_formato)
+psql:testes/plano-de-contas.sql:157: ERROR:  new row for relation "categorias_financeiras" violates check constraint "categoria_codigo_formato"
+DETAIL:  Failing row contains (<uuid>, aaaaaaaa-0000-0000-0000-000000000001, Má, despesa, t, 10, f, #64748B, <carimbo>, <carimbo>, 2.2., null, f).
+CONTEXT:  SQL statement "INSERT INTO public.categorias_financeiras
+    (condominio_id, nome, tipo, cor, ordem, codigo, conta_pai_id, sintetica, fundo_reserva)
+  VALUES
+    (_condominio_id, btrim(_nome), _tipo, _cor, _ordem, nullif(btrim(_codigo), ''),
+     _conta_pai_id, _sintetica, _fundo_reserva)
+  RETURNING id"
+PL/pgSQL function criar_conta(uuid,text,tipo_lancamento,text,uuid,boolean,boolean,text) line 26 at SQL statement
+
+=========== 8. nível e ordenação ===========
+--- 8a. nível pelos pontos (esperado: 2 -> 1, 2.2 -> 2, 2.2.02 -> 3)
+ codigo | nivel 
+--------+-------
+ 2      |     1
+ 2.2    |     2
+ 2.2.02 |     3
+(3 rows)
+
+--- 8b. 2.10 vem depois de 2.9, não antes (ordenação por int[], não texto)
+ criada 
+--------
+ t
+(1 row)
+
+ codigo 
+--------
+ 2.9
+ 2.9.01
+ 2.10
+(3 rows)
+
+
+=========== 9. manutenção das contas ===========
+--- 9a. tornar sintética uma conta com lançamentos (esperado: conta_em_uso)
+psql:testes/plano-de-contas.sql:176: ERROR:  conta_em_uso
+HINT:  Esta conta já tem lançamentos; não pode passar a conta de grupo.
+CONTEXT:  PL/pgSQL function atualizar_conta(uuid,text,text,uuid,boolean,boolean,text,boolean) line 23 at RAISE
+--- 9b. desactivar um grupo com filhas activas (esperado: conta_com_filhas)
+psql:testes/plano-de-contas.sql:181: ERROR:  conta_com_filhas
+HINT:  Tem 4 conta(s) activa(s) abaixo. Desactive-as primeiro.
+CONTEXT:  PL/pgSQL function desativar_conta(uuid) line 20 at RAISE
+--- 9c. desactivar uma folha sem movimento passa (esperado: sem erro)
+ desativar_conta 
+-----------------
+ 
+(1 row)
+
+--- e deixa de aparecer no plano (esperado: 0 linhas)
+ count 
+-------
+     0
+(1 row)
+
+
+=========== 10. autorização ===========
+SET
+--- 10a. estranho a semear (esperado: forbidden)
+psql:testes/plano-de-contas.sql:195: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function semear_plano_contas(uuid) line 16 at RAISE
+--- 10b. estranho a ler o plano (esperado: forbidden)
+psql:testes/plano-de-contas.sql:197: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function plano_de_contas(uuid,boolean) line 5 at RAISE
+--- 10c. morador lê o plano (esperado: contagem > 0)
+SET
+ morador_le 
+------------
+ t
+(1 row)
+
+--- 10d. morador a criar conta (esperado: forbidden)
+psql:testes/plano-de-contas.sql:202: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function criar_conta(uuid,text,tipo_lancamento,text,uuid,boolean,boolean,text) line 8 at RAISE
+SET
+INSERT 0 3
+INSERT 0 1
+INSERT 0 1
+
+=========== 11. validações do anexo ===========
+--- 11a. caminho que não começa pelo condomínio (esperado: anexo_caminho_invalido)
+psql:testes/plano-de-contas.sql:244: ERROR:  anexo_caminho_invalido
+HINT:  O caminho no Storage tem de começar pelo id do condomínio.
+CONTEXT:  PL/pgSQL function registrar_anexo(uuid,text,uuid,anexo_tipo,text,text,text,bigint,text,date,numeric,text) line 17 at RAISE
+--- 11b. lançamento inexistente (esperado: anexo_lancamento_nao_encontrado)
+psql:testes/plano-de-contas.sql:249: ERROR:  anexo_lancamento_nao_encontrado
+HINT:  Nenhum lançamento do tipo "despesa" com esse identificador.
+CONTEXT:  PL/pgSQL function validar_anexo_entidade() line 14 at RAISE
+SQL statement "INSERT INTO public.anexos (
+    condominio_id, entidade, entidade_id, tipo,
+    storage_path, nome_arquivo, mime_type, tamanho_bytes,
+    documento_numero, documento_data, valor, observacao, enviado_por
+  ) VALUES (
+    _condominio_id, _entidade, _entidade_id, _tipo,
+    btrim(_storage_path), btrim(_nome_arquivo), _mime_type, _tamanho_bytes,
+    nullif(btrim(_documento_numero), ''), _documento_data, _valor,
+    nullif(btrim(_observacao), ''), auth.uid()
+  )
+  RETURNING id"
+PL/pgSQL function registrar_anexo(uuid,text,uuid,anexo_tipo,text,text,text,bigint,text,date,numeric,text) line 21 at SQL statement
+--- 11c. lançamento de outro condomínio (esperado: anexo_de_outro_condominio)
+psql:testes/plano-de-contas.sql:254: ERROR:  anexo_de_outro_condominio
+HINT:  O lançamento pertence a outro condomínio.
+CONTEXT:  PL/pgSQL function validar_anexo_entidade() line 19 at RAISE
+SQL statement "INSERT INTO public.anexos (
+    condominio_id, entidade, entidade_id, tipo,
+    storage_path, nome_arquivo, mime_type, tamanho_bytes,
+    documento_numero, documento_data, valor, observacao, enviado_por
+  ) VALUES (
+    _condominio_id, _entidade, _entidade_id, _tipo,
+    btrim(_storage_path), btrim(_nome_arquivo), _mime_type, _tamanho_bytes,
+    nullif(btrim(_documento_numero), ''), _documento_data, _valor,
+    nullif(btrim(_observacao), ''), auth.uid()
+  )
+  RETURNING id"
+PL/pgSQL function registrar_anexo(uuid,text,uuid,anexo_tipo,text,text,text,bigint,text,date,numeric,text) line 21 at SQL statement
+
+=========== 12. anexar os documentos do cenário ===========
+ nf_agua 
+---------
+ t
+(1 row)
+
+ comp_agua 
+-----------
+ t
+(1 row)
+
+ nf_energia 
+------------
+ t
+(1 row)
+
+ comp_taxa 
+-----------
+ t
+(1 row)
+
+--- 12b. o mesmo caminho outra vez (esperado: anexo_caminho_unico)
+psql:testes/plano-de-contas.sql:282: ERROR:  duplicate key value violates unique constraint "anexo_caminho_unico"
+DETAIL:  Key (storage_path)=(aaaaaaaa-0000-0000-0000-000000000001/despesa/eeeeeeee-0000-0000-0000-00000000000a/nf-agua.pdf) already exists.
+CONTEXT:  SQL statement "INSERT INTO public.anexos (
+    condominio_id, entidade, entidade_id, tipo,
+    storage_path, nome_arquivo, mime_type, tamanho_bytes,
+    documento_numero, documento_data, valor, observacao, enviado_por
+  ) VALUES (
+    _condominio_id, _entidade, _entidade_id, _tipo,
+    btrim(_storage_path), btrim(_nome_arquivo), _mime_type, _tamanho_bytes,
+    nullif(btrim(_documento_numero), ''), _documento_data, _valor,
+    nullif(btrim(_observacao), ''), auth.uid()
+  )
+  RETURNING id"
+PL/pgSQL function registrar_anexo(uuid,text,uuid,anexo_tipo,text,text,text,bigint,text,date,numeric,text) line 21 at SQL statement
+
+=========== 13. pendências documentais de 2026-03 ===========
+--- esperado: 2 linhas — Energia (fiscal t, comprovante f) e portão (f, f)
+ conta_codigo |     descricao      | valor  | tem_fiscal | tem_comprovante 
+--------------+--------------------+--------+------------+-----------------
+ 2.2.01       | Energia de março   | 300.00 | t          | f
+ 2.3.09       | Conserto do portão |  50.00 | f          | f
+(2 rows)
+
+
+=========== 14. prestação de contas por conta ===========
+--- esperado: 1=400/1/1, 1.1=400/1/1, 1.1.01=400/1/1,
+---           2=450/3/2, 2.2=400/2/2, 2.2.01=300/1/1, 2.2.02=100/1/1,
+---           2.3=50/1/0, 2.3.09=50/1/0
+ codigo |            nome            | nivel | sintetica | valor  | lancamentos | documentados 
+--------+----------------------------+-------+-----------+--------+-------------+--------------
+ 1      | RECEITAS                   |     1 | t         | 400.00 |           1 |            1
+ 1.1    | Receitas ordinárias        |     2 | t         | 400.00 |           1 |            1
+ 1.1.01 | Taxa condominial           |     3 | f         | 400.00 |           1 |            1
+ 2      | DESPESAS                   |     1 | t         | 450.00 |           3 |            2
+ 2.2    | Consumos e concessionárias |     2 | t         | 400.00 |           2 |            2
+ 2.2.01 | Energia                    |     3 | f         | 300.00 |           1 |            1
+ 2.2.02 | Água                       |     3 | f         | 100.00 |           1 |            1
+ 2.3    | Manutenção e conservação   |     2 | t         |  50.00 |           1 |            0
+ 2.3.09 | Manutenção                 |     3 | f         |  50.00 |           1 |            0
+(9 rows)
+
+
+=========== 15. apagar o lançamento leva os anexos ===========
+--- antes (esperado: 2)
+ count 
+-------
+     2
+(1 row)
+
+DELETE 1
+--- depois (esperado: 0)
+ count 
+-------
+     0
+(1 row)
+
+
+=========== 16. quem vê os anexos ===========
+ boleto 
+--------
+ t
+(1 row)
+
+--- 16a. o morador da 101 vê o boleto da sua cobrança (esperado: 1)
+SET
+ count 
+-------
+     1
+(1 row)
+
+--- 16b. o morador da 102 não (esperado: forbidden)
+SET
+psql:testes/plano-de-contas.sql:323: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function listar_anexos(uuid,text,uuid) line 24 at RAISE
+--- 16c. o morador não vê anexos de despesa (esperado: forbidden)
+SET
+psql:testes/plano-de-contas.sql:328: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function listar_anexos(uuid,text,uuid) line 24 at RAISE
+--- 16d. o morador não vê as pendências documentais (esperado: forbidden)
+psql:testes/plano-de-contas.sql:331: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function pendencias_documentais(uuid,date,date) line 5 at RAISE
+--- 16e. o síndico vê os anexos da despesa (esperado: 1)
+SET
+ count 
+-------
+     1
+(1 row)
+
+
+=========== 17. período inválido (esperado: periodo_invalido) ===========
+psql:testes/plano-de-contas.sql:340: ERROR:  periodo_invalido
+CONTEXT:  PL/pgSQL function prestacao_por_conta(uuid,date,date) line 9 at RAISE

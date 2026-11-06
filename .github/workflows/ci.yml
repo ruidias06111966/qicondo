@@ -43,3 +43,24 @@ jobs:
           VITE_SUPABASE_URL: https://exemplo.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: chave-de-marcador-para-o-build
         run: bun run build
+
+  sql:
+    name: Baterias de SQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # Separado do `verificar` de propósito: são ferramentas diferentes (psql e
+    # não bun) e falham por razões diferentes. Num job só, uma falha de SQL
+    # aparecia como "o CI falhou" sem dizer de que lado.
+    steps:
+      - uses: actions/checkout@v4
+
+      # O runner do Ubuntu já traz o PostgreSQL instalado mas parado. O guião
+      # arranca uma instância descartável própria, por isso basta o binário.
+      - name: Conferir que há PostgreSQL
+        run: ls -d /usr/lib/postgresql/*/bin
+
+      - name: Correr as baterias
+        # O guião precisa de `su postgres`, porque o initdb recusa correr como
+        # root. No runner, o utilizador tem sudo sem palavra-passe.
+        run: sudo bash supabase/testes/correr.sh

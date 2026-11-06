@@ -1,0 +1,105 @@
+Pager usage is off.
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 4
+INSERT 0 2
+INSERT 0 12
+                              set_config                               
+-----------------------------------------------------------------------
+ {"sub":"66666666-6666-6666-6666-666666666666","role":"authenticated"}
+(1 row)
+
+=== 1. aplicar um orçamento ainda em rascunho (espera recusa) ===
+psql:testes/aplicar-orcamento.sql:20: ERROR:  orcamento_nao_aprovado
+HINT:  Só se cobra o que a assembleia aprovou. Aprove o orçamento primeiro.
+CONTEXT:  PL/pgSQL function aplicar_orcamento(uuid,uuid,integer,integer) line 21 at RAISE
+=== 2. aprovar ===
+INSERT 0 1
+ aprovar_orcamento 
+-------------------
+ 
+(1 row)
+
+    despesa prevista 48000, sem fundo nem inadimplência -> 4000/mês -> 1000 por unidade
+ mensal  
+---------
+ 4000.00
+(1 row)
+
+=== 3. categoria de despesa (espera recusa com explicação) ===
+psql:testes/aplicar-orcamento.sql:30: ERROR:  categoria_invalida
+HINT:  A quota é receita. Escolha uma categoria de receita.
+CONTEXT:  PL/pgSQL function aplicar_orcamento(uuid,uuid,integer,integer) line 41 at RAISE
+=== 4. dia 45 (espera recusa) ===
+psql:testes/aplicar-orcamento.sql:33: ERROR:  dia_invalido
+HINT:  O dia do vencimento vai de 1 a 31.
+CONTEXT:  PL/pgSQL function aplicar_orcamento(uuid,uuid,integer,integer) line 26 at RAISE
+=== 5. aplicar a sério, vencimento no dia 31 ===
+          jsonb_pretty          
+--------------------------------
+ {                             +
+     "ano": 2026,              +
+     "meses": 12,              +
+     "dia_vencimento": 31,     +
+     "cobrancas_geradas": 48,  +
+     "unidades_actualizadas": 4+
+ }
+(1 row)
+
+=== 6. a taxa das unidades passou de 400 para 1000 ===
+ numero | taxa_mensal 
+--------+-------------
+ 101    |     1000.00
+ 102    |     1000.00
+ 103    |     1000.00
+ 104    |     1000.00
+(4 rows)
+
+=== 7. o dia 31 cai no último dia de cada mês ===
+ mes | vencimento | cobrancas 
+-----+------------+-----------
+ 01  | 2026-01-31 |         4
+ 02  | 2026-02-28 |         4
+ 03  | 2026-03-31 |         4
+ 04  | 2026-04-30 |         4
+(4 rows)
+
+=== 8. doze meses x quatro unidades = 48 cobranças, todas de 1000 ===
+ cobrancas |  total   |  menor  |  maior  
+-----------+----------+---------+---------
+        48 | 48000.00 | 1000.00 | 1000.00
+(1 row)
+
+=== 9. aplicar outra vez não duplica ===
+ geradas_na_segunda 
+--------------------
+ 0
+(1 row)
+
+ cobrancas_no_total 
+--------------------
+                 48
+(1 row)
+
+=== 10. as taxas anteriores ficaram no registo, para se poder voltar atrás ===
+ unidades_registadas | taxa_da_primeira 
+---------------------+------------------
+                   4 | 400.00
+(1 row)
+
+=== 11. o orçamento ficou marcado como aplicado ===
+ aplicado 
+----------
+ t
+(1 row)
+
+=== 12. quem não é síndico não aplica ===
+INSERT 0 1
+                              set_config                               
+-----------------------------------------------------------------------
+ {"sub":"77777777-7777-7777-7777-777777777777","role":"authenticated"}
+(1 row)
+
+psql:testes/aplicar-orcamento.sql:67: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function aplicar_orcamento(uuid,uuid,integer,integer) line 18 at RAISE

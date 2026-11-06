@@ -39,7 +39,7 @@ Estes ficheiros correm num PostgreSQL local descartável:
   `acordos`, o cabeçalho do condomínio e `extensions.gen_random_bytes`. Vai
   **em vez de** `02-esqueleto-contabil.sql`, não a seguir: o 02 cria uma
   `infracoes` reduzida e aqui quem a cria é a migração real.
-- `certidoes-e-infracoes.sql` — dezoito blocos, vinte e duas recusas
+- `certidoes-e-infracoes.sql` — dezoito blocos, vinte e três recusas
   esperadas. Foi esta bateria que apanhou o `carta_cobranca` declarado
   `STABLE` a tentar gravar no `audit_log`: a funcionalidade nunca tinha
   funcionado, falhava em todas as chamadas, e ninguém reparou porque nunca
@@ -48,6 +48,26 @@ Estes ficheiros correm num PostgreSQL local descartável:
   1.336 §2.º dá 2.000 e o art. 1.337 § único dá 4.000.
 
 ## Como correr
+
+```bash
+./supabase/testes/correr.sh            # compara com a referência — é o que o CI faz
+./supabase/testes/correr.sh --gravar   # regrava a referência, para rever no PR
+```
+
+O guião arranca um PostgreSQL descartável, aplica o esqueleto e as migrações
+de cada bateria, e compara a saída com `esperado/<bateria>.txt`.
+
+**A comparação diz que a saída não mudou, não que está certa.** Quem revê o
+`--gravar` é que decide se o comportamento novo é o desejado — é por isso que
+a referência vai ao repositório, e não é gerada no CI.
+
+Três coisas são neutralizadas antes de comparar, senão nada estabilizava: o
+caminho absoluto com que o `psql` prefixa os erros, os uuid gerados pelo
+`gen_random_uuid()` e os carimbos de `now()`. Os uuid do cenário — os que
+começam por oito caracteres iguais — ficam como estão, porque é por eles que
+se percebe que linha toca que condomínio.
+
+### À mão, uma bateria de cada vez
 
 ```bash
 D=/tmp/pgtest && rm -rf $D && mkdir -p $D && chown -R postgres:postgres $D

@@ -1042,6 +1042,7 @@ export type Database = {
           acordo_id: string | null;
           categoria_id: string | null;
           competencia: string;
+          comprovante_recebido_em: string | null;
           condominio_id: string;
           created_at: string;
           criado_por: string | null;
@@ -1068,6 +1069,7 @@ export type Database = {
           acordo_id?: string | null;
           categoria_id?: string | null;
           competencia: string;
+          comprovante_recebido_em?: string | null;
           condominio_id: string;
           created_at?: string;
           criado_por?: string | null;
@@ -1094,6 +1096,7 @@ export type Database = {
           acordo_id?: string | null;
           categoria_id?: string | null;
           competencia?: string;
+          comprovante_recebido_em?: string | null;
           condominio_id?: string;
           created_at?: string;
           criado_por?: string | null;
@@ -1149,13 +1152,13 @@ export type Database = {
       };
       condominios: {
         Row: {
-          assinatura_fim: string | null;
           assinatura_conhecida: boolean | null;
           assinatura_externa_id: string | null;
           assinatura_fatura: Json | null;
+          assinatura_fim: string | null;
+          assinatura_inicio: string | null;
           assinatura_sincronizada_em: string | null;
           assinatura_status: string | null;
-          assinatura_inicio: string | null;
           cep: string | null;
           chave_pix: string | null;
           chave_pix_tipo: Database["public"]["Enums"]["chave_pix_tipo"] | null;
@@ -1178,13 +1181,13 @@ export type Database = {
           whatsapp_numero: string | null;
         };
         Insert: {
-          assinatura_fim?: string | null;
           assinatura_conhecida?: boolean | null;
           assinatura_externa_id?: string | null;
           assinatura_fatura?: Json | null;
+          assinatura_fim?: string | null;
+          assinatura_inicio?: string | null;
           assinatura_sincronizada_em?: string | null;
           assinatura_status?: string | null;
-          assinatura_inicio?: string | null;
           cep?: string | null;
           chave_pix?: string | null;
           chave_pix_tipo?: Database["public"]["Enums"]["chave_pix_tipo"] | null;
@@ -1207,13 +1210,13 @@ export type Database = {
           whatsapp_numero?: string | null;
         };
         Update: {
-          assinatura_fim?: string | null;
           assinatura_conhecida?: boolean | null;
           assinatura_externa_id?: string | null;
           assinatura_fatura?: Json | null;
+          assinatura_fim?: string | null;
+          assinatura_inicio?: string | null;
           assinatura_sincronizada_em?: string | null;
           assinatura_status?: string | null;
-          assinatura_inicio?: string | null;
           cep?: string | null;
           chave_pix?: string | null;
           chave_pix_tipo?: Database["public"]["Enums"]["chave_pix_tipo"] | null;
@@ -3344,9 +3347,37 @@ export type Database = {
         Args: { _interno: boolean; _mensagem: string; _ocorrencia_id: string };
         Returns: string;
       };
+      comprovantes_a_conferir: {
+        Args: { _condominio_id: string };
+        Returns: {
+          cobranca_id: string;
+          competencia: string;
+          comprovante_recebido_em: string;
+          comprovantes: number;
+          em_aberto: number;
+          primeiro_comprovante_em: string;
+          status: Database["public"]["Enums"]["cobranca_status"];
+          unidade: string;
+          unidade_id: string;
+          vencimento: string;
+        }[];
+      };
       concentracao_pagamentos: {
         Args: { _condominio_id: string; _fim: string; _inicio: string };
         Returns: Json;
+      };
+      condominios_para_sincronizar: {
+        Args: { _limite?: number };
+        Returns: {
+          cidade: string;
+          conhecida: boolean;
+          documento: string;
+          email: string;
+          id: string;
+          nome: string;
+          telefone: string;
+          uf: string;
+        }[];
       };
       conferir_certidao: { Args: { _codigo: string }; Returns: Json };
       contar_usuarios_empresa: {
@@ -3717,6 +3748,18 @@ export type Database = {
         };
         Returns: string;
       };
+      registrar_comprovante_whatsapp: {
+        Args: {
+          _cobranca_id: string;
+          _condominio_id: string;
+          _mime_type?: string;
+          _nome_arquivo: string;
+          _storage_path: string;
+          _tamanho_bytes?: number;
+          _telefone: string;
+        };
+        Returns: string;
+      };
       registrar_encomenda: {
         Args: {
           _codigo_rastreio: string;
@@ -3808,6 +3851,7 @@ export type Database = {
         };
         Returns: Json;
       };
+      sincronizar_assinaturas_qigestao: { Args: never; Returns: undefined };
       solicitar_reserva: {
         Args: {
           _area_id: string;

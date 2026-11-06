@@ -47,6 +47,17 @@ Estes ficheiros correm num PostgreSQL local descartável:
   do bloco 11 e conferem-se de cabeça: com contribuição mensal de 400, o art.
   1.336 §2.º dá 2.000 e o art. 1.337 § único dá 4.000.
 
+- `04-esqueleto-whatsapp.sql` — as conversas do WhatsApp e o `audit_log`. Vai
+  depois de 00, 01 e 02.
+- `comprovante-whatsapp.sql` — quinze blocos, nove deles recusas. Esta é a
+  única função do sistema que escreve a partir de um número de telefone em vez
+  de um utilizador autenticado: quem a chama é o webhook da Meta, com a chave
+  de serviço, e não há `auth.uid()` para verificar. O vínculo número → unidade
+  é tudo o que separa um condómino a comprovar a sua cobrança de um condómino a
+  mexer na do vizinho — e é por isso que os blocos 2 a 6 valem mais do que o
+  caso normal. O bloco 14 apanhou uma coluna do `RETURNS TABLE` declarada
+  `text` onde a tabela tem `date`: a função falhava em todas as chamadas.
+
 ## Como correr
 
 ```bash
@@ -117,6 +128,7 @@ porque ambas tocam na `infracoes`.
 | `aplicar-orcamento.sql` | 00, 01 | 190000…220000 |
 | `plano-de-contas.sql` | 00, 01, **02** | 230000, 240000, 250000 |
 | `certidoes-e-infracoes.sql` | 00, 01, **03** | 170000, 180000, 260000 |
+| `comprovante-whatsapp.sql` | 00, 01, 02, 04 | 230000, 240000, 06200000 |
 
 Uma recusa esperada aparece no `psql` como `ERROR:`. O que se conta no fim é
 que sejam **aquelas** recusas e nenhuma outra:

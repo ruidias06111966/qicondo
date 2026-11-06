@@ -137,6 +137,7 @@ declare -A ESQUELETO=(
   [aplicar-orcamento]="00 01"
   [plano-de-contas]="00 01 02"
   [certidoes-e-infracoes]="00 01 03"
+  [comprovante-whatsapp]="00 01 02 04"
 )
 declare -A MIGRACOES=(
   [orcamento]="20261105190000"
@@ -145,13 +146,14 @@ declare -A MIGRACOES=(
   [aplicar-orcamento]="20261105190000 20261105200000 20261105210000 20261105220000"
   [plano-de-contas]="20261105230000 20261105240000 20261105250000"
   [certidoes-e-infracoes]="20261105170000 20261105180000 20261105260000"
+  [comprovante-whatsapp]="20261105230000 20261105240000 20261106200000"
 )
 # Funções reais de que as migrações dependem e que não vale a pena imitar: é o
 # comportamento delas que se quer testar.
 DEPENDENCIAS="20261105160000 20261104150000"
 
 falhas=0
-for bateria in orcamento indices fluxo-de-caixa aplicar-orcamento plano-de-contas certidoes-e-infracoes; do
+for bateria in orcamento indices fluxo-de-caixa aplicar-orcamento plano-de-contas certidoes-e-infracoes comprovante-whatsapp; do
   [ -f "$AQUI/$bateria.sql" ] || { echo "SALTADA  $bateria (ficheiro não existe)"; continue; }
 
   como_postgres "psql -h $D -U postgres -q -c 'DROP DATABASE IF EXISTS teste'" >/dev/null 2>&1
@@ -205,10 +207,15 @@ for bateria in orcamento indices fluxo-de-caixa aplicar-orcamento plano-de-conta
   # Estas assinaturas não são recusas de regra de negócio (essas são códigos
   # como `sem_divida`): são sinais de que o esqueleto, a migração ou a própria
   # bateria estão partidos.
-  infra=$(grep -cE "invalid input syntax|does not exist|syntax error at|permission denied for|relation \"[^\"]+\" does not exist" "$saida" || true)
+  #
+  # `structure of query does not match` entrou depois: uma coluna do
+  # `RETURNS TABLE` declarada `text` onde a tabela tem `date` faz a função
+  # falhar em todas as chamadas, e sem estar na lista isso gravava-se como
+  # referência — exactamente o modo de falha que a guarda existe para apanhar.
+  infra=$(grep -cE "invalid input syntax|does not exist|syntax error at|permission denied for|structure of query does not match|relation \"[^\"]+\" does not exist" "$saida" || true)
   if [ "$infra" -gt 0 ]; then
     echo "FALHA    $bateria — $infra erro(s) de infra-estrutura na saída, não de regra de negócio:"
-    grep -nE "invalid input syntax|does not exist|syntax error at|permission denied for" "$saida" | head -5
+    grep -nE "invalid input syntax|does not exist|syntax error at|permission denied for|structure of query does not match" "$saida" | head -5
     echo "         Isto não se grava como referência. Corrija a bateria ou o esqueleto."
     falhas=$((falhas + 1))
     rm -f "$saida"

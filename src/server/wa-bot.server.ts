@@ -1,6 +1,15 @@
 // Roteador do bot conversacional do WhatsApp.
 // Recebe mensagens do morador, atualiza estado em wa_bot_estado e responde.
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { escolherCobranca, type CobrancaEmAberto } from "@/lib/comprovante";
+import { montarBrCode } from "@/lib/pix/brcode";
+import {
+  cobrancasEmAberto,
+  competenciaCurta,
+  confirmacao,
+  guardarComprovante,
+  listaNumerada,
+} from "./wa-comprovante.server";
 import { enviarTextoWA, type WaConfig } from "./whatsapp.server";
 
 const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
@@ -17,6 +26,7 @@ const MENU = `Olá! 👋 Sou o assistente do condomínio. Escolha uma opção:
 3️⃣ Abrir uma ocorrência
 4️⃣ Falar com o síndico
 5️⃣ Documentos oficiais (atas, convenção, regimento)
+6️⃣ Enviar comprovante de pagamento
 
 Responda apenas com o número.`;
 
@@ -29,12 +39,14 @@ type Conversa = {
   nome: string | null;
 };
 
-export async function processarMensagemBot(
-  cfg: WaConfig,
-  conversa: Conversa,
-  textoIn: string,
-  contexto?: { tipo: string; id: string } | null,
-) {
+/**
+ * Responder, guardar estado e limpá-lo.
+ *
+ * Estavam fechados dentro do `processarMensagemBot`. O caminho da mídia precisa
+ * exactamente dos mesmos, e duplicá-los era garantir que um dia divergiam —
+ * tipicamente no `wa_mensagens`, que deixaria de registar metade das respostas.
+ */
+function ajudantes(cfg: WaConfig, conversa: Conversa) {
   const responder = async (texto: string) => {
     const r = await enviarTextoWA(cfg, conversa.telefone, texto);
     await supabaseAdmin.from("wa_mensagens").insert({
@@ -63,14 +75,26 @@ export async function processarMensagemBot(
     );
   };
 
-  const limparEstado = () => setEstado("menu", null, {});
+  const lerEstado = async () => {
+    const { data } = await supabaseAdmin
+      .from("wa_bot_estado")
+      .select("*")
+      .eq("conversa_id", conversa.id)
+      .maybeSingle();
+    return data as any;
+  };
 
-  // Carrega estado atual
-  const { data: estado } = await supabaseAdmin
-    .from("wa_bot_estado")
-    .select("*")
-    .eq("conversa_id", conversa.id)
-    .maybeSingle();
+  return { responder, setEstado, limparEstado: () => setEstado("menu", null, {}), lerEstado };
+}
+
+export async function processarMensagemBot(
+  cfg: WaConfig,
+  conversa: Conversa,
+  textoIn: string,
+  contexto?: { tipo: string; id: string } | null,
+) {
+  const { responder, setEstado, limparEstado, lerEstado } = ajudantes(cfg, conversa);
+  const estado = await lerEstado();
 
   const txt = (textoIn || "").trim().toLowerCase();
 
@@ -105,6 +129,7 @@ export async function processarMensagemBot(
     );
   }
   if (txt === "5") return iniciarDocumentos(conversa, responder, setEstado);
+  if (txt === "6") return iniciarComprovante(conversa, responder, setEstado);
 
   // Confirmação de visitante (resposta a notificação)
   if (
@@ -214,11 +239,173 @@ async function iniciarDocumentos(
   );
 }
 
+/**
+ * O PIX da cobrança, pela função real.
+ *
+ * O que estava aqui lia `mp_qr_code` e `mp_ticket_url` — colunas do Mercado
+ * Pago, que nunca foram preenchidas porque o Mercado Pago não está em uso. O
+ * condómino pedia a segunda via e recebia "o síndico ainda não emitiu cobrança
+ * bancária para este lançamento", sempre, desde que a funcionalidade existe.
+ *
+ * O `pix_da_cobranca` calcula multa e juros devidos hoje, por isso o valor é o
+ * de hoje e não o do dia da emissão.
+ */
+async function mandarPix(cobrancaId: string, responder: (s: string) => Promise<void>) {
+  const { data, error } = await supabaseAdmin.rpc("pix_da_cobranca", {
+    _cobranca_id: cobrancaId,
+  } as any);
+
+  const pix = Array.isArray(data) ? (data[0] as any) : (data as any);
+  if (error || !pix?.chave) {
+    // O caso mais comum é o condomínio não ter chave PIX configurada. Dizê-lo
+    // é melhor do que um "tente mais tarde" que não dá nada a fazer.
+    console.error("[wa-bot] pix_da_cobranca", error?.message);
+    return responder(
+      "O condomínio ainda não cadastrou a chave PIX. Peça ao síndico para cadastrá-la no sistema — sem isso não consigo gerar o código.",
+    );
+  }
+
+  // O BR Code não vem da base: a função devolve os campos e o payload é
+  // montado aqui, pelo mesmo `montarBrCode` que o ecrã usa. Um gerador só, e
+  // não dois que um dia divergem no CRC.
+  let brcode: string;
+  try {
+    brcode = montarBrCode({
+      chave: pix.chave,
+      nome: pix.recebedor,
+      cidade: pix.cidade,
+      centavos: Number(pix.centavos),
+      txid: pix.txid,
+    });
+  } catch (e) {
+    // Um payload que o gerador recusa é melhor do que um QR que o banco
+    // recusa. Aqui ainda se consegue dizer que o problema é do cadastro.
+    console.error("[wa-bot] montarBrCode", e instanceof Error ? e.message : e);
+    return responder(
+      "Não consegui gerar o código PIX com os dados cadastrados do condomínio. Avise o síndico.",
+    );
+  }
+
+  const composicao: string[] = [`${brl(Number(pix.principal))} de principal`];
+  if (Number(pix.multa) > 0) composicao.push(`${brl(Number(pix.multa))} de multa`);
+  if (Number(pix.juros) > 0) composicao.push(`${brl(Number(pix.juros))} de juros`);
+
+  const linhas = [`💰 ${pix.descricao ?? "Cobrança"}`, `Total: ${brl(Number(pix.centavos) / 100)}`];
+  // A composição só se escreve quando há mais do que principal: «R$ 400,00 (R$
+  // 400,00 de principal)» não explica nada a ninguém.
+  if (composicao.length > 1) linhas.push(`(${composicao.join(" + ")})`);
+  linhas.push("", `Recebedor: ${pix.recebedor}`, "", "PIX Copia e Cola:", brcode, "");
+  linhas.push(
+    "Depois de pagar, mande o comprovante aqui (opção 6). O PIX não me avisa do pagamento — é o síndico que confere no extrato e dá a baixa.",
+  );
+  return responder(linhas.join("\n"));
+}
+
+/**
+ * Começa o envio de comprovante.
+ *
+ * Com uma cobrança em aberto não se pergunta qual: perguntar a quem só tem uma
+ * é fazer o condómino trabalhar para o sistema.
+ */
+async function iniciarComprovante(
+  c: Conversa,
+  responder: (s: string) => Promise<void>,
+  setEstado: any,
+) {
+  const abertas = await cobrancasEmAberto(c.unidade_id!);
+  const escolha = escolherCobranca(abertas);
+
+  if (escolha.tipo === "nenhuma") {
+    await setEstado("menu", null, {});
+    return responder("✅ Você não tem cobranças em aberto. Não há comprovante a enviar.");
+  }
+
+  if (escolha.tipo === "uma") {
+    await setEstado("enviar_comprovante", "aguardar_ficheiro", {
+      cobranca: escolha.cobranca,
+    });
+    return responder(
+      `Vou anexar o comprovante à cobrança de ${competenciaCurta(escolha.cobranca.competencia)} (${brl(escolha.cobranca.total)}).\n\n` +
+        "Mande agora a *foto* ou o *PDF* do comprovante. 📎\n\nResponda 0 para cancelar.",
+    );
+  }
+
+  await setEstado("enviar_comprovante", "escolher", { abertas });
+  return responder(
+    `Você tem ${abertas.length} cobranças em aberto:\n\n${listaNumerada(abertas)}\n\n` +
+      "Responda com o número da que pagou, ou 0 para voltar.",
+  );
+}
+
+/**
+ * Uma imagem ou um PDF que chegou à conversa.
+ *
+ * Dois caminhos. Se o condómino estava no fluxo da opção 6, já se sabe a que
+ * cobrança pertence. Se mandou a foto sem mais nada — que é o que as pessoas
+ * fazem — resolve-se com o que se sabe: uma cobrança em aberto, anexa-se; mais
+ * do que uma, pergunta-se, e guarda-se o id da mídia para anexar depois da
+ * resposta. A Meta guarda a mídia catorze dias, por isso não há pressa.
+ */
+export async function processarMidiaBot(
+  cfg: WaConfig,
+  conversa: Conversa,
+  midia: { mediaId: string },
+) {
+  const { responder, setEstado, limparEstado, lerEstado } = ajudantes(cfg, conversa);
+
+  if (!conversa.unidade_id) {
+    return responder(
+      `Recebi o arquivo, mas não consigo localizar seu cadastro. Peça ao síndico para vincular este número (${conversa.telefone}) à sua unidade.`,
+    );
+  }
+
+  const estado = await lerEstado();
+  const anexar = async (cobranca: CobrancaEmAberto) => {
+    const r = await guardarComprovante({
+      cfg,
+      condominioId: conversa.condominio_id,
+      telefone: conversa.telefone,
+      mediaId: midia.mediaId,
+      cobranca,
+    });
+    await limparEstado();
+    return responder(r.ok ? confirmacao(r.cobranca) : r.mensagem);
+  };
+
+  if (estado?.intent === "enviar_comprovante" && estado.passo === "aguardar_ficheiro") {
+    const guardada = estado.dados?.cobranca as CobrancaEmAberto | undefined;
+    if (guardada?.id) return anexar(guardada);
+  }
+
+  const abertas = await cobrancasEmAberto(conversa.unidade_id);
+  const escolha = escolherCobranca(abertas);
+
+  if (escolha.tipo === "nenhuma") {
+    await limparEstado();
+    return responder(
+      "Recebi o arquivo, mas você não tem cobranças em aberto — não há onde anexá-lo. Se for de outra coisa, fale com o síndico.",
+    );
+  }
+
+  if (escolha.tipo === "uma") return anexar(escolha.cobranca);
+
+  // Várias. Guarda-se a mídia e pergunta-se, em vez de adivinhar: adivinhar é
+  // anexar a prova de Março à cobrança de Abril e dar baixa na errada.
+  await setEstado("enviar_comprovante", "escolher_da_midia", {
+    abertas,
+    media_id: midia.mediaId,
+  });
+  return responder(
+    `Recebi o comprovante. 📎\n\nVocê tem ${abertas.length} cobranças em aberto:\n\n${listaNumerada(abertas)}\n\n` +
+      "Responda com o número da que este comprovante paga.",
+  );
+}
+
 async function continuarFluxo(
   estado: any,
   txt: string,
   c: Conversa,
-  _cfg: WaConfig,
+  cfg: WaConfig,
   responder: (s: string) => Promise<void>,
   setEstado: any,
   limpar: () => Promise<any>,
@@ -229,24 +416,56 @@ async function continuarFluxo(
     if (Number.isNaN(idx) || idx < 0 || idx >= ids.length) {
       return responder("Número inválido. Tente novamente ou envie 0 para voltar.");
     }
-    const { data: cb } = await supabaseAdmin
-      .from("cobrancas")
-      .select("competencia, vencimento, valor, multa, juros, desconto, mp_qr_code, mp_ticket_url")
-      .eq("id", ids[idx])
-      .single();
     await limpar();
-    if (!cb) return responder("Cobrança não encontrada.");
-    const total =
-      Number(cb.valor || 0) +
-      Number(cb.multa || 0) +
-      Number(cb.juros || 0) -
-      Number(cb.desconto || 0);
-    let msg = `💰 Cobrança de ${cb.competencia} — Total ${brl(total)} — vence ${dt(cb.vencimento)}\n\n`;
-    if (cb.mp_qr_code) msg += `PIX Copia e Cola:\n${cb.mp_qr_code}\n\n`;
-    if (cb.mp_ticket_url) msg += `Boleto: ${cb.mp_ticket_url}\n`;
-    if (!cb.mp_qr_code && !cb.mp_ticket_url)
-      msg += "O síndico ainda não emitiu cobrança bancária para este lançamento.";
-    return responder(msg);
+    return mandarPix(ids[idx], responder);
+  }
+
+  if (estado.intent === "enviar_comprovante") {
+    // A lista foi guardada no estado, e não relida: entre a pergunta e a
+    // resposta o síndico pode ter dado baixa numa, e então o número 2 passava
+    // a apontar para outra cobrança — sem o condómino perceber.
+    const abertas: CobrancaEmAberto[] = estado.dados?.abertas ?? [];
+
+    if (estado.passo === "escolher" || estado.passo === "escolher_da_midia") {
+      const escolha = escolherCobranca(abertas, txt);
+      if (escolha.tipo !== "uma") {
+        return responder(
+          `Não entendi o número. Responda com um de 1 a ${abertas.length}, ou 0 para voltar.\n\n${listaNumerada(abertas)}`,
+        );
+      }
+
+      // Veio de uma mídia que já está à espera: anexa-se agora.
+      if (estado.passo === "escolher_da_midia") {
+        const mediaId = String(estado.dados?.media_id ?? "");
+        if (!mediaId) {
+          await limpar();
+          return responder("Perdi o arquivo. Pode enviar de novo?");
+        }
+        const r = await guardarComprovante({
+          cfg,
+          condominioId: c.condominio_id,
+          telefone: c.telefone,
+          mediaId,
+          cobranca: escolha.cobranca,
+        });
+        await limpar();
+        return responder(r.ok ? confirmacao(r.cobranca) : r.mensagem);
+      }
+
+      await setEstado("enviar_comprovante", "aguardar_ficheiro", { cobranca: escolha.cobranca });
+      return responder(
+        `Certo: ${competenciaCurta(escolha.cobranca.competencia)} (${brl(escolha.cobranca.total)}).\n\n` +
+          "Mande agora a *foto* ou o *PDF* do comprovante. 📎",
+      );
+    }
+
+    if (estado.passo === "aguardar_ficheiro") {
+      // Chegou texto onde se esperava um ficheiro. O estado não se limpa: a
+      // pessoa está a caminho de mandar a foto.
+      return responder(
+        "Estou esperando a foto ou o PDF do comprovante. 📎\n\nResponda 0 se quiser desistir.",
+      );
+    }
   }
 
   if (estado.intent === "abrir_ocorrencia") {

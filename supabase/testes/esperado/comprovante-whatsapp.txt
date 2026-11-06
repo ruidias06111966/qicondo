@@ -1,0 +1,156 @@
+Pager usage is off.
+Output format is aligned.
+INSERT 0 2
+INSERT 0 2
+INSERT 0 2
+INSERT 0 4
+INSERT 0 4
+INSERT 0 7
+UPDATE 1
+
+=========== 1. o caso normal: a 101 comprova a cobrança de agosto ===========
+--- esperado: um uuid
+ registado 
+-----------
+ t
+(1 row)
+
+--- 1b. o anexo ficou com tipo, nome e o telefone na observação
+ entidade |         tipo          |      nome_arquivo       | mime_type  | tamanho_bytes |               observacao                | sem_utilizador 
+----------+-----------------------+-------------------------+------------+---------------+-----------------------------------------+----------------
+ cobranca | comprovante_pagamento | comprovante-2026-08.jpg | image/jpeg |        182344 | Enviado pelo WhatsApp por 5561999990101 | t
+(1 row)
+
+--- 1c. a cobrança foi marcada, e CONTINUA vencida: isto não dá baixa
+ status  | valor_pago | marcada 
+---------+------------+---------
+ vencida |       0.00 | t
+(1 row)
+
+--- 1d. ficou no audit_log, com o telefone e a competência
+             acao              | entidade  |   telefone    | competencia | sem_utilizador 
+-------------------------------+-----------+---------------+-------------+----------------
+ comprovante_recebido_whatsapp | cobrancas | 5561999990101 | 2026-08-01  | t
+(1 row)
+
+
+=========== 2. o número do vizinho na cobrança da 101 (esperado: cobranca_de_outra_unidade) ===========
+--- É este o bloco que importa: sem auth.uid(), o vínculo é a única autorização.
+psql:testes/comprovante-whatsapp.sql:114: ERROR:  cobranca_de_outra_unidade
+HINT:  A cobrança é de outra unidade. Cada número só comprova o que é da sua.
+CONTEXT:  PL/pgSQL function registrar_comprovante_whatsapp(uuid,uuid,text,text,text,text,bigint) line 45 at RAISE
+
+=========== 3. número com conversa mas sem unidade (esperado: numero_sem_unidade) ===========
+psql:testes/comprovante-whatsapp.sql:124: ERROR:  numero_sem_unidade
+HINT:  O número não está vinculado a nenhuma unidade. O síndico tem de o vincular primeiro.
+CONTEXT:  PL/pgSQL function registrar_comprovante_whatsapp(uuid,uuid,text,text,text,text,bigint) line 40 at RAISE
+
+=========== 4. número que o condomínio não conhece (esperado: conversa_desconhecida) ===========
+psql:testes/comprovante-whatsapp.sql:134: ERROR:  conversa_desconhecida
+HINT:  Este número não tem conversa aberta neste condomínio.
+CONTEXT:  PL/pgSQL function registrar_comprovante_whatsapp(uuid,uuid,text,text,text,text,bigint) line 35 at RAISE
+
+=========== 5. o número do Vizinho numa cobrança do Teste (esperado: conversa_desconhecida) ===========
+--- A conversa existe, mas no OUTRO condomínio. O número não atravessa.
+psql:testes/comprovante-whatsapp.sql:145: ERROR:  conversa_desconhecida
+HINT:  Este número não tem conversa aberta neste condomínio.
+CONTEXT:  PL/pgSQL function registrar_comprovante_whatsapp(uuid,uuid,text,text,text,text,bigint) line 35 at RAISE
+
+=========== 6. condomínio que não é o da cobrança (esperado: cobranca_de_outro_condominio) ===========
+psql:testes/comprovante-whatsapp.sql:155: ERROR:  cobranca_de_outro_condominio
+HINT:  A cobrança não é deste condomínio.
+CONTEXT:  PL/pgSQL function registrar_comprovante_whatsapp(uuid,uuid,text,text,text,text,bigint) line 24 at RAISE
+
+=========== 7. cobrança que não existe (esperado: cobranca_nao_encontrada) ===========
+psql:testes/comprovante-whatsapp.sql:165: ERROR:  cobranca_nao_encontrada
+CONTEXT:  PL/pgSQL function registrar_comprovante_whatsapp(uuid,uuid,text,text,text,text,bigint) line 20 at RAISE
+
+=========== 8. cobrança já paga (esperado: cobranca_nao_comprovavel) ===========
+psql:testes/comprovante-whatsapp.sql:175: ERROR:  cobranca_nao_comprovavel
+HINT:  A cobrança está paga.
+CONTEXT:  PL/pgSQL function registrar_comprovante_whatsapp(uuid,uuid,text,text,text,text,bigint) line 52 at RAISE
+
+=========== 9. cobrança cancelada (esperado: cobranca_nao_comprovavel) ===========
+psql:testes/comprovante-whatsapp.sql:185: ERROR:  cobranca_nao_comprovavel
+HINT:  A cobrança está cancelada.
+CONTEXT:  PL/pgSQL function registrar_comprovante_whatsapp(uuid,uuid,text,text,text,text,bigint) line 52 at RAISE
+
+=========== 10. caminho que não começa pelo condomínio (esperado: anexo_caminho_invalido) ===========
+--- É o caminho que decide quem lê no Storage. Se divergir do registo, as
+--- políticas do bucket decidem sobre um condomínio e a linha diz outro.
+psql:testes/comprovante-whatsapp.sql:197: ERROR:  anexo_caminho_invalido
+HINT:  O caminho no Storage tem de começar pelo id do condomínio.
+CONTEXT:  PL/pgSQL function registrar_comprovante_whatsapp(uuid,uuid,text,text,text,text,bigint) line 74 at RAISE
+
+=========== 11. telefone vazio (esperado: telefone_invalido) ===========
+psql:testes/comprovante-whatsapp.sql:207: ERROR:  telefone_invalido
+HINT:  Sem número não há vínculo, e sem vínculo não há autorização.
+CONTEXT:  PL/pgSQL function registrar_comprovante_whatsapp(uuid,uuid,text,text,text,text,bigint) line 10 at RAISE
+
+=========== 12. o telefone é normalizado: +55 (61) 99999-0101 é o mesmo número ===========
+--- esperado: registado t. A Meta manda só dígitos, mas um dia alguém
+--- chama isto com o número formatado, e recusar aí seria recusar o certo.
+ registado 
+-----------
+ t
+(1 row)
+
+
+=========== 13. o tecto de cinco por cobrança ===========
+--- esperado: quatro passam (já havia um, dá cinco) e o sexto é recusado
+ n2 
+----
+ t
+(1 row)
+
+ n3 
+----
+ t
+(1 row)
+
+ n4 
+----
+ t
+(1 row)
+
+ n5 
+----
+ t
+(1 row)
+
+--- o sexto (esperado: comprovantes_demais)
+psql:testes/comprovante-whatsapp.sql:244: ERROR:  comprovantes_demais
+HINT:  Esta cobrança já tem cinco comprovantes. Fale com o síndico.
+CONTEXT:  PL/pgSQL function registrar_comprovante_whatsapp(uuid,uuid,text,text,text,text,bigint) line 63 at RAISE
+
+=========== 14. a lista de trabalho do síndico ===========
+--- esperado: 2 linhas, agosto primeiro.
+---
+--- Agosto recebeu o primeiro comprovante no bloco 1 e outros quatro no
+--- bloco 13; setembro recebeu o seu no bloco 12. Pela data do ÚLTIMO,
+--- agosto apareceria em segundo — o reenvio tê-lo-ia empurrado para trás
+--- da fila. A ordem é pela data do primeiro, e por isso agosto vem antes.
+SET
+ unidade | competencia |  status  | em_aberto | comprovantes | primeiro_antes_do_ultimo 
+---------+-------------+----------+-----------+--------------+--------------------------
+ A 101   | 2026-08-01  | vencida  |    300.00 |            5 | t
+ A 101   | 2026-09-01  | pendente |    150.00 |            1 | t
+(2 rows)
+
+
+--- 14b. a cobrança da 102 não entra: não tem comprovante nenhum
+ com_comprovante 
+-----------------
+               0
+(1 row)
+
+
+=========== 15. quem não gere o financeiro não vê a lista (esperado: forbidden) ===========
+SET
+psql:testes/comprovante-whatsapp.sql:268: ERROR:  forbidden
+CONTEXT:  PL/pgSQL function comprovantes_a_conferir(uuid) line 5 at RAISE
+
+--- 15b. sem sessão também não (esperado: not_authenticated)
+SET
+psql:testes/comprovante-whatsapp.sql:273: ERROR:  not_authenticated
+CONTEXT:  PL/pgSQL function comprovantes_a_conferir(uuid) line 3 at RAISE

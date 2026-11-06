@@ -24,15 +24,26 @@ MIG="$RAIZ/supabase/migrations"
 GRAVAR=0
 [ "${1:-}" = "--gravar" ] && GRAVAR=1
 
-# A versão maior vai fixada, não é a mais recente que a máquina tiver. As
-# mensagens de erro e a formatação do psql mudam entre versões maiores, e o
-# runner do Ubuntu actualiza a sua sem avisar: num dia a referência conferia e
-# no outro aparecia "saída mudada" sem ninguém ter tocado em nada.
-PG="${PG_VERSAO:-16}"
-BIN=$(ls -d "/usr/lib/postgresql/$PG/bin" 2>/dev/null | head -1)
+# A VERSÃO MAIOR É ESCOLHIDA DE UMA LISTA, NÃO É "A MAIS RECENTE QUE HOUVER"
+#
+# A formatação das tabelas e o prefixo dos erros são feitos pelo psql, do lado
+# do cliente, e mudam entre versões maiores. O runner do Ubuntu actualiza a sua
+# sem avisar — hoje traz a 18, o meu contentor traz a 16 — e uma referência
+# gravada contra uma versão passa a falhar contra a outra sem que nada no
+# comportamento tenha mudado.
+#
+# A lista são as versões em que a saída foi conferida e é idêntica. A 16 e a 18
+# foram comparadas byte a byte: não diferem em nenhuma das seis baterias. Usa-se
+# a mais recente da lista que exista na máquina. Fora da lista corre, mas avisa:
+# uma diferença pode ser da versão e não do código.
+PG_CONFERIDAS="${PG_VERSAO:-16 18}"
+BIN=""
+for v in $PG_CONFERIDAS; do
+  [ -d "/usr/lib/postgresql/$v/bin" ] && BIN="/usr/lib/postgresql/$v/bin"
+done
 if [ -z "$BIN" ]; then
   BIN=$(ls -d /usr/lib/postgresql/*/bin 2>/dev/null | sort -V | tail -1)
-  [ -n "$BIN" ] && echo "AVISO: não há PostgreSQL $PG nesta máquina; a usar $BIN." >&2
+  [ -n "$BIN" ] && echo "AVISO: nenhuma versão conferida ($PG_CONFERIDAS) nesta máquina; a usar $BIN. Uma diferença pode ser da versão." >&2
 fi
 if [ -z "$BIN" ]; then echo "PostgreSQL não encontrado em /usr/lib/postgresql" >&2; exit 1; fi
 echo "PostgreSQL: $BIN"
@@ -56,6 +67,19 @@ LOCALE=C.UTF-8
 # pasta que não seja do utilizador `postgres`.
 D=/tmp/pgtest
 rm -rf "$D"; mkdir -p "$D"; chown -R postgres:postgres "$D"
+
+# O SQL É COPIADO, NÃO LIDO ONDE ESTÁ
+#
+# O psql corre como `postgres` e abre os ficheiros ele próprio — o `-f` é lido
+# pelo cliente, não pelo servidor. No meu contentor o repositório está debaixo
+# de um `/home/user` com 755 e o `postgres` lê-o; no runner do GitHub está
+# debaixo de `/home/runner`, que não dá passagem a outros utilizadores, e cada
+# bateria produzia uma linha só: "Permission denied". Copiar resolve, e resolve
+# em qualquer máquina em vez de depender das permissões de quem clonou.
+mkdir -p "$D/testes" "$D/migracoes"
+cp "$AQUI"/*.sql "$D/testes/" 2>/dev/null || true
+cp "$MIG"/*.sql "$D/migracoes/" 2>/dev/null || true
+chown -R postgres:postgres "$D"
 
 # Correr como `postgres`: o initdb recusa-se a arrancar como root.
 #
@@ -140,11 +164,11 @@ for bateria in orcamento indices fluxo-de-caixa aplicar-orcamento plano-de-conta
   saida=$(mktemp)
   {
     for n in ${ESQUELETO[$bateria]}; do
-      f=$(ls "$AQUI/$n-"*.sql 2>/dev/null | head -1)
+      f=$(ls "$D/testes/$n-"*.sql 2>/dev/null | head -1)
       [ -n "$f" ] && psql_ "-q -f '$f'"
     done
     for n in $DEPENDENCIAS ${MIGRACOES[$bateria]}; do
-      f=$(ls "$MIG/$n"*.sql 2>/dev/null | head -1)
+      f=$(ls "$D/migracoes/$n"*.sql 2>/dev/null | head -1)
       [ -n "$f" ] && psql_ "-q -f '$f'"
     done
   } >/dev/null 2>&1
@@ -163,8 +187,8 @@ for bateria in orcamento indices fluxo-de-caixa aplicar-orcamento plano-de-conta
   # caracteres iguais (`aaaaaaaa-`, `11111111-`) e é por eles que se percebe,
   # ao ler a referência, qual condomínio ou morador cada linha toca. Perdê-los
   # tornaria o ficheiro ilegível.
-  psql_ "-f '$AQUI/$bateria.sql'" 2>&1 \
-    | sed "s|$AQUI/|testes/|g" \
+  psql_ "-f '$D/testes/$bateria.sql'" 2>&1 \
+    | sed "s|$D/testes/|testes/|g" \
     | perl -pe 's/\b(?!(.)\1{7}-)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/<uuid>/gi' \
     | perl -pe 's/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d+)?([+-]\d{2})?/<carimbo>/g' \
     `# O código do nada consta acaba num sufixo aleatório de oito dígitos` \
@@ -202,7 +226,14 @@ for bateria in orcamento indices fluxo-de-caixa aplicar-orcamento plano-de-conta
     echo "OK       $bateria"
   else
     echo "FALHA    $bateria — a saída mudou:"
-    diff -u "$ref" "$saida" | head -60
+    diff -u "$ref" "$saida" | head -40
+    # O `diff` lista primeiro o que saiu e só depois o que entrou. Com uma
+    # referência de trezentas linhas, cortar o diff esconde exactamente a parte
+    # que interessa: o que a bateria produziu agora. Foi assim que li "6
+    # baterias com saída diferente" três vezes sem ver a linha "Permission
+    # denied" que explicava as seis.
+    echo "         --- saída obtida ($(wc -l < "$saida") linhas), primeiras 10:"
+    sed -n '1,10p' "$saida" | sed 's/^/         /'
     falhas=$((falhas + 1))
   fi
   rm -f "$saida"

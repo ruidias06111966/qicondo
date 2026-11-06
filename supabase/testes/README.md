@@ -61,14 +61,28 @@ de cada bateria, e compara a saída com `esperado/<bateria>.txt`.
 `--gravar` é que decide se o comportamento novo é o desejado — é por isso que
 a referência vai ao repositório, e não é gerada no CI.
 
-Duas coisas estão fixadas no guião e não se deixam ao ambiente: a **versão
-maior do PostgreSQL** (16, com `PG_VERSAO=` para experimentar outra) e o
-**locale** (`C.UTF-8`). O psql alinha as colunas pela largura do valor mais
-comprido, e sem locale UTF-8 conta bytes em vez de caracteres: `Manutenção`
+Três coisas estão fixadas no guião e não se deixam ao ambiente, porque a
+formatação da saída é feita pelo **psql**, do lado do cliente, e muda com cada
+uma delas.
+
+**O locale** (`C.UTF-8`). O psql alinha as colunas pela largura do valor mais
+comprido e, sem locale UTF-8, conta bytes em vez de caracteres: `Manutenção`
 passa a valer 12 e a coluna inteira alarga. A saída continua certa, mas
-diferente — e a comparação acusa uma alteração de comportamento que não houve.
-Foi assim que três baterias divergiram ao trocar o `su` pelo `runuser`: o `su`
-carregava o perfil do `postgres` e trazia o `LANG` por acidente.
+diferente. Foi assim que três baterias divergiram ao trocar o `su` pelo
+`runuser`: o `su` carregava o perfil do `postgres` e trazia o `LANG` por
+acidente.
+
+**A versão maior.** A lista está no guião (`PG_CONFERIDAS`) e são as versões em
+que a saída foi conferida: a **16** e a **18** foram comparadas byte a byte e
+não diferem em nenhuma das seis baterias. Usa-se a mais recente da lista que
+exista na máquina; fora da lista corre, mas avisa. `PG_VERSAO=16` força uma.
+
+**Onde o SQL é lido.** Os ficheiros são copiados para `/tmp/pgtest` antes de
+correr. O `-f` do psql é aberto pelo cliente, que corre como `postgres`: num
+contentor onde o repositório está debaixo de um `/home` com 755 isso funciona,
+no runner do GitHub está debaixo de `/home/runner`, que não dá passagem, e cada
+bateria dava uma linha só — `Permission denied`. Copiar não depende das
+permissões de quem clonou.
 
 Três coisas são neutralizadas antes de comparar, senão nada estabilizava: o
 caminho absoluto com que o `psql` prefixa os erros, os uuid gerados pelo

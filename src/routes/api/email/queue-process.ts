@@ -73,15 +73,29 @@ export const Route = createFileRoute("/api/email/queue-process")({
           return Response.json({ error: "Server configuration error" }, { status: 500 });
         }
 
-        // Verify the caller is authorized with the service role key.
-        // In the TanStack stack, the pg_cron job sends the service role key as a Bearer token.
-        const authHeader = request.headers.get("Authorization");
-        if (!authHeader?.startsWith("Bearer ")) {
+        // Quem chama é o pg_cron, e autentica-se com o CRON_SECRET — o mesmo
+        // que o `wa-drain`, os `lembretes-cobranca` e o `preview` já usavam.
+        //
+        // Antes era a chave `service_role` que servia de segredo partilhado, e
+        // isso obrigava a guardar uma cópia dela no vault. Duas consequências
+        // más: mais um sítio de onde uma chave de privilégio total pode
+        // escapar, e uma rotação da chave que parte o envio de e-mail se o
+        // vault não for actualizado ao mesmo tempo — foi exactamente o que
+        // aconteceu. O CRON_SECRET não dá acesso a nada: só prova que o pedido
+        // vem do agendamento.
+        const token =
+          request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
+          request.headers.get("x-cron-secret");
+        const cronSecret = process.env.CRON_SECRET;
+
+        if (!cronSecret) {
+          console.error("Missing CRON_SECRET");
+          return Response.json({ error: "Server configuration error" }, { status: 500 });
+        }
+        if (!token) {
           return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
-
-        const token = authHeader.slice("Bearer ".length).trim();
-        if (token !== supabaseServiceKey) {
+        if (token !== cronSecret) {
           return Response.json({ error: "Forbidden" }, { status: 403 });
         }
 

@@ -61,6 +61,15 @@ de cada bateria, e compara a saída com `esperado/<bateria>.txt`.
 `--gravar` é que decide se o comportamento novo é o desejado — é por isso que
 a referência vai ao repositório, e não é gerada no CI.
 
+Duas coisas estão fixadas no guião e não se deixam ao ambiente: a **versão
+maior do PostgreSQL** (16, com `PG_VERSAO=` para experimentar outra) e o
+**locale** (`C.UTF-8`). O psql alinha as colunas pela largura do valor mais
+comprido, e sem locale UTF-8 conta bytes em vez de caracteres: `Manutenção`
+passa a valer 12 e a coluna inteira alarga. A saída continua certa, mas
+diferente — e a comparação acusa uma alteração de comportamento que não houve.
+Foi assim que três baterias divergiram ao trocar o `su` pelo `runuser`: o `su`
+carregava o perfil do `postgres` e trazia o `LANG` por acidente.
+
 Três coisas são neutralizadas antes de comparar, senão nada estabilizava: o
 caminho absoluto com que o `psql` prefixa os erros, os uuid gerados pelo
 `gen_random_uuid()` e os carimbos de `now()`. Os uuid do cenário — os que
@@ -71,10 +80,10 @@ se percebe que linha toca que condomínio.
 
 ```bash
 D=/tmp/pgtest && rm -rf $D && mkdir -p $D && chown -R postgres:postgres $D
-su postgres -c "/usr/lib/postgresql/16/bin/initdb -D $D/data -U postgres --auth=trust"
+su postgres -c "/usr/lib/postgresql/16/bin/initdb -D $D/data -U postgres --auth=trust --encoding=UTF8 --locale=C.UTF-8"
 su postgres -c "/usr/lib/postgresql/16/bin/pg_ctl -D $D/data -o '-k $D -c listen_addresses=' -l $D/log start"
 
-su postgres -c "psql -h $D -U postgres -c 'CREATE DATABASE teste'"
+su postgres -c "psql -h $D -U postgres -c \"CREATE DATABASE teste TEMPLATE template0 ENCODING 'UTF8' LC_COLLATE 'C.UTF-8' LC_CTYPE 'C.UTF-8'\""
 su postgres -c "psql -h $D -U postgres -d teste -c \"CREATE ROLE anon NOLOGIN; CREATE ROLE authenticated NOLOGIN\""
 
 # o esqueleto, os auxiliares reais que a migração usa, e a migração

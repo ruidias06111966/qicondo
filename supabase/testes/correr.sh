@@ -24,19 +24,85 @@ MIG="$RAIZ/supabase/migrations"
 GRAVAR=0
 [ "${1:-}" = "--gravar" ] && GRAVAR=1
 
-BIN=$(ls -d /usr/lib/postgresql/*/bin 2>/dev/null | sort -V | tail -1)
+# A versão maior vai fixada, não é a mais recente que a máquina tiver. As
+# mensagens de erro e a formatação do psql mudam entre versões maiores, e o
+# runner do Ubuntu actualiza a sua sem avisar: num dia a referência conferia e
+# no outro aparecia "saída mudada" sem ninguém ter tocado em nada.
+PG="${PG_VERSAO:-16}"
+BIN=$(ls -d "/usr/lib/postgresql/$PG/bin" 2>/dev/null | head -1)
+if [ -z "$BIN" ]; then
+  BIN=$(ls -d /usr/lib/postgresql/*/bin 2>/dev/null | sort -V | tail -1)
+  [ -n "$BIN" ] && echo "AVISO: não há PostgreSQL $PG nesta máquina; a usar $BIN." >&2
+fi
 if [ -z "$BIN" ]; then echo "PostgreSQL não encontrado em /usr/lib/postgresql" >&2; exit 1; fi
+echo "PostgreSQL: $BIN"
+
+# A LARGURA DAS COLUNAS DEPENDE DO LOCALE, E ISSO TEM DE SER FIXADO AQUI
+#
+# O psql alinha as colunas pela largura do valor mais comprido. Sem locale
+# UTF-8, conta bytes em vez de caracteres: "Manutenção" passa a valer 12 e a
+# coluna inteira alarga. A saída fica correcta mas diferente, e a comparação
+# acusa uma alteração de comportamento que não existe.
+#
+# Era isto que a versão anterior deixava ao ambiente: o `su` carregava o perfil
+# do utilizador `postgres` e trazia `LANG=C.UTF-8` por acidente. Trocar para
+# `runuser`, que não carrega perfil nenhum, chegou para três baterias
+# divergirem. Um guião cuja saída depende do `LANG` de quem o corre não serve
+# para comparar com uma referência no repositório — nem entre a minha máquina e
+# o CI, nem entre duas versões do PostgreSQL. Fica declarado.
+LOCALE=C.UTF-8
 
 # `/tmp/pgtest` e não o directório do repositório: o initdb recusa correr numa
 # pasta que não seja do utilizador `postgres`.
 D=/tmp/pgtest
 rm -rf "$D"; mkdir -p "$D"; chown -R postgres:postgres "$D"
 
-su postgres -c "$BIN/initdb -D $D/data -U postgres --auth=trust" >/dev/null 2>&1
-su postgres -c "$BIN/pg_ctl -D $D/data -o '-k $D -c listen_addresses=' -l $D/log start" >/dev/null 2>&1
-trap 'su postgres -c "$BIN/pg_ctl -D $D/data stop" >/dev/null 2>&1 || true' EXIT
+# Correr como `postgres`: o initdb recusa-se a arrancar como root.
+#
+# `runuser` e não `su`: o `su` precisa que o utilizador tenha uma shell de
+# login, e em algumas máquinas o `postgres` tem `nologin`. O `runuser` não se
+# importa. Onde não existir, cai para o `su` — e em ambos os casos o locale vai
+# explícito, para não voltar a depender do perfil.
+# O comando vai para um ficheiro em vez de ser interpolado numa linha de `-c`:
+# alguns contêm aspas de ambos os tipos e aninhá-los duas vezes é como se
+# escrevem erros que só aparecem numa bateria.
+ENV_PG="LANG=$LOCALE LC_ALL=$LOCALE PGCLIENTENCODING=UTF8"
+como_postgres() {
+  printf '%s\n' "$1" > "$D/cmd.sh"
+  chown postgres "$D/cmd.sh"
+  if command -v runuser >/dev/null 2>&1; then
+    runuser -u postgres -- env $ENV_PG bash "$D/cmd.sh"
+  else
+    su postgres -c "env $ENV_PG bash $D/cmd.sh"
+  fi
+}
 
-psql_() { su postgres -c "psql -h $D -U postgres -d teste -v ON_ERROR_STOP=0 $*"; }
+# A preparação NÃO é silenciosa. Engoli-a na primeira versão e o resultado foi
+# o CI a mostrar seis baterias "com saída diferente" quando o que acontecera
+# era o servidor nunca ter arrancado. Um automatismo que esconde a própria
+# avaria é pior do que não ter nenhum: manda procurar no sítio errado.
+if ! como_postgres "$BIN/initdb -D $D/data -U postgres --auth=trust --encoding=UTF8 --locale=$LOCALE" > "$D/initdb.log" 2>&1; then
+  echo "FALHA: o initdb não correu." >&2
+  cat "$D/initdb.log" >&2
+  exit 1
+fi
+
+if ! como_postgres "$BIN/pg_ctl -D $D/data -o '-k $D -c listen_addresses=' -l $D/log start -w -t 30"; then
+  echo "FALHA: o servidor não arrancou." >&2
+  cat "$D/log" >&2 || true
+  exit 1
+fi
+trap 'como_postgres "$BIN/pg_ctl -D $D/data stop" >/dev/null 2>&1 || true' EXIT
+
+# Prova que dá mesmo para falar com o servidor antes de correr seja o que for.
+if ! como_postgres "psql -h $D -U postgres -c 'SELECT version()'" > "$D/versao.log" 2>&1; then
+  echo "FALHA: o servidor arrancou mas não aceita ligações." >&2
+  cat "$D/versao.log" >&2
+  exit 1
+fi
+grep -o "PostgreSQL [0-9.]*" "$D/versao.log" | head -1
+
+psql_() { como_postgres "psql -h $D -U postgres -d teste -v ON_ERROR_STOP=0 $*"; }
 
 # As migrações que cada bateria precisa, por prefixo de data. A tabela está no
 # README; aqui repete-se em código para o CI não depender de ninguém a ler.
@@ -64,9 +130,12 @@ falhas=0
 for bateria in orcamento indices fluxo-de-caixa aplicar-orcamento plano-de-contas certidoes-e-infracoes; do
   [ -f "$AQUI/$bateria.sql" ] || { echo "SALTADA  $bateria (ficheiro não existe)"; continue; }
 
-  su postgres -c "psql -h $D -U postgres -c 'DROP DATABASE IF EXISTS teste'" >/dev/null 2>&1
-  su postgres -c "psql -h $D -U postgres -c 'CREATE DATABASE teste'" >/dev/null 2>&1
-  su postgres -c "psql -h $D -U postgres -d teste -c \"CREATE ROLE anon NOLOGIN; CREATE ROLE authenticated NOLOGIN; CREATE ROLE service_role NOLOGIN\"" >/dev/null 2>&1
+  como_postgres "psql -h $D -U postgres -q -c 'DROP DATABASE IF EXISTS teste'" >/dev/null 2>&1
+  if ! como_postgres "psql -h $D -U postgres -q -c \"CREATE DATABASE teste TEMPLATE template0 ENCODING 'UTF8' LC_COLLATE '$LOCALE' LC_CTYPE '$LOCALE'\""; then
+    echo "FALHA: não foi possível criar a base para $bateria." >&2
+    exit 1
+  fi
+  como_postgres "psql -h $D -U postgres -q -d teste -c \"CREATE ROLE anon NOLOGIN; CREATE ROLE authenticated NOLOGIN; CREATE ROLE service_role NOLOGIN\"" >/dev/null 2>&1
 
   saida=$(mktemp)
   {

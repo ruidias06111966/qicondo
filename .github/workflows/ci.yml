@@ -5,6 +5,13 @@ on:
     branches: [main]
   pull_request:
 
+# O token do workflow só precisa de ler o código: nenhum destes jobs escreve no
+# repositório, comenta num PR ou publica nada. Sem este bloco, o GITHUB_TOKEN
+# vem com as permissões por omissão da organização, que são mais largas do que
+# o necessário — foi o que o CodeQL apontou.
+permissions:
+  contents: read
+
 # Um push novo no mesmo ramo cancela a execução anterior, que já não interessa.
 concurrency:
   group: ci-${{ github.ref }}

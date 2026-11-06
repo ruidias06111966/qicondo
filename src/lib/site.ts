@@ -38,3 +38,20 @@ export const DOMINIO_REMETENTE = `notify.${HOST}`;
 
 /** Cabeçalho `From` das mensagens transacionais. */
 export const REMETENTE = `${NOME_SISTEMA} <noreply@${DOMINIO_REMETENTE}>`;
+
+// ---------------------------------------------------------------------------
+// QiGestão Assinaturas
+// ---------------------------------------------------------------------------
+// O sistema que cobra as mensalidades do QiCond às administradoras. Fica aqui,
+// e não espalhado pelo código, pela mesma razão que o host deste sistema: é
+// domínio, e domínio vive num ficheiro só.
+//
+// A URL da API usada pelo cron é variável de ambiente (`QIGESTAO_URL`), não
+// esta constante — esta serve só para montar o link público de uma fatura, que
+// vai para o browser do síndico.
+
+/** Host do QiGestão Assinaturas, no mesmo padrão dos restantes sistemas. */
+export const QIGESTAO_HOST = `qigestao-assinaturas.${DOMINIO_RAIZ}`;
+
+/** Prefixo do link público de uma fatura: junta-se-lhe o token. */
+export const QIGESTAO_FATURA_URL = `https://${QIGESTAO_HOST}/f`;

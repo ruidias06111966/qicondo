@@ -3,7 +3,7 @@ Output format is aligned.
 INSERT 0 2
 INSERT 0 1
 INSERT 0 1
-psql:testes/orcamento.sql:24: ERROR:  invalid input syntax for type uuid: "dddddddd-0000-0000-0000-00000000101"
+INSERT 0 4
 INSERT 0 5
 INSERT 0 12
 INSERT 0 12
@@ -77,8 +77,8 @@ PL/pgSQL function criar_orcamento(uuid,integer,integer,numeric,numeric,text) lin
      "realizado_base": 40000.00,       +
      "despesa_prevista": 48484.00,     +
      "arrecadacao_mensal": 4830.83,    +
-     "taxa_mensal_actual": 0,          +
-     "variacao_percentual": null,      +
+     "taxa_mensal_actual": 1600.00,    +
+     "variacao_percentual": 201.93,    +
      "inadimplencia_prevista": 8.00,   +
      "provisao_inadimplencia": 4637.60,+
      "fundo_reserva_percentual": 10.00 +
@@ -86,20 +86,19 @@ PL/pgSQL function criar_orcamento(uuid,integer,integer,numeric,numeric,text) lin
 (1 row)
 
 === 8. quotas por unidade (25% de 4830.83 = 1207.71, soma tem de dar 4830.83) ===
-psql:testes/orcamento.sql:81: ERROR:  condominio_sem_unidades
-CONTEXT:  PL/pgSQL function ratear_por_fracao_ideal(uuid,numeric) line 39 at RAISE
-SQL statement "SELECT u.id, u.bloco, u.numero, u.fracao_ideal, u.taxa_mensal, r.valor
-      FROM public.ratear_por_fracao_ideal(_o.condominio_id, _mensal) r
-      JOIN public.unidades u ON u.id = r.unidade_id
-     ORDER BY u.bloco NULLS FIRST, u.numero"
-PL/pgSQL function quotas_do_orcamento(uuid) line 19 at RETURN QUERY
-psql:testes/orcamento.sql:82: ERROR:  condominio_sem_unidades
-CONTEXT:  PL/pgSQL function ratear_por_fracao_ideal(uuid,numeric) line 39 at RAISE
-SQL statement "SELECT u.id, u.bloco, u.numero, u.fracao_ideal, u.taxa_mensal, r.valor
-      FROM public.ratear_por_fracao_ideal(_o.condominio_id, _mensal) r
-      JOIN public.unidades u ON u.id = r.unidade_id
-     ORDER BY u.bloco NULLS FIRST, u.numero"
-PL/pgSQL function quotas_do_orcamento(uuid) line 19 at RETURN QUERY
+ bloco | numero | fracao_ideal | taxa_actual |     quota_mensal      
+-------+--------+--------------+-------------+-----------------------
+ A     | 101    |    25.000000 |      400.00 | 1207.7100000000000000
+ A     | 102    |    25.000000 |      400.00 | 1207.7100000000000000
+ A     | 103    |    25.000000 |      400.00 | 1207.7100000000000000
+ A     | 104    |    25.000000 |      400.00 | 1207.7000000000000000
+(4 rows)
+
+    soma_das_quotas    
+-----------------------
+ 4830.8300000000000000
+(1 row)
+
 === 9. aprovar com assembleia em rascunho (espera recusa) ===
 INSERT 0 1
 psql:testes/orcamento.sql:87: ERROR:  assembleia_nao_encerrada

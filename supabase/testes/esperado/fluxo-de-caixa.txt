@@ -19,10 +19,11 @@ INSERT 0 3
 (1 row)
 
 === 2. tem de ser EXACTAMENTE o saldo_anterior do balancete de Março ===
-psql:testes/fluxo-de-caixa.sql:33: ERROR:  function public.calcular_balancete(unknown, unknown, unknown) does not exist
-LINE 1: SELECT (public.calcular_balancete('dddddddd-0000-0000-0000-0...
-                ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+ pelo_balancete | pelo_fluxo | batem 
+----------------+------------+-------
+        4800.00 |    4800.00 | t
+(1 row)
+
 === 3. fluxo de Março: abertura 4800, dia 5 paga 800 (4000), dia 10 recebe 1000 (5000), dia 20 paga 300 (4700) ===
             jsonb_pretty             
 -------------------------------------

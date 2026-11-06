@@ -51,7 +51,7 @@ declare -A ESQUELETO=(
 declare -A MIGRACOES=(
   [orcamento]="20261105190000"
   [indices]="20261105190000 20261105200000"
-  [fluxo-de-caixa]="20261105180000 20261105190000 20261105200000 20261105210000"
+  [fluxo-de-caixa]="20261104180000 20261105120000 20261105190000 20261105200000 20261105210000"
   [aplicar-orcamento]="20261105190000 20261105200000 20261105210000 20261105220000"
   [plano-de-contas]="20261105230000 20261105240000 20261105250000"
   [certidoes-e-infracoes]="20261105170000 20261105180000 20261105260000"
@@ -103,6 +103,24 @@ for bateria in orcamento indices fluxo-de-caixa aplicar-orcamento plano-de-conta
     `# por condomínio está a contar bem.` \
     | perl -pe 's/\b(NC-\d{4}-\d{4})-[0-9A-F]{8}\b/$1-<aleatorio>/g' \
     > "$saida"
+
+  # Uma saída pode estar errada e ser estável — e então a comparação diz OK
+  # para sempre. Foi o que aconteceu: um uuid mal formado na bateria fez o
+  # INSERT falhar, a falha entrou na referência, e os dois lados passaram a
+  # concordar num resultado sem sentido.
+  #
+  # Estas assinaturas não são recusas de regra de negócio (essas são códigos
+  # como `sem_divida`): são sinais de que o esqueleto, a migração ou a própria
+  # bateria estão partidos.
+  infra=$(grep -cE "invalid input syntax|does not exist|syntax error at|permission denied for|relation \"[^\"]+\" does not exist" "$saida" || true)
+  if [ "$infra" -gt 0 ]; then
+    echo "FALHA    $bateria — $infra erro(s) de infra-estrutura na saída, não de regra de negócio:"
+    grep -nE "invalid input syntax|does not exist|syntax error at|permission denied for" "$saida" | head -5
+    echo "         Isto não se grava como referência. Corrija a bateria ou o esqueleto."
+    falhas=$((falhas + 1))
+    rm -f "$saida"
+    continue
+  fi
 
   ref="$AQUI/esperado/$bateria.txt"
   if [ "$GRAVAR" = "1" ]; then

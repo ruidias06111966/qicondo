@@ -19,7 +19,7 @@ VALUES ('11111111-1111-1111-1111-111111111111','aaaaaaaa-0000-0000-0000-00000000
 -- parar a uma unidade diferente em cada execução e a bateria nunca dava o
 -- mesmo resultado duas vezes.
 INSERT INTO public.unidades (id, condominio_id, bloco, numero, fracao_ideal, taxa_mensal)
-SELECT ('dddddddd-0000-0000-0000-00000000' || n)::uuid,
+SELECT ('dddddddd-0000-0000-0000-' || lpad(n::text, 12, '0'))::uuid,
        'aaaaaaaa-0000-0000-0000-000000000001','A', n::text, 25, 400
   FROM generate_series(101,104) n;
 

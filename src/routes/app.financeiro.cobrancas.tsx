@@ -15,7 +15,8 @@ import { brl, dateBR, competenciaBR } from "@/lib/format";
 import { Modal, Field, EmptyState, StatusBadge, safeCall } from "@/components/financeiro/ui";
 import { emitChanged } from "@/lib/safe-call";
 import { toast } from "sonner";
-import { FileText, Plus, Loader2, X, CheckCircle2, MessageCircle } from "lucide-react";
+import { FileText, Plus, Loader2, X, CheckCircle2, MessageCircle, QrCode } from "lucide-react";
+import { QrPix } from "@/components/pix/QrPix";
 
 export const Route = createFileRoute("/app/financeiro/cobrancas")({
   head: () => ({ meta: [{ title: "Cobranças — Financeiro" }] }),
@@ -28,6 +29,10 @@ function CobrancasPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("todos");
   const [showLote, setShowLote] = useState(false);
+  // Só o `id` é preciso: o resto dos dados do Pix vem da função do banco,
+  // que é quem sabe quanto se deve hoje. Daí não usar `any` como o modal ao
+  // lado — quanto menos esta linha souber, menos há para divergir.
+  const [showPix, setShowPix] = useState<{ id: string } | null>(null);
   const [showPagar, setShowPagar] = useState<any>(null);
 
   const reload = () => {
@@ -142,6 +147,13 @@ function CobrancasPage() {
                         {podeGerir && r.status !== "paga" && r.status !== "cancelada" && (
                           <>
                             <button
+                              onClick={() => setShowPix(r)}
+                              className="p-2 rounded hover:bg-muted text-primary"
+                              title="Mostrar Pix para pagamento"
+                            >
+                              <QrCode size={16} />
+                            </button>
+                            <button
                               onClick={() => lembrar(r.id)}
                               className="p-2 rounded hover:bg-muted text-emerald-700"
                               title="Enviar lembrete WhatsApp"
@@ -192,6 +204,13 @@ function CobrancasPage() {
             reload();
           }}
         />
+      )}
+      {showPix && (
+        <Modal title="Pix para pagamento" onClose={() => setShowPix(null)}>
+          <div className="p-5">
+            <QrPix cobrancaId={showPix.id} telefoneMorador={null} />
+          </div>
+        </Modal>
       )}
       {showPagar && (
         <ModalRegistrarPagamento

@@ -1056,6 +1056,7 @@ export type Database = {
           multa: number;
           pago_em: string | null;
           parcela_num: number | null;
+          pix_txid: string | null;
           status: Database["public"]["Enums"]["cobranca_status"];
           unidade_id: string;
           updated_at: string;
@@ -1081,6 +1082,7 @@ export type Database = {
           multa?: number;
           pago_em?: string | null;
           parcela_num?: number | null;
+          pix_txid?: string | null;
           status?: Database["public"]["Enums"]["cobranca_status"];
           unidade_id: string;
           updated_at?: string;
@@ -1106,6 +1108,7 @@ export type Database = {
           multa?: number;
           pago_em?: string | null;
           parcela_num?: number | null;
+          pix_txid?: string | null;
           status?: Database["public"]["Enums"]["cobranca_status"];
           unidade_id?: string;
           updated_at?: string;
@@ -1149,6 +1152,8 @@ export type Database = {
           assinatura_fim: string | null;
           assinatura_inicio: string | null;
           cep: string | null;
+          chave_pix: string | null;
+          chave_pix_tipo: Database["public"]["Enums"]["chave_pix_tipo"] | null;
           cidade: string | null;
           cnpj: string | null;
           codigo_publico: string;
@@ -1171,6 +1176,8 @@ export type Database = {
           assinatura_fim?: string | null;
           assinatura_inicio?: string | null;
           cep?: string | null;
+          chave_pix?: string | null;
+          chave_pix_tipo?: Database["public"]["Enums"]["chave_pix_tipo"] | null;
           cidade?: string | null;
           cnpj?: string | null;
           codigo_publico: string;
@@ -1193,6 +1200,8 @@ export type Database = {
           assinatura_fim?: string | null;
           assinatura_inicio?: string | null;
           cep?: string | null;
+          chave_pix?: string | null;
+          chave_pix_tipo?: Database["public"]["Enums"]["chave_pix_tipo"] | null;
           cidade?: string | null;
           cnpj?: string | null;
           codigo_publico?: string;
@@ -3324,10 +3333,7 @@ export type Database = {
         Args: { _condominio_id: string; _fim: string; _inicio: string };
         Returns: Json;
       };
-      conferir_certidao: {
-        Args: { _codigo: string };
-        Returns: Json;
-      };
+      conferir_certidao: { Args: { _codigo: string }; Returns: Json };
       contar_usuarios_empresa: {
         Args: { _condominio_id: string };
         Returns: number;
@@ -3413,15 +3419,9 @@ export type Database = {
         Args: { message_id: number; queue_name: string };
         Returns: boolean;
       };
+      desativar_conta: { Args: { _categoria_id: string }; Returns: undefined };
       disparar_lembretes_cobranca: { Args: never; Returns: undefined };
-      desativar_conta: {
-        Args: { _categoria_id: string };
-        Returns: undefined;
-      };
-      divida_da_unidade: {
-        Args: { _unidade_id: string };
-        Returns: Json;
-      };
+      divida_da_unidade: { Args: { _unidade_id: string }; Returns: Json };
       elegibilidade_assembleia: {
         Args: { _assembleia_id: string };
         Returns: {
@@ -3486,10 +3486,7 @@ export type Database = {
         };
         Returns: boolean;
       };
-      indices_para_orcamento: {
-        Args: { _ate?: string };
-        Returns: Json;
-      };
+      indices_para_orcamento: { Args: { _ate?: string }; Returns: Json };
       is_admin: {
         Args: { _condominio_id: string; _user_id: string };
         Returns: boolean;
@@ -3523,19 +3520,23 @@ export type Database = {
         Returns: number;
       };
       listar_anexos: {
-        Args: { _condominio_id: string; _entidade: string; _entidade_id: string };
+        Args: {
+          _condominio_id: string;
+          _entidade: string;
+          _entidade_id: string;
+        };
         Returns: {
           created_at: string;
-          documento_data: string | null;
-          documento_numero: string | null;
+          documento_data: string;
+          documento_numero: string;
           id: string;
-          mime_type: string | null;
+          mime_type: string;
           nome_arquivo: string;
-          observacao: string | null;
+          observacao: string;
           storage_path: string;
-          tamanho_bytes: number | null;
+          tamanho_bytes: number;
           tipo: Database["public"]["Enums"]["anexo_tipo"];
-          valor: number | null;
+          valor: number;
         }[];
       };
       marcar_encomenda_retirada: {
@@ -3558,24 +3559,39 @@ export type Database = {
       pendencias_documentais: {
         Args: { _condominio_id: string; _fim: string; _inicio: string };
         Returns: {
-          conta_codigo: string | null;
-          conta_nome: string | null;
+          conta_codigo: string;
+          conta_nome: string;
           data: string;
           descricao: string;
           despesa_id: string;
-          fornecedor: string | null;
+          fornecedor: string;
           tem_comprovante: boolean;
           tem_fiscal: boolean;
           valor: number;
+        }[];
+      };
+      pix_da_cobranca: {
+        Args: { _cobranca_id: string };
+        Returns: {
+          centavos: number;
+          chave: string;
+          chave_tipo: Database["public"]["Enums"]["chave_pix_tipo"];
+          cidade: string;
+          descricao: string;
+          juros: number;
+          multa: number;
+          principal: number;
+          recebedor: string;
+          txid: string;
         }[];
       };
       plano_de_contas: {
         Args: { _condominio_id: string; _incluir_inativas?: boolean };
         Returns: {
           ativo: boolean;
-          codigo: string | null;
-          conta_pai_id: string | null;
-          cor: string | null;
+          codigo: string;
+          conta_pai_id: string;
+          cor: string;
           em_uso: boolean;
           fundo_reserva: boolean;
           id: string;
@@ -3589,12 +3605,10 @@ export type Database = {
         Args: { _condominio_id: string; _user_id: string };
         Returns: boolean;
       };
-      processar_fila_email: { Args: never; Returns: undefined };
-      processar_fila_whatsapp: { Args: never; Returns: undefined };
       prestacao_por_conta: {
         Args: { _condominio_id: string; _fim: string; _inicio: string };
         Returns: {
-          codigo: string | null;
+          codigo: string;
           conta_id: string;
           documentados: number;
           lancamentos: number;
@@ -3605,6 +3619,8 @@ export type Database = {
           valor: number;
         }[];
       };
+      processar_fila_email: { Args: never; Returns: undefined };
+      processar_fila_whatsapp: { Args: never; Returns: undefined };
       proprietarios_da_unidade: {
         Args: { _unidade_id: string };
         Returns: {
@@ -3703,10 +3719,7 @@ export type Database = {
         Args: { _visitante_id: string };
         Returns: undefined;
       };
-      registrar_indices: {
-        Args: { _dados: Json };
-        Returns: number;
-      };
+      registrar_indices: { Args: { _dados: Json }; Returns: number };
       registrar_pagamento_manual: {
         Args: {
           _cobranca_id: string;
@@ -3744,10 +3757,7 @@ export type Database = {
         };
         Returns: undefined;
       };
-      reincidencia_da_unidade: {
-        Args: { _unidade_id: string };
-        Returns: Json;
-      };
+      reincidencia_da_unidade: { Args: { _unidade_id: string }; Returns: Json };
       relatorio_inadimplencia: {
         Args: { _condominio_id: string };
         Returns: {
@@ -3763,23 +3773,14 @@ export type Database = {
           vencimento_mais_antigo: string;
         }[];
       };
+      remover_anexo: { Args: { _anexo_id: string }; Returns: string };
       remover_pauta: { Args: { _pauta_id: string }; Returns: undefined };
-      remover_anexo: {
-        Args: { _anexo_id: string };
-        Returns: string;
-      };
       rescindir_acordo: {
         Args: { _acordo_id: string; _motivo?: string };
         Returns: string;
       };
-      resumo_orcamento: {
-        Args: { _orcamento_id: string };
-        Returns: Json;
-      };
-      semear_plano_contas: {
-        Args: { _condominio_id: string };
-        Returns: Json;
-      };
+      resumo_orcamento: { Args: { _orcamento_id: string }; Returns: Json };
+      semear_plano_contas: { Args: { _condominio_id: string }; Returns: Json };
       simular_acordo: {
         Args: {
           _cobranca_ids: string[];
@@ -3834,6 +3835,7 @@ export type Database = {
       assembleia_tipo: "ordinaria" | "extraordinaria";
       balancete_status: "rascunho" | "publicado";
       certidao_tipo: "nada_consta";
+      chave_pix_tipo: "cpf" | "cnpj" | "email" | "telefone" | "aleatoria";
       cnab_banco: "sicoob" | "itau" | "bradesco" | "bb" | "caixa" | "santander" | "generico";
       cnab_evento_tipo: "liquidacao" | "baixa" | "rejeicao" | "protesto" | "outros";
       cnab_remessa_status: "gerada" | "enviada" | "processada" | "erro";
@@ -4013,6 +4015,15 @@ export const Constants = {
   public: {
     Enums: {
       acordo_status: ["ativo", "quitado", "rescindido", "cancelado"],
+      anexo_tipo: [
+        "nota_fiscal",
+        "recibo",
+        "comprovante_pagamento",
+        "boleto",
+        "contrato",
+        "extrato_bancario",
+        "outro",
+      ],
       app_role: [
         "sindico",
         "morador",
@@ -4029,6 +4040,8 @@ export const Constants = {
       assembleia_status: ["rascunho", "convocada", "em_curso", "encerrada", "cancelada"],
       assembleia_tipo: ["ordinaria", "extraordinaria"],
       balancete_status: ["rascunho", "publicado"],
+      certidao_tipo: ["nada_consta"],
+      chave_pix_tipo: ["cpf", "cnpj", "email", "telefone", "aleatoria"],
       cnab_banco: ["sicoob", "itau", "bradesco", "bb", "caixa", "santander", "generico"],
       cnab_evento_tipo: ["liquidacao", "baixa", "rejeicao", "protesto", "outros"],
       cnab_remessa_status: ["gerada", "enviada", "processada", "erro"],
@@ -4046,6 +4059,10 @@ export const Constants = {
       ],
       encomenda_status: ["aguardando", "retirada", "devolvida"],
       forma_pagamento: ["pix", "boleto", "dinheiro", "transferencia", "cartao", "outro"],
+      indice_reajuste: ["ipca", "inpc", "igpm", "incc", "cct", "tarifa", "manual", "nenhum"],
+      infracao_base: ["convencao", "art_1336_p2", "art_1337_caput", "art_1337_unico"],
+      infracao_status: ["vigente", "cancelada"],
+      infracao_tipo: ["advertencia", "multa"],
       maioria_tipo: [
         "maioria_presentes",
         "maioria_condominos",
@@ -4071,6 +4088,7 @@ export const Constants = {
         "fechada",
         "cancelada",
       ],
+      orcamento_status: ["rascunho", "aprovado"],
       plano_tipo: ["basico", "profissional", "admin", "enterprise"],
       reserva_status: ["pendente", "confirmada", "recusada", "cancelada", "concluida"],
       tipo_lancamento: ["receita", "despesa"],

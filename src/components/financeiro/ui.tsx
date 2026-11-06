@@ -216,21 +216,32 @@ export function FinanceiroSubNav({ podeGerir, isAdmin }: { podeGerir: boolean; i
     (i) => !i.oculto && (i.apenasAdmin ? isAdmin : !i.restrito || podeGerir),
   );
   return (
-    <div className="border-b border-border mb-6 -mx-2 overflow-x-auto">
-      <div className="flex gap-1 px-2 min-w-max">
+    // Quebra de linha em vez de barra de deslocação. Com doze abas, o
+    // `min-w-max` + `overflow-x-auto` que aqui estava empurrava metade do menu
+    // para fora do ecrã sem nada a indicá-lo: quem não arrastasse de lado nem
+    // sabia que havia mais. Ver duas linhas é melhor do que adivinhar uma.
+    <div className="border-b border-border mb-6 -mx-2">
+      <div className="flex flex-wrap gap-x-1 px-2">
         {items.map((it) => {
           const active = it.to === "/app/financeiro" ? path === it.to : path.startsWith(it.to);
           return (
             <Link
               key={it.to}
               to={it.to}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
+              className={`flex items-center gap-0 sm:gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
                 active
                   ? "border-primary text-primary"
                   : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
-              <it.icon size={16} /> {it.label}
+              {/* O ícone some no telemóvel. Medido: com ele o menu ocupa 323px
+                  de altura num ecrã de 390px, sem ele 231px — duas linhas a
+                  menos. No computador não muda nada, a altura é 93px nos dois
+                  casos, por isso só se perde onde não custa. */}
+              <span className="hidden sm:flex">
+                <it.icon size={16} />
+              </span>
+              {it.label}
             </Link>
           );
         })}
